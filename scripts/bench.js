@@ -125,8 +125,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const md = markdown(result, models, label);
   console.log('\n' + md + '\n');
   if (!mock) {
-    fs.writeFileSync(new URL('./bench-results.json', import.meta.url), JSON.stringify({ label, models: specs, at: new Date().toISOString(), card: card(result.summary, models), system: SYSTEM, ...result }, null, 1));
-    fs.writeFileSync(new URL('../RESULTS.md', import.meta.url), md + '\n');
+    fs.writeFileSync(new URL(`./bench-results${process.env.BENCH_TAG ? '-' + process.env.BENCH_TAG : ''}.json`, import.meta.url), JSON.stringify({ label, models: specs, at: new Date().toISOString(), card: card(result.summary, models), system: SYSTEM, ...result }, null, 1));
+    fs.writeFileSync(new URL(`../RESULTS${process.env.BENCH_TAG ? '-' + process.env.BENCH_TAG : ''}.md`, import.meta.url), md + '\n');
     console.log('Wrote RESULTS.md and scripts/bench-results.json');
   }
 }

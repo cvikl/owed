@@ -4,3 +4,6 @@ data/attempts.jsonl
 data/model-calls.jsonl
 data/pool.json
 scripts/door1-results*.json
+.impeccable/
+PRODUCT.md
+DESIGN.md

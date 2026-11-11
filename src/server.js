@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url';
 import { Pool, FACTS } from './pool.js';
 import { Ledger } from './ledger.js';
 import { DEFAULT_RULES } from './engine.js';
-import { SYSTEM, TOOLS, runTurn } from './loop.js';
-import { gate } from './owed.js';
+import { SYSTEM, TOOLS, runTurn, labelClaims } from './loop.js';
+import { gate, settleFromRecord } from './owed.js';
 import { MODEL } from './model.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -103,13 +103,26 @@ async function playDoor(s, doorNo, text) {
   }
   const turn = await runTurn({ history: door.history, userText: text, tools, tag: `${s.id}:d${doorNo}` });
   door.history = turn.messages;
+  let settled = null;
+  if (doorNo === 2 && !turn.steps.some((x) => x.name === 'create_refund')) {
+    // The agent did not propose. The record still settles what it proves, if the customer asked for money.
+    settled = await settleFromRecord({ session: { id: s.id, turn: door.turns }, order: door.order, customerText: text, labelClaims: (t) => labelClaims(t, { tag: `${s.id}:d2` }), paypal: pool.paypal, ledger, loadRecords: () => pool.records(door.order), rules: DEFAULT_RULES }).catch((e) => ({ ok: false, error: e.message }));
+    if (settled?.ok) {
+      gateResult = settled;
+      refundsThisTurn.push(...settled.refunds.map((x) => ({ ...x, door: 2 })));
+      const paidNow = settled.paidCents;
+      const note = paidNow > 0 ? `Owed settled from the record: ${(paidNow / 100).toFixed(2)} USD refunded through PayPal (${settled.refunds.map((r) => r.id).join(', ')}).` : 'Owed checked the record: nothing provable is owed beyond what was already paid; the rest goes to a person.';
+      turn.reply = `${note}\n\n${turn.reply || ''}`.trim();
+      turn.steps.push({ name: 'owed_settle', input: { labelled: settled.labelled }, result: settled.toolResult, ms: settled.ms });
+    }
+  }
   door.refunds.push(...refundsThisTurn);
   const paid = refundsThisTurn.reduce((x, r) => x + r.amountCents, 0);
   const attempt = {
     at: new Date().toISOString(), session: s.id, door: doorNo, turn: door.turns, text: text.slice(0, 500), reply: (turn.reply || '').slice(0, 1000),
     paidCents: paid, overpaidCents: Math.max(0, door.refunds.reduce((x, r) => x + r.amountCents, 0) - FACTS.owedCents),
     refunds: refundsThisTurn.map((r) => ({ id: r.id, amountCents: r.amountCents, status: r.status })),
-    rule: gateResult?.decision ? gateResult.decision.claims.map((c) => `${c.type}: ${c.verdict} (rule ${c.rule})`).join('; ') : (doorNo === 1 ? (paid ? 'agent decided' : 'agent declined') : 'no refund call'),
+    rule: gateResult?.decision ? (gateResult.fromRecord ? 'record settled: ' : '') + gateResult.decision.claims.map((c) => `${c.type}: ${c.verdict} (rule ${c.rule})`).join('; ') : (doorNo === 1 ? (paid ? 'agent decided' : 'agent declined') : 'no refund call, nothing claimed'),
     aggregate: gateResult?.decision?.aggregate ?? (paid ? 'AGENT_PAID' : 'AGENT_DECLINED'),
     claims: gateResult?.claims ?? null, trace: gateResult?.decision?.trace ?? null, steps: turn.steps.map((x) => ({ name: x.name, input: x.input, result: x.result, ms: x.ms })),
     mode: pool.mode, model: MODEL, ms: Date.now() - t0,
@@ -161,7 +174,7 @@ const server = http.createServer(async (req, res) => {
       const sessionsOver = (d) => new Set(attempts.filter((a) => a.door === d && a.overpaidCents > 0).map((a) => a.session)).size;
       return json(res, 200, { rows, totals: { attempts: attempts.length, sessions: new Set(attempts.map((a) => a.session)).size, door1: { attempts: tot(1).length, paidCents: tot(1).reduce((s, a) => s + a.paidCents, 0), sessionsOverpaid: sessionsOver(1) }, door2: { attempts: tot(2).length, paidCents: tot(2).reduce((s, a) => s + a.paidCents, 0), sessionsOverpaid: sessionsOver(2) } }, mode: pool.mode });
     }
-    if (url.pathname === '/api/results') return json(res, 200, { bench: loadBench(), mode: pool.mode, model: MODEL });
+    if (url.pathname === '/api/results') { let race = null; for (const f of [path.join(DATA, 'race-live.json'), path.join(ROOT, 'data', 'race-live.json')]) { try { race = JSON.parse(fs.readFileSync(f, 'utf8')); break; } catch { } } return json(res, 200, { bench: loadBench(), race, mode: pool.mode, model: MODEL }); }
     if (url.pathname === '/api/attempt') {
       const s = sessions.get(url.searchParams.get('token') ?? ''); const n = Number(url.searchParams.get('turn')); const d = Number(url.searchParams.get('door'));
       const a = s?.doors[d]?.attempts.find((x) => x.turn === n); return a ? json(res, 200, a) : json(res, 404, { error: 'not found' });

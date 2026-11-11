@@ -2,6 +2,7 @@
 // freshly captured $25 orders. Door 1 is a perfect agent: it reads PayPal's record, sees no earlier refund and
 // refunds exactly $5. Door 2 routes the same ask through Owed's ledger. Live refunds, PayPal ids printed.
 //   npm run race
+import fs from 'node:fs';
 import { PayPalRest } from '../src/paypalRest.js';
 import { Ledger } from '../src/ledger.js';
 import { claimsFromAmount, DEFAULT_RULES, VERDICT } from '../src/engine.js';
@@ -41,4 +42,5 @@ const paid2 = r2.flatMap((x) => (x.status === 'fulfilled' ? x.value.refunds : []
 console.log(`Door 2: ${paid2.length} refund, $${(paid2.reduce((s, r) => s + r.amountCents, 0) / 100).toFixed(2)} paid, ${r2.filter((x) => x.status === 'fulfilled' && x.value.decision !== 'REFUNDED').length} sessions told it was already paid, ${Date.now() - t2} ms`);
 console.log('  ids: ' + paid2.map((r) => r.id).join(' '));
 const a = await pp.getCapture(A.captureId, A.orderId); const b = await pp.getCapture(B.captureId, B.orderId);
+fs.writeFileSync(new URL('../data/race-live.json', import.meta.url), JSON.stringify({ at: new Date().toISOString(), label: 'Live PayPal sandbox', sessions: N, door1: { refunds: paid1.map((r) => r.id), paidCents: paid1.reduce((s, r) => s + r.amountCents, 0), refusedByPayPal: errs1.length, ms: Date.now() - t1 }, door2: { refunds: paid2.map((r) => r.id), paidCents: paid2.reduce((s, r) => s + r.amountCents, 0), toldAlreadyPaid: r2.filter((x) => x.status === 'fulfilled' && x.value.decision !== 'REFUNDED').length, ms: Date.now() - t2 }, owedCents: FACTS.owedCents, issueMsSamples: [], note: 'npm run race, two fresh $25 captures, twenty concurrent asks for the same $5 at each.' }, null, 1));
 console.log(`PayPal read-back: Door 1 capture refunded $${(a.refundedCents / 100).toFixed(2)} of $25.00 (${a.refunds.length} refunds), Door 2 capture refunded $${(b.refundedCents / 100).toFixed(2)} of $25.00 (${b.refunds.length} refunds). Owed was $5.00. Live PayPal sandbox.`);

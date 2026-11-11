@@ -42,8 +42,8 @@ button{font:inherit}
 .mark{width:clamp(40px,4.4vw,46px);height:clamp(40px,4.4vw,46px);border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:var(--nav-shadow);border:0;padding:0;cursor:pointer;transition:transform .25s}
 .mark:hover{transform:scale(1.04)}
 .mark img{width:72%;height:72%;object-fit:contain}
-.navpill{display:flex;align-items:center;gap:2px;flex:1;max-width:460px;height:clamp(44px,5.2vw,48px);padding:4px 8px;border-radius:999px;background:#fff;box-shadow:var(--nav-shadow)}
-.navpill a{flex:1;text-align:center;text-decoration:none;color:#2e2e2e;font-weight:500;font-size:clamp(13px,1.4vw,15px);letter-spacing:-.01em;opacity:.55;position:relative;padding:8px 4px;border-radius:999px;transition:opacity .2s}
+.navpill{display:flex;align-items:center;gap:2px;flex:1;max-width:520px;height:clamp(44px,5.2vw,48px);padding:4px 8px;border-radius:999px;background:#fff;box-shadow:var(--nav-shadow)}
+.navpill a{flex:1;text-align:center;text-decoration:none;color:#2e2e2e;font-weight:500;font-size:clamp(13px,1.3vw,14.5px);letter-spacing:-.01em;opacity:.55;position:relative;padding:8px 6px;border-radius:999px;transition:opacity .2s;white-space:nowrap}
 .navpill a:hover{opacity:.8}
 .navpill a.active{opacity:1}
 .navpill a.active::after{content:"";position:absolute;left:50%;bottom:3px;width:3px;height:3px;background:#111;border-radius:50%;box-shadow:-5px 0 0 #111,5px 0 0 #111;transform:translateX(-50%)}
@@ -58,6 +58,7 @@ button{font:inherit}
 .trust .ring:nth-child(1){z-index:1}.trust .ring:nth-child(2){z-index:2}.trust .ring:nth-child(3){z-index:4}
 .trust .ring span{width:100%;height:100%;border-radius:50%;background:#fff;display:grid;place-items:center}
 .trust .ring svg{width:46%;height:46%;stroke:#111;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.trust .ring.coin svg{stroke:#b8901f}
 .trust:hover .ring:nth-child(1){transform:translateY(-2px)}.trust:hover .ring:nth-child(2){transform:translateY(-4px)}.trust:hover .ring:nth-child(3){transform:translateY(-2px)}
 .trust .pill{height:var(--ts);margin-left:calc(var(--ts) * -.42);padding:8px 16px 8px calc(var(--ts) * .58);border-radius:999px;background:#1a1f1c;border:1px solid rgba(255,255,255,.38);display:inline-flex;align-items:center;gap:8px;color:#c4c9c6;font-weight:500;font-size:clamp(12px,1.4vw,13.5px);white-space:nowrap}
 .trust .dot{width:7px;height:7px;border-radius:50%;background:var(--green);position:relative}
@@ -125,7 +126,7 @@ textarea::placeholder{color:#7a857f}
 .ids a:hover{border-bottom-color:var(--green-ink)}
 details{margin-top:10px;font-size:13px}summary{cursor:pointer;color:var(--muted);list-style:none;display:flex;align-items:center;gap:8px}
 summary::-webkit-details-marker{display:none}
-summary::before{content:"";width:6px;height:6px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg);transition:transform .2s;margin-left:2px}
+summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);border-radius:1px;transform:rotate(-45deg);transition:transform .2s;margin-left:2px}
 details[open] summary::before{transform:rotate(45deg)}
 pre{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;overflow:auto;background:#000;border:1px solid var(--seam);padding:12px;border-radius:8px;max-height:300px;color:var(--ink-2);margin:8px 0 0}
 .totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;margin:0 0 16px;border:1px solid var(--seam);border-radius:12px;overflow:hidden}
@@ -139,9 +140,12 @@ table.res td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--seam
 table.res td.n{font-weight:600}
 .card{font-size:clamp(17px,1.9vw,22px);line-height:1.45;color:#fff;max-width:68ch;margin:0 0 18px;padding:18px 20px;border-left:1px solid var(--green);background:linear-gradient(90deg,rgba(91,195,154,.08),rgba(0,0,0,0));border-radius:0 12px 12px 0;text-wrap:pretty}
 .note{font-size:13px;color:var(--muted);text-wrap:pretty}
+.card.race{border-left-color:var(--amber);background:linear-gradient(90deg,rgba(232,194,90,.08),rgba(0,0,0,0))}
+.card .src{display:block;font-size:13px;color:var(--muted);margin-top:8px}
 ol.rules{margin:0;padding:0;list-style:none;counter-reset:r;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border:1px solid var(--seam);border-radius:12px;overflow:hidden}
 ol.rules li{counter-increment:r;padding:14px 16px 14px 56px;position:relative;background:var(--panel);border-bottom:1px solid var(--seam);border-right:1px solid var(--seam);font-size:14px;color:var(--ink-2)}
 ol.rules li::before{content:counter(r);position:absolute;left:16px;top:12px;font-family:var(--display);font-weight:900;font-size:22px;color:var(--green-ink)}
+ol.rules li:last-child::before{color:var(--amber-ink)}
 ol.rules li b{color:#fff;font-weight:600}
 .prompt{white-space:pre-wrap;font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:8px}
 footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--seam);font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
@@ -179,7 +183,7 @@ footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--seam);font-si
   <div class="topbar">
     <button class="mark" aria-label="Owed, back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><img src="owed_mark.svg" alt="" width="52" height="52"></button>
     <nav class="navpill" aria-label="Sections">
-      <a href="#top" class="active">Owed</a><a href="#arena">Arena</a><a href="#measured">Measured</a><a href="#how">How it decides</a>
+      <a href="#arena" class="active">Arena</a><a href="#measured">Measured</a><a href="#how">How it decides</a><a href="#board">Board</a>
     </nav>
     <a class="repo" href="https://github.com/cvikl/owed" rel="noopener">Repository</a>
     <button class="burger" aria-label="Menu" aria-expanded="false" aria-controls="sheet"><i></i><i></i><i></i></button>
@@ -189,7 +193,7 @@ footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--seam);font-si
   <div class="centre">
     <div class="trust anim" style="--d:.05s">
       <div class="ring"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span></div>
-      <div class="ring"><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9.5 10.5c0-1.2 1.1-2 2.5-2s2.5.8 2.5 2-1.1 1.5-2.5 1.5-2.5.3-2.5 1.5 1.1 2 2.5 2 2.5-.8 2.5-2M12 7v1.5M12 15.5V17"/></svg></span></div>
+      <div class="ring coin"><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9.5 10.5c0-1.2 1.1-2 2.5-2s2.5.8 2.5 2-1.1 1.5-2.5 1.5-2.5.3-2.5 1.5 1.1 2 2.5 2 2.5-.8 2.5-2M12 7v1.5M12 15.5V17"/></svg></span></div>
       <div class="ring"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L5 21V3zM9 8h6M9 12h6M9 16h4"/></svg></span></div>
       <div class="pill" id="mode"><span class="dot"></span><span id="mode-text">Connecting</span></div>
     </div>
@@ -272,6 +276,7 @@ footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--seam);font-si
   <h2>Measured</h2>
   <p class="lead">The same prompt, tools and messages at both doors. Only the routing of the refund call differs. The benchmark is one command in the repository.</p>
   <p class="card" id="card">Benchmark not loaded yet.</p>
+  <p class="card race" id="race" hidden></p>
   <table class="res" id="results"><thead><tr><th>Model</th><th>Door</th><th>Attacks overpaid</th><th>Paid beyond owed</th><th>Honest paid in full</th><th>Median time</th></tr></thead><tbody></tbody></table>
   <p class="note" id="results-note"></p>
 </section>
@@ -329,12 +334,15 @@ const ground = (() => {
     raf = reduced || hidden ? 0 : requestAnimationFrame(draw);
     if (now - last < 50 && !reduced) return; last = now;
     ctx.clearRect(0, 0, W, H);
+    const ex = exclusion();
     for (const cell of cells) {
       cell.t += .5;
       if (Math.random() < .0015) cell.ch = CH[(Math.random() * CH.length) | 0];
+      const x = cell.k * cw + cw / 2, y = cell.r * chh + chh / 2;
+      const inside = ex && x > ex.left && x < ex.right && y > ex.top && y < ex.bottom;
       const breathe = .03 + .025 * Math.sin(cell.t * .02 + cell.k * .3 + cell.r * .17);
-      ctx.fillStyle = `rgba(91,195,154,${(breathe + cell.a).toFixed(3)})`;
-      ctx.fillText(cell.ch, cell.k * cw + cw / 2, cell.r * chh + chh / 2);
+      ctx.fillStyle = `rgba(91,195,154,${((inside ? .018 : breathe + cell.a)).toFixed(3)})`;
+      ctx.fillText(cell.ch, x, y);
     }
     for (let i = flares.length - 1; i >= 0; i--) {
       const f = flares[i]; f.life -= .035; if (f.life <= 0) { flares.splice(i, 1); continue; }
@@ -345,7 +353,9 @@ const ground = (() => {
       ctx.shadowBlur = 0;
     }
   }
-  function flareAt(text, x, y) { flares.push({ text, x, y, life: 1.6 }); if (!raf && !hidden) raf = requestAnimationFrame(draw); }
+  // the words and the stats sit on clean black: cells inside this box stay almost off and flares never land in it
+  function exclusion() { const c1 = document.querySelector('.centre'), c2 = document.querySelector('.stats'); if (!c1 || scrollY > innerHeight) return null; const a = c1.getBoundingClientRect(), b = c2 ? c2.getBoundingClientRect() : a; return { left: Math.min(a.left, b.left) - cw, right: Math.max(a.right, b.right) + cw, top: a.top - chh, bottom: b.bottom + chh }; }
+  function flareAt(text, x, y) { const ex = exclusion(); if (ex && x > ex.left - cw * 3 && x < ex.right + cw * 3 && y > ex.top && y < ex.bottom) return; flares.push({ text, x, y, life: 1.6 }); if (!raf && !hidden) raf = requestAnimationFrame(draw); }
   function wake() { if (!raf && !reduced) raf = requestAnimationFrame(draw); }
   addEventListener('resize', () => { size(); if (reduced) draw(0); });
   document.addEventListener('visibilitychange', () => { hidden = document.hidden; if (!hidden) wake(); });
@@ -357,7 +367,7 @@ const ground = (() => {
     const band = W > 900 ? W * .16 : W * .3, x = Math.random() < .5 ? cw * 3 + Math.random() * band : W - cw * 3 - Math.random() * band;
     flareAt(['5.00', '20.00', '0.00', '5.00'][(Math.random() * 4) | 0], x, chh * 2 + Math.random() * (H - chh * 4));
   }, 2600);
-  return { flare: (text) => { const r = $('d2').getBoundingClientRect(); flareAt(text, r.left + r.width / 2, r.top + r.height / 2); }, wake };
+  return { flare: (text) => { const r = $('d2').getBoundingClientRect(); flares.push({ text, x: r.left + r.width / 2, y: r.top + r.height / 2, life: 1.6 }); wake(); }, wake };
 })();
 
 /* counting numbers and typed ids */
@@ -475,16 +485,26 @@ async function loadBoard() {
       overlayNoRowsTemplate: '<span style="color:#8d9791">No attempts yet. Yours could be the first.</span>',
     });
   } else grid.setGridOption('rowData', rows);
-  const refunds = b.rows.reduce((s, r) => s + (r.refunds ? r.refunds.split(' ').filter(Boolean).length : 0), 0);
-  const times = b.rows.filter((r) => r.paidCents > 0).map((r) => r.ms).sort((x, y) => x - y);
-  const median = times.length ? times[Math.floor(times.length / 2)] / 1000 : 0;
-  countTo($('s-refunds'), refunds, { dec: 0 });
-  countTo($('s-seconds'), median, { dec: 1, suffix: ' s' });
-  countTo($('s-over'), b.rows.filter((r) => r.door === 2).reduce((s, r) => s + r.overpaidCents, 0) / 100, { dec: 2, prefix: '$' });
+  boardStats = { refunds: b.rows.reduce((s, r) => s + (r.refunds ? r.refunds.split(' ').filter(Boolean).length : 0), 0), times: b.rows.filter((r) => r.paidCents > 0).map((r) => r.ms).sort((x, y) => x - y), overCents: b.rows.filter((r) => r.door === 2).reduce((s, r) => s + r.overpaidCents, 0) };
+  paintStats();
 }
 
+let boardStats = null, raceData = null;
+function paintStats() {
+  const b = boardStats || { refunds: 0, times: [], overCents: 0 }, race = raceData;
+  const recorded = race ? race.door1.refunds.length + race.door2.refunds.length : 0;
+  countTo($('s-refunds'), b.refunds + recorded, { dec: 0 });
+  document.querySelector('#s-refunds + .l').textContent = b.refunds ? 'live sandbox refunds, arena and race test' : 'live sandbox refunds on record (race test)';
+  const times = b.times.length ? b.times : (race?.issueMsSamples ?? []);
+  const median = times.length ? [...times].sort((x, y) => x - y)[Math.floor(times.length / 2)] / 1000 : 0;
+  countTo($('s-seconds'), median, { dec: 1, suffix: ' s' });
+  document.querySelector('#s-seconds + .l').textContent = b.times.length ? 'median, your message to PayPal\'s refund' : 'median, PayPal refund issued, live sandbox tests';
+  countTo($('s-over'), b.overCents / 100, { dec: 2, prefix: '$' });
+}
 async function loadResults() {
   const r = await api('/api/results');
+  raceData = r.race || null; paintStats();
+  if (raceData) { const d1 = raceData.door1, d2 = raceData.door2; $('race').hidden = false; $('race').innerHTML = `Twenty sessions asked for the same $5 at the same moment, on two fresh sandbox captures. The agent alone paid ${d1.refunds.length} times, ${money(d1.paidCents)}, with PayPal refusing ${d1.refusedByPayPal} as a previous request in progress. Behind Owed, one refund of ${money(d2.paidCents)}, and ${d2.toldAlreadyPaid} sessions were told it had already been paid.<span class="src">${raceData.label}, ${new Date(raceData.at).toLocaleDateString()}. Refund ids ${[...d1.refunds, ...d2.refunds].join(', ')}. One command in the repository: npm run race.</span>`; }
   const tb = $('results').querySelector('tbody'); tb.innerHTML = '';
   if (!r.bench) { $('card').textContent = 'No benchmark run loaded yet.'; return; }
   $('card').textContent = r.bench.card || '';
@@ -503,7 +523,7 @@ sheet.onclick = (e) => { if (e.target === sheet || e.target.tagName === 'A') clo
 addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
 addEventListener('resize', () => { if (innerWidth > 720) closeSheet(); });
 const io = new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.navpill a')) a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id); }, { rootMargin: '-40% 0px -55% 0px' });
-for (const id of ['top', 'arena', 'measured', 'how']) { const el = $(id); if (el) io.observe(el); }
+for (const id of ['arena', 'board', 'measured', 'how']) { const el = $(id); if (el) io.observe(el); }
 
 $('send').onclick = send;
 $('new').onclick = () => { session = null; resetDoors(); $('text').focus(); };

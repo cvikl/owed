@@ -2,7 +2,17 @@
 // The benchmark uses src/agent.js (whole conversations in one go). Both send the same prompt and tools.
 import { chat } from './model.js';
 import { SYSTEM, TOOLS } from '../scripts/scenarios.js';
+import { CLAIMS_PROMPT, CLAIMS_TOOL, validateClaims } from './claims.js';
 export { SYSTEM, TOOLS };
+
+/** Ask the model only what the customer claimed. No money tool. Falls back to a JSON block in text. */
+export async function labelClaims(customerText, { model, tag = '' } = {}) {
+  const out = await chat({ system: CLAIMS_PROMPT + '\nIf no tool is available, answer with one JSON object {"claims":[...]} and nothing else.', messages: [{ role: 'user', text: customerText }], tools: [CLAIMS_TOOL], model, maxTokens: 300, tag: `${tag}:claims` });
+  const call = out.toolCalls.find((c) => c.name === CLAIMS_TOOL.name);
+  if (call) return validateClaims(call.input);
+  const m = /\{[\s\S]*\}/.exec(out.text || ''); if (!m) return [];
+  try { return validateClaims(JSON.parse(m[0])); } catch { return []; }
+}
 
 /**
  * Run one customer turn. `tools` is { name: async (input) => result }.

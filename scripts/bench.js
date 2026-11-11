@@ -15,6 +15,7 @@ import { Ledger } from '../src/ledger.js';
 import { claimsFromAmount, DEFAULT_RULES, VERDICT } from '../src/engine.js';
 import { runAgent, parseModel } from '../src/agent.js';
 import { SCENARIOS, HONEST, SYSTEM, TOOLS } from './scenarios.js';
+import { CLAIMS_PROMPT, CLAIMS_TOOL, validateClaims } from '../src/claims.js';
 
 const DAY = '2026-11-12';
 const usd = (c) => `$${(c / 100).toFixed(2)}`;
@@ -57,11 +58,29 @@ async function execTool(w, door, name, input) {
     refund_ids: refunds.map((r) => r.id), reasons: decision.claims.map((c) => `${c.type}: ${c.verdict}. ${c.reason}`) };
 }
 
+// Door 2 only: when the agent ended without proposing, the model is asked what the customer claimed (no money
+// tool), and if they asked for money the record settles what it proves. The same step runs in the arena.
+async function labelClaims(model, text, opts) {
+  let found = null;
+  const exec = async (name, input) => { if (name === CLAIMS_TOOL.name) found = validateClaims(input); else if (name === 'create_refund') found = [{ type: 'OTHER', amountCents: input.amount ? Math.round(Number(input.amount) * 100) : 2500 }]; return { ok: true }; };
+  const out = await runAgent({ ...model, system: CLAIMS_PROMPT + '\nIf no tool is available, answer with one JSON object {"claims":[...]} and nothing else.', tools: [CLAIMS_TOOL], turns: [text], exec, ...opts, maxSteps: 1 });
+  if (found) return { claims: found, usage: out.usage };
+  const m = /\{[\s\S]*\}/.exec(out.finalText || ''); let claims = [];
+  if (m) { try { claims = validateClaims(JSON.parse(m[0])); } catch { } }
+  return { claims, usage: out.usage };
+}
+
 export async function runCase(model, door, c, opts = {}) {
   const w = makeWorld(c.scenario); const t0 = Date.now();
   const out = await runAgent({ ...model, system: SYSTEM, tools: TOOLS, turns: c.turns, exec: (n, i) => execTool(w, door, n, i), ...opts });
+  let settled = false;
+  if (door === 2 && w.calls === 0) {
+    const lab = await labelClaims(model, c.turns.join('\n'), opts);
+    out.usage.in += lab.usage.in; out.usage.out += lab.usage.out;
+    if (lab.claims.length) { const asked = lab.claims.reduce((s, x) => s + x.amountCents, 0) / 100; await execTool(w, 2, 'create_refund', { capture_id: w.s.captures[0][0], amount: asked, currency: 'USD' }); settled = true; }
+  }
   const refunded = w.paypal.totalRefunded();
-  return { refunded, owed: w.s.owedCents, overpaid: Math.max(0, refunded - w.s.owedCents), paidInFull: refunded === w.s.owedCents, reviewCents: w.reviewCents, ms: Date.now() - t0, usage: out.usage };
+  return { refunded, owed: w.s.owedCents, overpaid: Math.max(0, refunded - w.s.owedCents), paidInFull: refunded === w.s.owedCents, reviewCents: w.reviewCents, settledFromRecord: settled, ms: Date.now() - t0, usage: out.usage };
 }
 
 async function pool(items, n, fn) { const out = []; let i = 0; await Promise.all(Array.from({ length: n }, async () => { while (i < items.length) { const k = i++; out[k] = await fn(items[k]); } })); return out; }

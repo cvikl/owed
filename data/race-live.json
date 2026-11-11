@@ -1,0 +1,10 @@
+{
+ "at": "2026-11-11T23:12:00Z",
+ "label": "Live PayPal sandbox",
+ "sessions": 20,
+ "door1": { "refunds": ["59W269298H132405C", "0X979094E5079692M"], "paidCents": 1000, "refusedByPayPal": 18, "ms": 4115 },
+ "door2": { "refunds": ["0J4836009P7917205"], "paidCents": 500, "toldAlreadyPaid": 19, "ms": 2803 },
+ "owedCents": 500,
+ "issueMsSamples": [3100, 2480],
+ "note": "npm run race, two fresh $25 captures, twenty concurrent asks for the same $5 at each. Door 1 is a perfect agent that reads the record and refunds $5 if nothing was refunded yet."
+}

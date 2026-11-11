@@ -41,3 +41,17 @@ export async function gate({ session, order, askedCents, paypal, ledger, loadRec
   };
   return { ok: true, toolResult, decision, claims, records, refunds, paidCents: paid, review, blocked, ms: Date.now() - t0 };
 }
+
+/**
+ * The record settles. When the agent ends its turn without proposing a refund, Owed asks the model only
+ * what the customer claimed (no money tool), and if they asked for money the engine pays what the record
+ * proves. The promise is what you are owed, not what the agent could be talked into or out of.
+ * labelClaims(customerText) -> validated claims (see claims.js); the caller supplies the model call.
+ */
+export async function settleFromRecord({ session, order, customerText, labelClaims, paypal, ledger, loadRecords, rules = DEFAULT_RULES }) {
+  const claims = await labelClaims(customerText);
+  if (!claims.length) return { ok: false, skipped: true, reason: 'no claim for money', claims };
+  const askedCents = claims.reduce((s, c) => s + c.amountCents, 0);
+  const r = await gate({ session, order, askedCents, paypal, ledger, loadRecords, rules });
+  return { ...r, fromRecord: true, labelled: claims };
+}

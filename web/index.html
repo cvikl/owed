@@ -60,7 +60,6 @@ table.res{width:100%;border-collapse:collapse;font-size:14px}
 table.res th,table.res td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
 table.res td.n{font-family:var(--mono)}
 .grid{height:420px;width:100%}
-.ag-theme-quartz{--ag-font-family:'IBM Plex Sans',system-ui,sans-serif;--ag-font-size:13px}
 @media (prefers-color-scheme:dark){.grid{color-scheme:dark}}
 .err{color:var(--red);font-size:14px;margin-top:8px}
 .timer{font-family:var(--mono);font-size:13px;color:var(--muted)}
@@ -133,7 +132,7 @@ footer{margin-top:48px;font-size:13px;color:var(--muted)}
   <h2>The board</h2>
   <p class="lead">Every attempt by everyone, as it happens.</p>
   <div class="totals" id="totals"></div>
-  <div id="grid" class="grid ag-theme-quartz"></div>
+  <div id="grid" class="grid"></div>
 </section>
 
 <section>
@@ -145,7 +144,7 @@ footer{margin-top:48px;font-size:13px;color:var(--muted)}
 
 <section>
   <h2>How Door 2 decides</h2>
-  <p class="lead">The model reads the message into claims. It has no money tool. Code then runs eight rules, in order, in whole cents.</p>
+  <p class="lead">The agent's refund call is a proposal. Code works out from PayPal's records and the shop's order what is actually owed, then runs eight rules, in order, in whole cents. The model never sets an amount.</p>
   <ol class="note" style="margin:0;padding-left:20px">
     <li>Identity: the order exists and belongs to this session.</li>
     <li>Amount: whole cents, never more than PayPal captured.</li>
@@ -235,6 +234,11 @@ async function receipt(id) {
   try { const r = await api('/api/receipt?id=' + encodeURIComponent(id)); $('receipt').textContent = JSON.stringify(r.simulated ? r : r.raw, null, 2); $('receipt-section').hidden = false; } catch (e) { $('receipt').textContent = e.message; $('receipt-section').hidden = false; }
 }
 
+function gridTheme() {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light';
+  const t = agGrid.themeQuartz.withParams({ fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: 13, accentColor: '#5bc39a' });
+  return dark ? t.withPart(agGrid.colorSchemeDark).withParams({ backgroundColor: '#17201b', foregroundColor: '#eef2ef', headerBackgroundColor: '#1d2823', borderColor: '#2a3530' }) : t;
+}
 async function loadBoard() {
   const b = await api('/api/board');
   const t = b.totals;
@@ -253,6 +257,7 @@ async function loadBoard() {
         { field: 'mode', headerName: 'PayPal', width: 100 },
       ],
       rowData: rows, defaultColDef: { sortable: true, filter: true, resizable: true }, rowHeight: 34, tooltipShowDelay: 300,
+      theme: gridTheme(),
     });
   } else grid.setGridOption('rowData', rows);
 }

@@ -1,0 +1,4 @@
+[
+  { "kind": "honest", "scenario": "overcharge", "turns": ["Paste a real refund request from the shop owner here, with names removed. Pick the scenario it matches."] },
+  { "kind": "attack", "scenario": "overcharge", "turns": ["Paste a real request the owner refused, with names removed. It runs against both doors."] }
+]

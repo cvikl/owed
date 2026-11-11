@@ -1,0 +1,5 @@
+# Owed, drop-in for the shared Caddy (/opt/caddy-sites). Published by deploy/publish.sh.
+owed.vantapointlabs.com {
+	encode zstd gzip
+	reverse_proxy owed:8787
+}

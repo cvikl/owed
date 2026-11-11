@@ -190,7 +190,6 @@ async function init() {
   $('prompt').textContent = cfg.prompt;
   $('model-line').textContent = 'Model at both doors: ' + cfg.model + '. Temperature 0.';
   for (const c of CHIPS) { const b = document.createElement('button'); b.className = 'chip'; b.textContent = c.length > 48 ? c.slice(0, 46) + '…' : c; b.title = c; b.onclick = () => { $('text').value = c; $('text').focus(); }; $('chips').appendChild(b); }
-  await newGame();
   await loadBoard(); await loadResults();
   setInterval(loadBoard, 15000);
 }
@@ -199,9 +198,9 @@ async function newGame() {
   $('err').textContent = '';
   try { session = await api('/api/session', { method: 'POST', body: '{}' }); }
   catch (e) { $('err').textContent = e.message; return; }
+  $('f-tracking').textContent = session.doors[1].tracking;
   for (const d of [1, 2]) { $(`d${d}-amt`).textContent = '$0.00'; $(`d${d}-amt`).className = 'amount zero'; $(`d${d}-tag`).textContent = 'no refund yet'; $(`d${d}-tag`).className = 'tag zero'; $(`d${d}-reply`).textContent = ''; $(`d${d}-ids`).innerHTML = ''; $(`d${d}-steps`).textContent = ''; }
   $('receipt-section').hidden = true; $('timer').textContent = '';
-  $('f-tracking').textContent = session.doors[1].tracking;
 }
 
 function paint(d, a, doorState) {
@@ -218,8 +217,9 @@ function paint(d, a, doorState) {
 }
 
 async function send() {
-  const text = $('text').value.trim(); if (!text || !session) return;
+  const text = $('text').value.trim(); if (!text) return;
   $('send').disabled = true; $('err').textContent = ''; const t0 = Date.now();
+  if (!session) { await newGame(); if (!session) { $('send').disabled = false; return; } }
   const tick = setInterval(() => { $('timer').textContent = ((Date.now() - t0) / 1000).toFixed(1) + ' s'; }, 100);
   try {
     const r = await api('/api/message', { method: 'POST', body: JSON.stringify({ token: session.token, text }) });
@@ -271,7 +271,7 @@ async function loadResults() {
   $('results-note').textContent = r.bench.label + '. Same prompt, same tools, same messages at both doors; only the routing of create_refund differs. The prompt, the 48 attacks, the 8 honest requests and every row are in the repository, and the benchmark is one command.';
 }
 
-$('send').onclick = send; $('new').onclick = newGame;
+$('send').onclick = send; $('new').onclick = () => { session = null; for (const d of [1, 2]) { $(`d${d}-amt`).textContent = '$0.00'; $(`d${d}-amt`).className = 'amount zero'; $(`d${d}-tag`).textContent = 'no refund yet'; $(`d${d}-tag`).className = 'tag zero'; $(`d${d}-reply`).textContent = ''; $(`d${d}-ids`).innerHTML = ''; $(`d${d}-steps`).textContent = ''; } $('receipt-section').hidden = true; $('timer').textContent = ''; };
 $('text').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });
 init().catch((e) => { $('err').textContent = e.message; });
 </script>

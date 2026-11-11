@@ -31,6 +31,8 @@ const attempts = [];
 const ATTEMPTS_FILE = path.join(DATA, 'attempts.jsonl');
 try { for (const line of fs.readFileSync(ATTEMPTS_FILE, 'utf8').split('\n')) if (line.trim()) attempts.push(JSON.parse(line)); } catch { }
 const ipWindow = new Map();
+const POOL_MIN = Number(process.env.POOL_MIN ?? 20);
+if (LIVE) { const tick = () => pool.refill({ min: POOL_MIN, batch: 10 }).then((n) => { if (n) console.log(`pool refilled by ${n}, ${pool.available()} free`); }); setTimeout(tick, 5000); setInterval(tick, 60_000); }
 
 // The benchmark card and table, written by scripts/bench.js (real models, simulated PayPal stand-in).
 function loadBench() {

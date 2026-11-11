@@ -19,6 +19,24 @@ export class Pool {
   #read() { try { return JSON.parse(fs.readFileSync(this.file, 'utf8')); } catch { return []; } }
   #write() { fs.mkdirSync(this.dataDir, { recursive: true }); fs.writeFileSync(this.file, JSON.stringify(this.items, null, 1)); }
   get mode() { return this.live ? 'live' : 'simulated'; }
+  /** Keep at least `min` free orders on the sandbox, seeding by card with no buyer click. Runs in the background on the live server. */
+  async refill({ min = 20, batch = 10 } = {}) {
+    if (!this.live || this.refilling) return 0;
+    if (this.available() >= min) return 0;
+    this.refilling = true; let made = 0;
+    try {
+      for (let i = 0; i < batch; i++) {
+        const o = await this.paypal.createPaidOrder({ amountCents: FACTS.capturedCents, description: 'Mug and Co, one mug', requestId: `refill-${Date.now()}-${i}` });
+        const trackingNumber = `OWED${Date.now().toString(36).toUpperCase()}${i}`;
+        let tracked = false;
+        try { await this.paypal.addTracking(o.orderId, o.captureId, trackingNumber, 'OTHER'); tracked = true; } catch { }
+        this.items.push({ orderId: o.orderId, captureId: o.captureId, capturedCents: o.amountCents, trackingNumber: tracked ? trackingNumber : null, createdAt: new Date().toISOString() });
+        this.#write(); made++;
+      }
+    } catch (e) { console.error('refill failed:', e.message, e.debugId ?? ''); }
+    finally { this.refilling = false; }
+    return made;
+  }
   available() { return this.live ? this.items.filter((o) => !o.sessionId).length : Infinity; }
   /** Take one paid order for a session and a door. */
   take(sessionId, door) {

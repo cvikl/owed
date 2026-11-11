@@ -9,7 +9,7 @@
 <link rel="icon" href="owed_favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Doto:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Doto:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#000;--panel:#0c0f0d;--seam:rgba(255,255,255,.08);--seam-strong:rgba(255,255,255,.16);
@@ -251,7 +251,10 @@ const ground = (() => {
   }
   function box() { const a = document.querySelector('.centre'); if (!a || scrollY > innerHeight) return null; const r = a.getBoundingClientRect(); return { l: r.left - cw, r: r.right + cw, t: r.top - chh, b: r.bottom + chh }; }
   function draw(now) {
-    raf = reduced || document.hidden ? 0 : requestAnimationFrame(draw);
+    // the ground only moves while the hero is on screen; below it the page is solid black and the loop sleeps
+    const asleep = scrollY > innerHeight;
+    raf = reduced || document.hidden || asleep ? 0 : requestAnimationFrame(draw);
+    if (asleep) { ctx.clearRect(0, 0, W, H); return; }
     if (now - last < 80 && !reduced) return; last = now;
     ctx.clearRect(0, 0, W, H);
     const ex = box();
@@ -271,6 +274,7 @@ const ground = (() => {
   const wake = () => { if (!raf && !reduced) raf = requestAnimationFrame(draw); };
   addEventListener('resize', () => { size(); if (reduced) draw(0); });
   document.addEventListener('visibilitychange', wake);
+  addEventListener('scroll', () => { if (scrollY <= innerHeight) wake(); }, { passive: true });
   if (document.fonts?.ready) document.fonts.ready.then(() => { size(); draw(0); wake(); });
   size(); draw(0); wake();
   return { flare(text) { const r = $('d2').getBoundingClientRect(); flares.push({ text, x: r.left + r.width / 2, y: r.top + 40, life: 1.6 }); wake(); } };

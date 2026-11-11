@@ -30,7 +30,7 @@ Eight rules, in order, in whole cents, in [`src/engine.js`](src/engine.js):
 7. Velocity and daily cap per customer, reserved in the same step as the check.
 8. Everything else goes to a person. An open PayPal dispute on the payment sends everything to a person.
 
-The asked amount is turned into claims by what the records prove (`claimsFromAmount`), so the amount paid comes from the record and never from the conversation. The ledger (`src/ledger.js`) decides and reserves in one synchronous step, so twenty simultaneous requests for the same $5 are paid once.
+The asked amount is turned into claims by what the records prove (`claimsFromAmount`), so the amount paid comes from the record and never from the conversation. If the agent ends its turn without proposing a refund, Owed asks the model only what the customer claimed (a tool with no money in it) and, if they asked for money, the record settles what it proves (`settleFromRecord`). A customer owed $5 is paid $5 whether the agent was talked out of it or not. The ledger (`src/ledger.js`) decides and reserves in one synchronous step, so twenty simultaneous requests for the same $5 are paid once.
 
 ## PayPal
 

@@ -351,7 +351,12 @@ const ground = (() => {
   document.addEventListener('visibilitychange', () => { hidden = document.hidden; if (!hidden) wake(); });
   if (document.fonts?.ready) document.fonts.ready.then(() => { size(); draw(0); wake(); });
   size(); draw(0); wake();
-  if (!reduced) setInterval(() => { if (!hidden && scrollY < innerHeight) flareAt(['5.00', '20.00', '0.00', '5.00'][(Math.random() * 4) | 0], cw * 2 + Math.random() * (W - cw * 4), chh + Math.random() * (H - chh * 2)); }, 2600);
+  // the attract screen lights an amount in the side bands only, never over the words
+  if (!reduced) setInterval(() => {
+    if (hidden || scrollY > innerHeight) return;
+    const band = W > 900 ? W * .16 : W * .3, x = Math.random() < .5 ? cw * 3 + Math.random() * band : W - cw * 3 - Math.random() * band;
+    flareAt(['5.00', '20.00', '0.00', '5.00'][(Math.random() * 4) | 0], x, chh * 2 + Math.random() * (H - chh * 4));
+  }, 2600);
   return { flare: (text) => { const r = $('d2').getBoundingClientRect(); flareAt(text, r.left + r.width / 2, r.top + r.height / 2); }, wake };
 })();
 

@@ -41,7 +41,7 @@ async function openaiLoop({ model, system, tools, turns, exec, fetchFn, env, max
   for (const turn of turns) {
     messages.push({ role: 'user', content: turn });
     for (let step = 0; step < maxSteps; step++) {
-      const out = await post(`${base}/chat/completions`, { authorization: `Bearer ${env.OPENAI_API_KEY}` }, { model, messages, tools: fns }, fetchFn);
+      const out = await post(`${base}/chat/completions`, { authorization: `Bearer ${env.OPENAI_API_KEY}` }, { model, messages, tools: fns, temperature: 0 }, fetchFn);
       usage.in += out.usage?.prompt_tokens ?? 0; usage.out += out.usage?.completion_tokens ?? 0;
       const msg = out.choices[0].message; messages.push(msg);
       if (msg.content) finalText = msg.content;

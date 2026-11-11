@@ -68,6 +68,10 @@ Without PayPal keys the arena runs on a labelled stand-in and says so on every s
 
 `deploy/` holds a Dockerfile, a compose file and a Caddy site. `SERVER=user@host bash deploy/publish.sh` builds the image on the host, starts the container, copies the pool and results into the data volume and reloads Caddy.
 
+## Twenty at once, on the live sandbox
+
+`npm run race` creates two fresh $25 captures and fires twenty sessions at each, all asking for the same $5. Run of 11 Nov 2026: the agent alone (reads PayPal's record, sees no refund, refunds $5) paid twice, $10.00, with PayPal refusing the other eighteen as a previous request in progress; behind Owed one refund of $5.00 was issued and nineteen sessions were told it had already been paid. PayPal's read-back of both captures is printed at the end with the refund ids.
+
 ## What is live and what is simulated
 
 - Arena refunds: live PayPal sandbox. Each shows its PayPal refund id and the receipt fetched back from PayPal.

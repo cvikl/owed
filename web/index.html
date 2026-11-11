@@ -339,9 +339,11 @@ const ground = (() => {
       cell.t += .5;
       if (Math.random() < .0015) cell.ch = CH[(Math.random() * CH.length) | 0];
       const x = cell.k * cw + cw / 2, y = cell.r * chh + chh / 2;
-      const inside = ex && x > ex.left && x < ex.right && y > ex.top && y < ex.bottom;
+      // feathered over three cells so the field fades under the words instead of stopping at an edge
+      let keep = 1;
+      if (ex) { const dx = Math.max(ex.left - x, x - ex.right, 0), dy = Math.max(ex.top - y, y - ex.bottom, 0); const d = Math.max(dx, dy); if (d < cw * 3) keep = Math.max(0, d / (cw * 3)); }
       const breathe = .03 + .025 * Math.sin(cell.t * .02 + cell.k * .3 + cell.r * .17);
-      ctx.fillStyle = `rgba(91,195,154,${((inside ? .018 : breathe + cell.a)).toFixed(3)})`;
+      ctx.fillStyle = `rgba(91,195,154,${(.015 + (breathe + cell.a - .015) * keep).toFixed(3)})`;
       ctx.fillText(cell.ch, x, y);
     }
     for (let i = flares.length - 1; i >= 0; i--) {

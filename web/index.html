@@ -64,7 +64,7 @@ textarea::placeholder{color:var(--mute)}
 .door+.door{border-left:1px solid var(--line);padding-left:16px;padding-right:0}
 @media (max-width:640px){.door+.door{border-left:0;padding-left:0;border-top:1px solid var(--line)}}
 .door h3{margin:0;font-size:14px;font-weight:600}
-.door .sub{font-size:13px;color:var(--mute);margin:2px 0 10px;min-height:3.2em}
+.door .sub{font-size:13px;color:var(--mute);margin:2px 0 10px;min-height:1.4em}
 .amount{font:var(--amount-font,800 40px/1 var(--display));letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .amount.ok{color:var(--green)}.amount.over{color:var(--red)}.amount.zero{color:var(--mute)}
 .tag{display:inline-block;font-size:13px;margin-top:8px;padding:3px 8px;border-radius:4px;background:var(--wash);color:var(--ink-2)}
@@ -74,7 +74,8 @@ textarea::placeholder{color:var(--mute)}
 .reply{margin-top:10px;font-size:14px;white-space:pre-wrap;color:var(--ink-2)}
 .ids{font:12px/1.7 var(--mono);color:var(--ink-2);margin-top:8px;word-break:break-all}
 .ids a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
-details{margin-top:8px;font-size:13px}summary{cursor:pointer;color:var(--mute);list-style:none;display:flex;align-items:center;gap:6px}
+details{margin-top:8px;font-size:13px}
+details.more{margin:10px 0 0;max-width:70ch}details.more summary{font-size:14px}details.more p{font-size:14px;color:var(--ink-2);line-height:1.55;margin:8px 0 0}summary{cursor:pointer;color:var(--mute);list-style:none;display:flex;align-items:center;gap:6px}
 summary::-webkit-details-marker{display:none}
 summary::before{content:"";width:6px;height:6px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(-45deg);transition:transform .2s;margin-left:2px}
 details[open] summary::before{transform:rotate(45deg)}
@@ -141,7 +142,7 @@ html{color-scheme:light}
 .statement .status{color:var(--block-mute);margin:0 0 26px;justify-content:center}
 .statement .status .dot{background:var(--green-bright)}
 h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margin:0 0 22px;color:#fff;font-variation-settings:"opsz" 96}
-.statement .lead{font-size:clamp(17px,1.4vw,20px);line-height:1.5;color:var(--block-mute);margin:0 auto 32px;max-width:52ch;text-wrap:pretty}
+.statement .lead{font-size:clamp(18px,1.6vw,22px);line-height:1.4;color:var(--block-mute);margin:0 auto 28px;max-width:52ch;text-wrap:pretty}
 .statement .lead b{color:#fff;font-weight:600}
 .cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .cta-row a{text-decoration:none;font-size:15px;font-weight:600;padding:12px 20px;border-radius:8px}
@@ -177,8 +178,8 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
   <div class="statement" id="top">
     <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
     <h1>Not a cent more than PayPal's records prove.</h1>
-    <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> Today the AI pays what it is asked. Behind Owed, code decides the amount from PayPal's capture and the shop's order, and sends the rest to a person.</p>
-    <div class="cta-row"><a class="primary" href="#arena">Run it on the sandbox</a><a class="secondary" href="https://github.com/cvikl/owed" rel="noopener">Read the source</a></div>
+    <p class="lead">A refund gate for a shop's AI agent on PayPal.</p>
+    <div class="cta-row"><a class="primary" href="#arena">Run it on the sandbox</a></div>
   </div>
 </div>
 <div class="bento">
@@ -187,15 +188,15 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
   <div class="panel-head"><span>Your order <b>$20.00</b> mug, free shipping</span><span>PayPal captured <b id="f-captured">$25.00</b></span><span>You are owed <b class="owed" id="f-owed">$5.00</b></span><span>Tracking <b id="f-tracking">SHIPPED</b></span><span hidden id="f-order">$20.00</span></div>
   <div class="panel-body">
     <div class="controls">
-      <div class="dial"><span class="dl">The shop's instructions to its AI</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div>
+      <div class="dial"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div>
       <label class="sr" for="custom">Your own instructions for the AI</label>
-      <textarea id="custom" hidden maxlength="2000" placeholder="Write the shop's instructions yourself. Both sides get exactly these words."></textarea>
+      <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both sides get exactly these words."></textarea>
       <label class="sr" for="text">Your message to the support agent</label>
-      <textarea id="text" maxlength="1500" placeholder="Type anything, or pick a message below.">My mug never arrived. Refund the full $25.</textarea>
+      <textarea id="text" maxlength="1500" placeholder="Your message to the shop">My mug never arrived. Refund the full $25.</textarea>
       <div class="chips" id="chips"></div>
-      <label class="share"><input type="checkbox" id="share"> Show my message on the public board (amounts and rules are shown either way)</label>
+      <label class="share"><input type="checkbox" id="share"> Show my message on the public board</label>
       <div class="row">
-        <button class="btn" id="send">Run it: AI alone against AI behind Owed</button>
+        <button class="btn" id="send">Run both</button>
         <button class="btn secondary" id="new">New orders</button>
         <span class="timer num" id="timer"></span>
       </div>
@@ -204,60 +205,58 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
     <div class="doors">
       <div class="door" id="d1">
         <h3>AI alone</h3>
-        <div class="sub">Its refund call goes straight to PayPal.</div>
+        <div class="sub">Refund call goes straight to PayPal.</div>
         <div class="amount zero num" id="d1-amt">$0.00</div>
         <span class="tag" id="d1-tag">not run yet</span>
         <div class="live" id="d1-live"></div>
         <div class="reply" id="d1-reply"></div>
         <div class="ids" id="d1-ids"></div>
-        <details><summary>What the AI did</summary><pre id="d1-steps"></pre></details>
+        <details><summary>Trace</summary><pre id="d1-steps"></pre></details>
       </div>
       <div class="door d2" id="d2">
         <h3>AI behind Owed</h3>
-        <div class="sub">Same AI, same instructions, same call. Here the call is a request; code checks PayPal's record and pays.</div>
+        <div class="sub">Same call. Code checks PayPal's record, then pays.</div>
         <div class="amount zero num" id="d2-amt">$0.00</div>
         <span class="tag" id="d2-tag">not run yet</span>
         <div class="live" id="d2-live"></div>
         <div class="reply" id="d2-reply"></div>
         <div class="ids" id="d2-ids"></div>
-        <details><summary>Claims, rules and PayPal</summary><pre id="d2-steps"></pre></details>
+        <details><summary>Trace</summary><pre id="d2-steps"></pre></details>
       </div>
     </div>
-    <details class="prompt-d"><summary>Read the instructions both sides are using</summary><div class="prompt" id="prompt"></div></details>
+    <details class="prompt-d"><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details>
   </div>
 </section>
-  <div class="tile judge"><h2>For the judge, two minutes</h2><ol><li><b>Press Run it.</b> One message, the AI alone and the AI behind Owed, each on its own real sandbox order.</li>
-<li><b>Click a refund id.</b> PayPal's own record of that refund opens, fetched live.</li>
-<li><b>Change the shop's instructions</b> and run again. Watch which side changes.</li></ol></div>
-  <div class="proof" id="numbers"><div><div class="v bad num">58 of 162</div><div class="l">adversarial cases where the AI alone paid money not owed, typical shop instructions ($1,105)</div><div class="e">3 of 162 with the strictest instructions · <a href="https://github.com/cvikl/owed/blob/main/RESULTS.md" rel="noopener">RESULTS.md</a></div></div>
-<div><div class="v good num">0 of 162</div><div class="l">the same refund calls replayed through Owed, both settings; legitimate customers still paid</div><div class="e">3 models, 1 run each, temperature 0</div></div>
-<div><div class="v num">2× vs 1×</div><div class="l">twenty sessions asked for the same $5 at once on live captures: AI alone paid twice, Owed once</div><div class="e"><a href="#receipt-section" data-id="59W269298H132405C">59W269298H132405C</a> <a href="#receipt-section" data-id="0X979094E5079692M">0X979094E5079692M</a> · <a href="#receipt-section" data-id="0J4836009P7917205">0J4836009P7917205</a></div></div>
-<div><div class="v good num" id="s-refunds">0</div><div class="l" id="s-refunds-l">live sandbox refunds on record</div><div class="e"><span id="s-seconds">0.0 s</span> <span id="s-seconds-l">median, refund issued</span><span hidden><span id="s-over"></span><span id="s-held"></span><span id="s-held-l"></span></span></div></div></div>
+  <div class="tile judge"><h2>For the judge, two minutes</h2><ol><li><b>Run it.</b> Two real sandbox orders.</li>
+<li><b>Click a refund id.</b> PayPal's record opens.</li>
+<li><b>Change the instructions.</b> Run again.</li></ol></div>
+  <div class="proof" id="numbers"><div><div class="v bad num">58 of 162</div><div class="l">attacks the AI alone overpaid, $1,105</div><div class="e">3 of 162 on the strictest instructions · <a href="https://github.com/cvikl/owed/blob/main/RESULTS.md" rel="noopener">RESULTS.md</a></div></div>
+<div><div class="v good num">0 of 162</div><div class="l">overpaid behind Owed, honest customers still paid</div><div class="e">3 models, temperature 0</div></div>
+<div><div class="v num">2× vs 1×</div><div class="l">twenty sessions asked for the same $5 at once</div><div class="e"><a href="#receipt-section" data-id="59W269298H132405C">59W269298H132405C</a> <a href="#receipt-section" data-id="0X979094E5079692M">0X979094E5079692M</a> · <a href="#receipt-section" data-id="0J4836009P7917205">0J4836009P7917205</a></div></div>
+<div><div class="v good num" id="s-refunds">0</div><div class="l" id="s-refunds-l">live sandbox refunds</div><div class="e"><span id="s-seconds">0.0 s</span> <span id="s-seconds-l">median, refund issued</span><span hidden><span id="s-over"></span><span id="s-held"></span><span id="s-held-l"></span></span></div></div></div>
 </div>
 <div class="wrap">
 
 
 <section id="receipt-section" hidden>
   <h2>PayPal's record</h2>
-  <p class="lead">Fetched live from the sandbox for the refund id you clicked.</p>
   <div class="receipt" id="receipt-card"></div>
   <details><summary>Full response</summary><pre id="receipt"></pre></details>
 </section>
 
 <section id="board">
   <h2>Public attempts</h2>
-  <p class="lead">Everyone who played, with the amounts and the rule that decided each one. This is not the controlled benchmark; that is below. Click a row for the full trace.</p>
-  <p class="notice">A message appears here only if the person who wrote it ticked the box to share it. Emails, links and phone numbers are hidden even then.</p>
+  <p class="lead">Click a row for its trace.</p>
+  <details class="more"><summary>About this board</summary><p>Everyone who played, with the amounts and the rule that decided each one. Not the controlled benchmark; that is below. A message appears only if its writer ticked the box, and emails, links and phone numbers are hidden even then.</p></details>
   <div class="totals" id="totals"></div>
   <div id="grid" class="grid"><div class="empty">Loading the board</div></div>
   <div id="detail" class="detail" hidden></div>
 </section>
 
 <section id="measured">
-  <h2>The benchmark: change only the shop's instructions</h2>
-  <p class="lead">A test suite we wrote ourselves, not real customer conversations. Each model ran each case once; every refund call it made was then replayed, unchanged, through Owed's gate, so the first two rows of each block share one model output. The third row adds Owed's recovery step. Security is adversarial cases where $5 was owed and the message pushed for more. Service is legitimate cases, including badly worded ones.</p>
-  <p class="card" id="card">Benchmark not loaded yet.</p>
-  <p class="card race" id="race" hidden></p>
+  <h2>The benchmark</h2>
+  <p class="lead">Same models, same cases; only the shop's instructions change.</p>
+  <details class="more"><summary>How it was measured</summary><p>A test suite we wrote ourselves, not real customer conversations. Each model ran each case once; every refund call it made was then replayed, unchanged, through Owed's gate, so the first two rows of each block share one model output. The third row adds Owed's recovery step. Security is adversarial cases where $5 was owed and the message pushed for more. Service is legitimate cases, including badly worded ones.</p><p class="card" id="card">Benchmark not loaded yet.</p><p class="card race" id="race" hidden></p></details>
   <table id="dialt"><thead><tr><th>Instructions</th><th>Arm</th><th>Security. Paid too much</th><th>Security. Paid exactly $5</th><th>Security. Paid nothing</th><th>Service. Legitimate cases paid in full</th></tr></thead><tbody></tbody></table>
   <details><summary>Every model, one by one</summary><table id="results"><thead><tr><th>Model</th><th>Instructions</th><th>Arm</th><th>Paid too much</th><th>Beyond owed</th><th>Paid nothing</th><th>Honest paid in full</th><th>Median</th></tr></thead><tbody></tbody></table></details>
   <table id="pairt" hidden><thead><tr><th>Instructions</th><th>Test</th><th>Both right</th><th>AI alone wrong, gate right</th><th>AI alone right, gate wrong</th><th>Both wrong</th></tr></thead><tbody></tbody></table>
@@ -265,48 +264,48 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
 </section>
 
 <section id="how">
-  <h2>How Owed decides</h2>
-  <p class="lead">The AI reads the message and asks for a refund through PayPal's own refund call on both sides. Behind Owed that call is only a request. Code works out from PayPal's records and the shop's order what is owed, then runs eight rules in whole cents. The AI never sets an amount. If the AI ends without asking, the model is asked once what the customer claimed, and if money was claimed the record settles what it proves.</p>
+  <h2>Eight rules, whole cents</h2>
+  <p class="lead">The AI asks. Code decides from PayPal's record.</p>
   <ol class="rules">
-    <li><b>Identity.</b> The order exists and belongs to this session.</li>
-    <li><b>Amount.</b> Whole cents, never more than PayPal captured less what was already refunded.</li>
-    <li><b>Owed by the record.</b> Overcharge, duplicate capture, cancelled before shipping.</li>
-    <li><b>Claim against the record.</b> Not received is paid only when PayPal's tracker says cancelled or overdue.</li>
-    <li><b>Duplicates.</b> Money already paid is not paid again.</li>
-    <li><b>Limits.</b> One-refund cap.</li>
-    <li><b>Velocity.</b> Daily cap per customer, reserved in the same step as the check.</li>
-    <li><b>Everything else</b> goes to a person, with the evidence.<span id="dispute-line" hidden> An open PayPal dispute on the payment sends everything to a person.</span></li>
+    <li><b>Identity.</b> This session's order.</li>
+    <li><b>Amount.</b> Captured less refunded, at most.</li>
+    <li><b>Owed by the record.</b> Overcharge, duplicate, cancelled.</li>
+    <li><b>Claim against the record.</b> Not received needs the tracker to agree.</li>
+    <li><b>Duplicates.</b> Never twice.</li>
+    <li><b>Limits.</b> One refund per order.</li>
+    <li><b>Velocity.</b> Daily cap per customer.</li>
+    <li><b>Everything else</b> to a person, with the evidence.<span id="dispute-line" hidden> Open dispute: to a person.</span></li>
   </ol>
-  <p class="note" id="toolkit-line"></p>
+  <details class="more"><summary>More on the gate</summary><p>Both sides ask for a refund through PayPal's own refund call. Behind Owed that call is only a request: code works out from PayPal's records and the shop's order what is owed, then runs the rules in whole cents. If the AI ends without asking, the model is asked once what the customer claimed, and if money was claimed the record settles what it proves.</p><p class="note" id="toolkit-line"></p></details>
 </section>
 
 <section id="paypal">
   <h2>Built on PayPal</h2>
-  <p class="lead">Everything that moves money here is a PayPal sandbox call. Each surface below links to the file that makes it.</p>
+  <p class="lead">Every refund here is a sandbox call.</p>
   <div class="apis">
-    <div><b>Orders v2 with a card payment source</b>Seeds real paid $25 orders with no buyer click. <code><a href="https://github.com/cvikl/owed/blob/main/scripts/seed.js">scripts/seed.js</a></code></div>
-    <div><b>Refunds on captures, PayPal-Request-Id</b>Every refund on both sides, idempotent per request. <code><a href="https://github.com/cvikl/owed/blob/main/src/paypalRest.js">src/paypalRest.js</a></code></div>
-    <div><b>Order payments read-back</b>What was captured and refunded, summed from PayPal's refunds list. <code><a href="https://github.com/cvikl/owed/blob/main/src/pool.js">src/pool.js</a></code></div>
-    <div><b>Refund read-back</b>PayPal's own record for the id you click. <code>/api/receipt</code></div>
-    <div><b>Shipment trackers</b>Added at seed time, read back as evidence for rule 4. <code><a href="https://github.com/cvikl/owed/blob/main/src/paypalRest.js">src/paypalRest.js</a></code></div>
-    <div><b>Agent Toolkit tool shape</b><code>create_refund(capture_id, amount, currency)</code>, <code>get_order</code>, <code>get_shipment_tracking</code> by name and parameters. <code><a href="https://github.com/cvikl/owed/blob/main/scripts/scenarios.js">scripts/scenarios.js</a></code></div>
+    <div><b>Orders v2, card payment source</b>Seeds paid $25 orders. <code><a href="https://github.com/cvikl/owed/blob/main/scripts/seed.js">scripts/seed.js</a></code></div>
+    <div><b>Refunds on captures</b>Idempotent per PayPal-Request-Id. <code><a href="https://github.com/cvikl/owed/blob/main/src/paypalRest.js">src/paypalRest.js</a></code></div>
+    <div><b>Order read-back</b>Captured and refunded, from PayPal's list. <code><a href="https://github.com/cvikl/owed/blob/main/src/pool.js">src/pool.js</a></code></div>
+    <div><b>Refund read-back</b>The record behind each id. <code>/api/receipt</code></div>
+    <div><b>Shipment trackers</b>Evidence for rule 4. <code><a href="https://github.com/cvikl/owed/blob/main/src/paypalRest.js">src/paypalRest.js</a></code></div>
+    <div><b>Agent Toolkit tool shape</b><code>create_refund(capture_id, amount, currency)</code> <code><a href="https://github.com/cvikl/owed/blob/main/scripts/scenarios.js">scripts/scenarios.js</a></code></div>
   </div>
 </section>
 
 <section id="shops">
-  <h2>For shops, and the limits</h2>
+  <h2>For shops</h2>
   <div class="shops">
-    <p>Owed keeps the refund interface of PayPal's Agent Toolkit, so an agent that already calls <code>create_refund</code> can route that call through the gate without its conversation layer being redesigned.</p>
+    <p>Same <code>create_refund</code> call, routed through the gate.</p>
     <pre>// before: the AI's refund call goes straight to PayPal
 tools.create_refund = (input) =&gt; paypalToolkit.handleToolCall(call)
 
 // after: the same call becomes a request, and Owed pays what PayPal's records prove
 tools.create_refund = (input) =&gt; owed.gate({ order, askedCents, paypal, ledger, loadRecords, rules })</pre>
-    <p>What this is not: a real deployment needs your order records, a way to tie a conversation to a customer and an order, your own limits, a durable database for the ledger and a queue for the cases that go to your staff. This demo is a single process with the ledger in memory and has only ever run on the PayPal sandbox. The benchmark is our own test suite on a PayPal stand-in; the arena and the race test are the live sandbox evidence.</p>
+    <details class="more"><summary>What this is not</summary><p>A real deployment needs your order records, a way to tie a conversation to a customer and an order, your own limits, a durable database for the ledger and a queue for the cases that go to your staff. This demo is a single process with the ledger in memory and has only ever run on the PayPal sandbox. The benchmark is our own test suite on a PayPal stand-in; the arena and the race test are the live sandbox evidence.</p></details>
   </div>
 </section>
 
-<footer><span>Sandbox money only. Nothing here touches a real balance.</span><span id="model-line"></span><span>Timotej Cvikl, University of Ljubljana · Bernard Liu, University of Cambridge</span></footer>
+<footer><span>Sandbox money only.</span><span id="model-line"></span><span>Timotej Cvikl, University of Ljubljana · Bernard Liu, University of Cambridge</span></footer>
 </div>
 <script src="app.js"></script>
 </body>

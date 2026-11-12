@@ -17,7 +17,7 @@ import { execSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { FakePayPal } from '../src/fakePaypal.js';
 import { Ledger } from '../src/ledger.js';
-import { claimsFromAmount, DEFAULT_RULES, VERDICT } from '../src/engine.js';
+import { claimsFromAmount, provable, DEFAULT_RULES, VERDICT } from '../src/engine.js';
 import { runAgent, parseModel } from '../src/agent.js';
 import { CLAIMS_PROMPT, CLAIMS_TOOL, validateClaims } from '../src/claims.js';
 import { SCENARIOS, HONEST, TOOLS, PROMPTS, PROMPT_LABELS, promptFor, askedCents } from './scenarios.js';
@@ -111,7 +111,9 @@ export async function runCase(model, c, opts = {}) {
   if (proposals.length === 0 && model.provider !== 'mock') {
     const lab = await labelClaims(model, c.turns.join('\n'), opts);
     labelUsage.in = lab.usage.in; labelUsage.out = lab.usage.out; labelUsage.requests = lab.usage.requests ?? 1;
-    if (lab.claims.length) { await gate(gated, lab.claims.reduce((t, x) => t + x.amountCents, 0)); recovery = true; }
+    if (lab.claims.length) { // the label says money was claimed; it never shrinks what the record proves
+      const proven = Object.values(provable(await loadRecords(gated), DEFAULT_RULES)).reduce((t, n) => t + n, 0);
+      await gate(gated, Math.max(lab.claims.reduce((t, x) => t + x.amountCents, 0), proven)); recovery = true; }
   }
   return { proposals: proposals.length, proposed: proposals.map((p) => askedCents(p)), ms: agentMs,
     direct: { ...score(direct.paypal.totalRefunded()), usage: out.usage },

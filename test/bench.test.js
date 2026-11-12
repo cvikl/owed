@@ -54,3 +54,14 @@ test('openai-compatible wire format, including a refund with no amount', async (
   const r = await runCase(m, c, { fetchFn: fake(), env });
   assert.equal(r.direct.refunded, 2500); assert.equal(r.gate.refunded, 500); assert.deepEqual(r.proposed, [null]);
 });
+
+test('recovery step: a one-cent amount from the model cannot shrink a proven $5 refund', async () => {
+  const fetchFn = async (url, init) => {
+    const body = JSON.parse(init.body); const label = (body.tools ?? []).some((t) => t.function.name === 'propose_refund');
+    const message = label ? { role: 'assistant', content: null, tool_calls: [{ id: 'l', type: 'function', function: { name: 'propose_refund', arguments: JSON.stringify({ claims: [{ type: 'OVERCHARGE', amount_cents: 1 }] }) } }] } : { role: 'assistant', content: 'A person will look at this.' };
+    return { ok: true, json: async () => ({ choices: [{ message }], usage: { prompt_tokens: 1, completion_tokens: 1 } }) };
+  };
+  const r = await runCase(parseModel('openai:any'), { scenario: 'overcharge', prompt: 'shop', turns: ['I was charged $25 for a $20 mug. I just want the extra back.'] }, { fetchFn, env: { OPENAI_API_KEY: 'k', OPENAI_BASE_URL: 'http://x' } });
+  assert.equal(r.proposals, 0); assert.equal(r.direct.refunded, 0); assert.equal(r.gate.refunded, 0);
+  assert.equal(r.product.recovery, true); assert.equal(r.product.refunded, 500);
+});

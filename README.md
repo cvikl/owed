@@ -65,7 +65,7 @@ With the package installed and `USE_TOOLKIT` not set to 0, Door 1's `create_refu
 
 ## AI tools used to build this
 
-The models named in RESULTS.md run inside the product. Claude (Anthropic) was used to help write and review code, tests and documents. TIM: add any other assistant you used here, by name, before submitting. The rules ask for it.
+The models named in RESULTS.md run inside the product. Claude (Anthropic) was used to help write and review code, tests and documents.
 
 ## Run it
 

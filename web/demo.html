@@ -275,7 +275,22 @@ footer{margin:36px auto 28px}
 .arena-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--wash)}
 .levels button{font-weight:600}
 .arena-hint{font-size:12px;color:var(--mute)}
-#arena-canvas{display:block;width:100%;height:auto;aspect-ratio:1100/440}
+.flow{padding:6px 10px 0;background:linear-gradient(180deg,#fff,var(--wash))}
+.flow svg{display:block;width:100%;height:auto}
+.ribbons path{transition:stroke-width .6s cubic-bezier(.2,.8,.2,1),stroke .3s;opacity:.85}
+.labels text{fill:var(--ink-2)}.labels .rl{font-weight:600}
+.node rect{fill:#fff;stroke:var(--line);stroke-width:1.5;transition:stroke .3s,fill .3s}
+.node .nt{font-size:14px;font-weight:700;fill:var(--ink)}
+.node .nn{font-size:11px;line-height:1.3;color:var(--mute);text-align:center}
+.node.pp .nn,.node.person .nn{text-align:left}
+.node.active rect{stroke:var(--amber);stroke-width:2.5;fill:var(--amber-soft)}
+.node.done rect{stroke:var(--line-strong)}
+.node.good rect{stroke:var(--green);stroke-width:2.5;fill:var(--green-soft)}
+.node.bad rect{stroke:var(--red);stroke-width:2.5;fill:var(--red-soft)}
+.node.warn rect{stroke:var(--amber);stroke-width:2.5;fill:var(--amber-soft)}
+.node.owed rect{fill:var(--block);stroke:var(--block)}.node.owed .nt{fill:#fff}.node.owed .nn{color:#cfe9dd}
+.node.owed.active rect{fill:#0f4f3c;stroke:var(--green-bright)}.node.owed.done rect{fill:var(--block)}
+.btn.attack{background:var(--green)}
 .arena-ctl{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 14px;border-top:1px solid var(--line);align-items:stretch}
 .arena-ctl textarea{min-height:56px;font-size:16px}
 .btn.attack{font:800 18px var(--display);padding:0 28px;letter-spacing:-.01em;background:var(--red)}
@@ -311,9 +326,40 @@ footer{margin:36px auto 28px}
     <div class="hud-cell shield"><span class="hud-l">Owed has blocked</span><b class="hud-v num green" id="hud-blocked">0 of 0</b><span class="hud-s">attacks, nothing got past</span></div>
   </div>
   <div class="arena-box">
-    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Level"></div><span class="arena-hint">Enter sends the attack</span></div>
-    <canvas id="arena-canvas" width="1100" height="440" role="img" aria-label="The arena: the shop's vault, the AI alone's open gate, Owed's keeper, and you"></canvas>
-    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI"></textarea><button class="btn attack" id="arena-go">Attack</button></div>
+    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Order"></div><span class="arena-hint">One message, two paths. Ribbons are the money; the numbers are PayPal's.</span></div>
+    <div class="flow">
+      <svg viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="flow-t">
+        <title id="flow-t">What happens to one message: the AI alone pays PayPal straight away; behind Owed, code checks the records, PayPal pays what they prove and the rest goes to a person</title>
+        <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
+        <g class="ribbons" fill="none" stroke-linecap="round">
+          <path id="r-msg1" d="M170 210C250 210 250 110 330 110" stroke-width="0"/>
+          <path id="r-msg2" d="M170 210C250 210 250 310 330 310" stroke-width="0"/>
+          <path id="r-ask1" d="M520 110H880" stroke-width="0"/>
+          <path id="r-ask2" d="M520 310H600" stroke-width="0"/>
+          <path id="r-pay2" d="M760 300C820 300 820 260 880 260" stroke-width="0"/>
+          <path id="r-person" d="M760 320C820 320 820 370 880 370" stroke-width="0"/>
+          <path id="r-pay1" d="M880 110H900" stroke-width="0"/>
+        </g>
+        <g class="labels" font-family="var(--mono)" font-size="12" text-anchor="middle">
+          <text id="r-msg1-l" x="250" y="150"></text><text id="r-msg2-l" x="250" y="280"></text>
+          <text id="r-ask1-l" x="700" y="96" class="rl"></text><text id="r-ask2-l" x="560" y="296" class="rl"></text>
+          <text id="r-pay2-l" x="820" y="246" class="rl"></text><text id="r-person-l" x="820" y="396" class="rl"></text><text id="r-pay1-l" x="890" y="96"></text>
+        </g>
+        <g class="lanes" font-family="var(--sans)" font-size="11" font-weight="700" fill="var(--mute)" letter-spacing=".08em">
+          <text x="330" y="52">AI ALONE</text><text x="330" y="252">AI BEHIND OWED</text>
+        </g>
+        <g class="nodes" font-family="var(--sans)">
+          <g id="f-customer" class="node"><rect x="40" y="170" width="130" height="80" rx="12"/><text x="105" y="200" text-anchor="middle" class="nt">You</text><text x="105" y="218" text-anchor="middle" class="nn" id="f-msg"></text><text x="105" y="234" text-anchor="middle" class="nn">the customer</text></g>
+          <g id="f-ai1" class="node"><rect x="330" y="70" width="190" height="80" rx="12"/><text x="425" y="98" text-anchor="middle" class="nt">The shop's AI</text><foreignObject x="336" y="104" width="178" height="44"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-ai1-n">reads the order, the tracker, the payment</div></foreignObject></g>
+          <g id="f-pp1" class="node pp"><rect x="880" y="70" width="190" height="80" rx="12"/><image href="paypal-mark-color.svg" x="896" y="86" width="18" height="18"/><text x="920" y="100" class="nt">PayPal pays</text><foreignObject x="886" y="106" width="178" height="44"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-pp1-n"></div></foreignObject></g>
+          <g id="f-ai2" class="node"><rect x="330" y="270" width="190" height="80" rx="12"/><text x="425" y="298" text-anchor="middle" class="nt">The same AI</text><foreignObject x="336" y="304" width="178" height="44"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-ai2-n">reads the order, the tracker, the payment</div></foreignObject></g>
+          <g id="f-owed" class="node owed"><rect x="600" y="266" width="160" height="88" rx="12"/><text x="680" y="292" text-anchor="middle" class="nt">Owed</text><foreignObject x="606" y="298" width="148" height="52"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-owed-n">eight rules, whole cents</div></foreignObject></g>
+          <g id="f-pp2" class="node pp"><rect x="880" y="222" width="190" height="76" rx="12"/><image href="paypal-mark-color.svg" x="896" y="236" width="18" height="18"/><text x="920" y="250" class="nt">PayPal pays</text><foreignObject x="886" y="256" width="178" height="40"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-pp2-n"></div></foreignObject></g>
+          <g id="f-person" class="node person"><rect x="880" y="334" width="190" height="72" rx="12"/><text x="896" y="360" class="nt">A person at the shop</text><foreignObject x="886" y="366" width="178" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-person-n"></div></foreignObject></g>
+        </g>
+      </svg>
+    </div>
+    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI"></textarea><button class="btn attack" id="arena-go">Send to both</button></div>
     <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
   </div>
   <canvas id="confetti" aria-hidden="true"></canvas>
@@ -434,7 +480,7 @@ footer{margin:36px auto 28px}
 
 <footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span></footer>
 </div>
-<script src="arena.js"></script>
+<script src="flow.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -223,6 +223,7 @@ async function loadResults() {
 }
 
 new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.topnav a')) a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($('arena'));
+for (const a of document.querySelectorAll('#numbers a[data-id]')) a.onclick = (ev) => { ev.preventDefault(); receipt(a.dataset.id); };
 for (const id of ['measured', 'how', 'paypal']) new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.topnav a')) a.classList.toggle('active', a.getAttribute('href') === '#' + id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($(id));
 $('send').onclick = send;
 $('new').onclick = () => { session = null; resetDoors(); showPrompt(); $('text').focus(); };

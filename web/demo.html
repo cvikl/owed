@@ -270,7 +270,10 @@ footer{margin:36px auto 28px}
 .caption{padding:12px 18px 4px;font-size:17px;line-height:1.45;color:var(--ink);min-height:3.2em;text-wrap:pretty}
 .caption b{font-weight:700}
 .arena-box .arena-ctl{display:grid;grid-template-columns:auto 1fr;order:-2;border-top:0;border-bottom:1px solid var(--line);padding:12px 14px}
-.arena-box .arena-ctl textarea{background:var(--wash);color:var(--ink-2);grid-column:2;grid-row:1;height:64px;min-height:64px;font-size:16px;border:0}
+.arena-box .arena-ctl textarea{display:none}
+.prompt-line{grid-column:2;grid-row:1;margin:0;align-self:center;font-size:17px;line-height:1.4;color:var(--ink)}
+.prompt-line::before{content:'The customer writes: ';color:var(--mute);font-size:14px}
+.prompt-line q{font-style:italic}
 .arena-box .arena-ctl .btn.attack{grid-column:1;grid-row:1}
 .caption{order:-1}
 .flow.two{order:0}
@@ -427,7 +430,7 @@ footer{margin:36px auto 28px}
         </svg>
       </div>
     </div>
-    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI" readonly></textarea><button class="btn attack" id="arena-play">Play</button><button class="btn secondary live-btn" id="arena-go">Run it live</button></div>
+    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" hidden></textarea><p class="prompt-line" id="prompt-line"></p><button class="btn attack" id="arena-play">Play the simulation</button><button class="btn secondary live-btn" id="arena-go">Run it live</button></div>
     <div class="rec-note" id="rec-note"></div>
     <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
   </div>

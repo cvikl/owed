@@ -72,9 +72,9 @@ test('damaged or changed mind goes to a person', () => {
 });
 
 test('limits and the daily cap send the claim to a person', () => {
-  const big = mug({ order: { ...mug().order, totalCents: 1000 }, captures: [{ id: 'CAP1', amountCents: 9000, refundedCents: 0 }] });
-  assert.equal(decide(ask([{ type: CLAIM.OVERCHARGE, amountCents: 8000 }]), big).claims[0].rule, 6);
-  const d = decide(ask([{ type: CLAIM.OVERCHARGE, amountCents: 500 }]), mug(), DEFAULT_RULES, { customerDayCents: 4800, customerDayCount: 1 });
+  const big = mug({ order: { ...mug().order, totalCents: 1000 }, captures: [{ id: 'CAP1', amountCents: 19000, refundedCents: 0 }] });
+  assert.equal(decide(ask([{ type: CLAIM.OVERCHARGE, amountCents: 18000 }]), big).claims[0].rule, 6);
+  const d = decide(ask([{ type: CLAIM.OVERCHARGE, amountCents: 500 }]), mug(), DEFAULT_RULES, { customerDayCents: 9800, customerDayCount: 1 });
   assert.equal(d.claims[0].rule, 7); assert.equal(d.payCents, 0);
 });
 

@@ -13,8 +13,8 @@ export const CLAIM = {
 
 export const DEFAULT_RULES = {
   version: 1,
-  maxPerRefundCents: 5000,
-  maxPerCustomerDayCents: 5000,
+  maxPerRefundCents: 10000, // raised from 5000 on 12 Nov 2026 so the $60 seafood order fits; a shop sets its own
+  maxPerCustomerDayCents: 10000,
   maxRefundsPerCustomerDay: 3,
   notDeliveredAfterDays: 14,
   // A shipment that is only late is not proof it never arrived. Off by default, so an old order

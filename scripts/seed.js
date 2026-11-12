@@ -1,12 +1,13 @@
 // Seed the order pool on the PayPal sandbox, and the kill tests that prove each PayPal surface works.
 //   npm run seed -- --test          one order: create, capture, refund $5, read back, add tracking, read back
-//   npm run seed -- --count 20      add 20 paid $25 orders to data/pool.json (each with tracking marked delivered)
+//   npm run seed -- --count 20      add 20 paid $25 mug orders to data/pool.json (each with a SHIPPED tracker)
+//   npm run seed -- --count 10 --kind seafood   add 10 paid $60 seafood orders (no tracker: the cancelled status is the shop's record)
 // Sandbox only: src/paypalRest.js refuses any other base URL.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PayPalRest } from '../src/paypalRest.js';
-import { FACTS } from '../src/pool.js';
+import { FACTS, factsFor } from '../src/pool.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = process.env.DATA_DIR ?? path.join(ROOT, 'data');
@@ -14,17 +15,19 @@ const FILE = path.join(DATA, 'pool.json');
 const args = process.argv.slice(2);
 const TEST = args.includes('--test');
 const COUNT = Number(args[args.indexOf('--count') + 1] || 0) || (TEST ? 1 : 10);
+const KIND = args.includes('--kind') ? args[args.indexOf('--kind') + 1] : 'mug';
+const F = factsFor(KIND);
 const pp = new PayPalRest();
 const t = () => new Date().toISOString().slice(11, 19);
 
 async function seedOne(i) {
   const t0 = Date.now();
-  const o = await pp.createPaidOrder({ amountCents: FACTS.capturedCents, description: 'Mug and Co, one mug', requestId: `seed-${Date.now()}-${i}` });
+  const o = await pp.createPaidOrder({ amountCents: F.capturedCents, description: `${F.shop}, ${F.item.toLowerCase()}`, requestId: `seed-${KIND}-${Date.now()}-${i}` });
   const tracking = `OWED${Date.now().toString(36).toUpperCase()}${i}`;
   let trackingAdded = false;
-  try { await pp.addTracking(o.orderId, o.captureId, tracking, 'OTHER'); trackingAdded = true; } catch (e) { console.log(`${t()}   tracking not added: ${e.message}`); }
+  if (KIND === 'mug') { try { await pp.addTracking(o.orderId, o.captureId, tracking, 'OTHER'); trackingAdded = true; } catch (e) { console.log(`${t()}   tracking not added: ${e.message}`); } }
   console.log(`${t()} order ${o.orderId} capture ${o.captureId} ${o.status} $${o.amountCents / 100} in ${Date.now() - t0} ms${trackingAdded ? `, tracking ${tracking} SHIPPED` : ''}`);
-  return { orderId: o.orderId, captureId: o.captureId, capturedCents: o.amountCents, trackingNumber: trackingAdded ? tracking : null, createdAt: new Date().toISOString() };
+  return { orderId: o.orderId, captureId: o.captureId, kind: KIND, capturedCents: o.amountCents, trackingNumber: trackingAdded ? tracking : null, createdAt: new Date().toISOString() };
 }
 
 if (TEST) {

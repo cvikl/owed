@@ -271,7 +271,17 @@ footer{margin:36px auto 28px}
 .hud-v.red{color:var(--red)}.hud-v.green{color:var(--green)}
 .hud-s{display:block;font-size:12px;color:var(--mute);margin-top:2px}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
-.score{margin:14px 0 0;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06)}
+.arena-box{margin:14px 0 0;border:1px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.3)}
+.arena-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--wash)}
+.levels button{font-weight:600}
+.arena-hint{font-size:12px;color:var(--mute)}
+#arena-canvas{display:block;width:100%;height:auto;aspect-ratio:1100/440}
+.arena-ctl{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 14px;border-top:1px solid var(--line);align-items:stretch}
+.arena-ctl textarea{min-height:56px;font-size:16px}
+.btn.attack{font:800 18px var(--display);padding:0 28px;letter-spacing:-.01em;background:var(--red)}
+.btn.attack:hover{filter:brightness(1.1)}
+@media (max-width:640px){.arena-ctl{grid-template-columns:1fr}.arena-top{flex-direction:column;align-items:flex-start}}
+.score{margin:0;border:0;border-radius:0;box-shadow:none;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06)}
 .score canvas{display:block;width:100%;height:90px}
 .score-line{padding:10px 16px;font-size:15px;color:var(--ink);border-top:1px solid var(--line)}
 .score-line b{font-weight:700}.score-line .red{color:var(--red)}.score-line .green{color:var(--green)}
@@ -300,7 +310,12 @@ footer{margin:36px auto 28px}
     <div class="hud-cell"><span class="hud-l">Best score today</span><b class="hud-v num red" id="hud-best">$0.00</b><span class="hud-s" id="hud-best-s">out of the AI alone</span></div>
     <div class="hud-cell shield"><span class="hud-l">Owed has blocked</span><b class="hud-v num green" id="hud-blocked">0 of 0</b><span class="hud-s">attacks, nothing got past</span></div>
   </div>
-  <div class="score" id="score" hidden><canvas id="coins" width="1100" height="90" aria-hidden="true"></canvas><div class="score-line" id="score-line"></div></div>
+  <div class="arena-box">
+    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Level"></div><span class="arena-hint">Enter sends the attack</span></div>
+    <canvas id="arena-canvas" width="1100" height="440" role="img" aria-label="The arena: the shop's vault, the AI alone's open gate, Owed's keeper, and you"></canvas>
+    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI"></textarea><button class="btn attack" id="arena-go">Attack</button></div>
+    <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
+  </div>
   <canvas id="confetti" aria-hidden="true"></canvas>
 </div>
 <section id="arena" style="padding-top:0">
@@ -419,6 +434,7 @@ footer{margin:36px auto 28px}
 
 <footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span></footer>
 </div>
+<script src="arena.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

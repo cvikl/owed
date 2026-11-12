@@ -67,6 +67,18 @@ async function init() {
     K(kind, 'text').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(kind); });
     resetDoors(kind);
   }
+  if (window.OwedArena && $('arena-canvas')) {
+    OwedArena.setFacts({ mug: { owed: cfg.kinds.mug.owedCents, captured: cfg.kinds.mug.capturedCents }, seafood: { owed: cfg.kinds.seafood.owedCents, captured: cfg.kinds.seafood.capturedCents } });
+    OwedArena.init($('arena-canvas'));
+    let level = 'mug';
+    const pick = (k) => { level = k; OwedArena.setLevel(k); for (const b of $('levels').children) b.setAttribute('aria-pressed', String(b.dataset.k === k)); $('arena-text').value = K(k, 'text').value; };
+    for (const [k, label] of [['mug', 'Level 1 · the mug, owed $5'], ['seafood', 'Level 2 · the seafood box, owed $60']]) { const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k; b.textContent = label; b.onclick = () => pick(k); $('levels').appendChild(b); }
+    pick('mug');
+    $('arena-text').addEventListener('input', () => { K(level, 'text').value = $('arena-text').value; });
+    $('arena-go').onclick = () => { K(level, 'text').value = $('arena-text').value; send(level); };
+    $('arena-text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('arena-go').click(); } });
+    for (const [label, c] of CHIPS_BY_KIND.mug.concat(CHIPS_BY_KIND.seafood)) { /* chips live on the cards; the arena keeps one box */ }
+  }
   await Promise.all([loadBoard(), loadResults()]);
   setInterval(loadBoard, 15000);
 }
@@ -187,6 +199,7 @@ async function send(kind) {
   K(kind, 'send').disabled = true; K(kind, 'err').textContent = ''; const t0 = Date.now();
   if (!sessions[kind]) { await newGame(kind); if (!sessions[kind]) { K(kind, 'send').disabled = false; return; } }
   const session = sessions[kind];
+  if (window.OwedArena) OwedArena.attack(kind, text);
   const tick = setInterval(() => { K(kind, 'timer').textContent = ((Date.now() - t0) / 1000).toFixed(1) + ' s'; }, 100);
   for (const d of [1, 2]) { K(kind, `d${d}-live`).textContent = 'reading the message'; K(kind, `d${d}-live`).className = 'live'; K(kind, `d${d}-tag`).textContent = ''; }
   const before = { 1: session.doors?.[1]?.refundedCents ?? 0, 2: session.doors?.[2]?.refundedCents ?? 0 };
@@ -202,6 +215,7 @@ async function send(kind) {
   try {
     const r = await api('/api/message', { method: 'POST', body: JSON.stringify({ token: session.token, text, share: K(kind, 'share').checked }) });
     polling = false; session.doors = r.doors;
+    if (window.OwedArena) OwedArena.payout(kind, { alone: r.doors[1].refundedCents, owedSide: r.doors[2].refundedCents, owed: r.doors[1].owedCents, captured: r.doors[1].capturedCents, askedOwed: (r.attempts[2]?.claims || []).reduce((t, c) => t + c.amountCents, 0) || null });
     for (const d of [1, 2]) { if (!(r.attempts[d].paidCents > 0)) K(kind, `d${d}-live`).textContent = ''; paint(kind, d, r.attempts[d], r.doors[d]); }
     summarise(kind, r.doors); score(kind, r.doors);
     const first = r.attempts[2]?.refunds?.[0] || r.attempts[1]?.refunds?.[0]; if (first) receipt(first.id, true);

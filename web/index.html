@@ -109,8 +109,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 
 <section class="slide dark" id="s1">
   <div class="in">
-    <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
-    <div class="pp-hero"><img src="paypal-wordmark-color.svg" alt="PayPal" class="pp-word"><span>AI Hackathon 2026</span></div>
+    <p class="status" id="mode"><span class="dot"></span><span id="mode-text">on the PayPal sandbox</span></p>
     <h1>No PayPal refund without proof. Not a cent more.</h1>
     <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> The AI still talks to the customer and asks for the refund. Code decides the amount from PayPal's records and the shop's, pays through PayPal, and sends the rest to a person.</p>
     <a class="cta" href="demo.html">Try it live on the sandbox</a><a class="cta ghost" href="#s2">The two-minute version</a>
@@ -260,7 +259,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 <script>
 const $ = (id) => document.getElementById(id);
 const money = (c) => '$' + (c / 100).toFixed(2);
-fetch('/api/config').then((r) => r.json()).then((c) => { const live = c.mode === 'live'; $('mode-text').textContent = live ? 'PayPal AI Hackathon 2026 · live on the PayPal sandbox' : 'PayPal AI Hackathon 2026 · PayPal stand-in, simulated'; $('mode').classList.toggle('sim', !live); $('model-line').textContent = 'Model at both doors: ' + c.model.split('/').pop() + '.'; }).catch(() => {});
+fetch('/api/config').then((r) => r.json()).then((c) => { const live = c.mode === 'live'; $('mode-text').textContent = live ? 'live on the PayPal sandbox' : 'PayPal stand-in, simulated'; $('mode').classList.toggle('sim', !live); $('model-line').textContent = 'Model at both doors: ' + c.model.split('/').pop() + '.'; }).catch(() => {});
 fetch('/api/board').then((r) => r.json()).then((b) => { const t = b.totals; $('l-games').textContent = t.sessions; $('l-alone').textContent = t.door1.sessionsOverpaid; $('l-owed').textContent = t.door2.sessionsOverpaid; if (t.door2.medianRefundMs) $('l-seconds').textContent = (t.door2.medianRefundMs / 1000).toFixed(1) + ' s'; }).catch(() => {});
 const slides = [...document.querySelectorAll('.slide')]; const dots = [...document.querySelectorAll('.dots a')];
 new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe && slides.forEach((s) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe(s));

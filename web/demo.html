@@ -208,8 +208,14 @@ body{background:var(--wash)}
 @media (max-width:900px){.cases{grid-template-columns:1fr}}
 .case{border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.25);overflow:hidden}
 .case-head{padding:14px 18px;border-bottom:1px solid var(--line)}
-.case.refuse .case-head{background:var(--amber-soft)}
+.case.refuse .case-head{background:var(--red-soft)}
 .case.pay .case-head{background:var(--green-soft)}
+.case-head .bars{margin-top:10px}
+.facts-line{margin:10px 0 0;font-size:13px;color:var(--ink-2);line-height:1.45}
+.linkbtn{background:none;border:0;color:var(--mute);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-left:auto}
+.case .doors{margin-top:14px}
+.case .door{padding:12px 14px}
+.case .amount{margin-top:4px}
 .case-head h2{margin:0 0 6px;font:800 18px/1.2 var(--display);letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
 .case-head .thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
 .case-head .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/22px var(--sans);text-align:center;flex:none}
@@ -218,7 +224,7 @@ body{background:var(--wash)}
 .strip{display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
 .case.refuse .strip{background:var(--red-soft)}.case.pay .strip{background:var(--green-soft)}
 .strip b{display:block;font-size:15px;color:var(--ink)}.strip span{font-size:13px;color:var(--ink-2)}
-.bars{display:grid;grid-template-columns:auto 140px auto;gap:4px 8px;align-items:center;font-size:12px;color:var(--ink-2)}
+.bars{display:grid;grid-template-columns:auto 1fr auto;max-width:360px;gap:4px 8px;align-items:center;font-size:12px;color:var(--ink-2)}
 .bars i{display:block;height:8px;border-radius:4px;background:var(--green);width:var(--w)}.bars i.ask{background:var(--red)}
 .case.pay .bars i.ask{background:var(--green)}
 .bars em{font-style:normal;font-weight:600;color:var(--ink)}
@@ -258,7 +264,7 @@ footer{margin:36px auto 28px}
 </div>
 <div class="try" id="top">
   <h1>Try Owed on two real PayPal orders</h1>
-  <p>Pick the shop's instructions, press Run on either order, then click a refund id to open PayPal's record. The same message goes to the AI alone and to the AI behind Owed.</p>
+  <p>Pick the shop's instructions and press Run. The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders.</p>
 </div>
 <section id="arena" style="padding-top:0">
   <h2 class="sr">Try it</h2>
@@ -271,36 +277,31 @@ footer{margin:36px auto 28px}
   <div class="case refuse" id="case-mug">
     <div class="case-head">
       <h2><img src="img/mug-thumb.jpg" alt="" class="thumb"><span class="n">2</span> Overcharged mug: owed $5, the customer asks for $25</h2>
-      <div class="facts"><span>Order <b id="mug-f-total">$0.00</b> <span id="mug-f-item"></span></span><span><img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured <b id="mug-f-captured">$0.00</b></span><span>Owed <b class="owed" id="mug-f-owed">$0.00</b></span><span>Tracking <b id="mug-f-tracking"></b> <small id="mug-f-tracking-src"></small></span></div>
-    </div>
-    <div class="strip">
-      <div><b>The customer asks for too much</b><span>Only $5 is owed. Does the AI alone pay more?</span></div>
       <div class="bars"><span>Owed</span><i style="--w:20%"></i><em>$5</em><span>Asks for</span><i class="ask" style="--w:100%"></i><em>$25</em></div>
+      <p class="facts-line">A $20 mug. <img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured $25, so $5 is owed. Tracker says shipped.<span hidden><b id="mug-f-total"></b><span id="mug-f-item"></span><b id="mug-f-captured"></b><b id="mug-f-owed"></b><b id="mug-f-tracking"></b><small id="mug-f-tracking-src"></small></span></p>
     </div>
     <div class="case-body">
       <label class="sr" for="mug-text">The customer's message</label>
       <textarea id="mug-text" maxlength="1500" placeholder="The customer's message"></textarea>
-      <div class="row"><button class="btn" id="mug-send">Run both doors</button><button class="btn secondary" id="mug-new">New orders</button><span class="timer num" id="mug-timer"></span></div>
+      <div class="row"><button class="btn" id="mug-send">Run both doors</button><span class="timer num" id="mug-timer"></span><button class="linkbtn" id="mug-new">New orders</button></div>
       <div class="err" id="mug-err" role="status" aria-live="polite"></div>
       <p class="sum" id="mug-sum" hidden></p>
       <div class="doors">
         <div class="door alone" id="mug-d1">
-          <h3>AI alone <small>refund call straight to <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <h3>AI alone</h3>
           <div class="amount zero num" id="mug-d1-amt">$0.00</div>
           <span class="tag" id="mug-d1-tag">no refund yet</span>
           <div class="live" id="mug-d1-live"></div>
-          <div class="reply" id="mug-d1-reply"></div>
           <div class="ids" id="mug-d1-ids"></div>
-          <details><summary>Trace</summary><pre id="mug-d1-steps"></pre></details>
+          <details><summary>Reply and trace</summary><div class="reply" id="mug-d1-reply"></div><pre id="mug-d1-steps"></pre></details>
         </div>
         <div class="door owed" id="mug-d2">
-          <h3>AI behind Owed <small>code checks the records, then pays through <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <h3>AI behind Owed</h3>
           <div class="amount zero num" id="mug-d2-amt">$0.00</div>
           <span class="tag" id="mug-d2-tag">no refund yet</span>
           <div class="live" id="mug-d2-live"></div>
-          <div class="reply" id="mug-d2-reply"></div>
           <div class="ids" id="mug-d2-ids"></div>
-          <details><summary>Trace</summary><pre id="mug-d2-steps"></pre></details>
+          <details><summary>Reply and trace</summary><div class="reply" id="mug-d2-reply"></div><pre id="mug-d2-steps"></pre></details>
         </div>
       </div>
       <details class="break"><summary>Now try to break it</summary><div class="chips" id="mug-chips"></div><label class="share"><input type="checkbox" id="mug-share"> Show my message on the public board</label></details>
@@ -309,36 +310,31 @@ footer{margin:36px auto 28px}
   <div class="case pay" id="case-seafood">
     <div class="case-head">
       <h2><img src="img/seafood-thumb.jpg" alt="" class="thumb"><span class="n">2</span> Chilled seafood, courier cancelled: owed all $60</h2>
-      <div class="facts"><span>Order <b id="seafood-f-total">$0.00</b> <span id="seafood-f-item"></span></span><span><img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured <b id="seafood-f-captured">$0.00</b></span><span>Owed <b class="owed" id="seafood-f-owed">$0.00</b></span><span>Tracking <b id="seafood-f-tracking"></b> <small id="seafood-f-tracking-src"></small></span></div>
-    </div>
-    <div class="strip">
-      <div><b>The customer is owed everything</b><span>The courier cancelled, so all $60 is owed. Does the AI pay it?</span></div>
       <div class="bars"><span>Owed</span><i style="--w:100%"></i><em>$60</em><span>Asks for</span><i class="ask" style="--w:100%"></i><em>$60</em></div>
+      <p class="facts-line">A $60 chilled seafood box. <img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured $60. The shop's shipping record says the courier cancelled, so all $60 is owed.<span hidden><b id="seafood-f-total"></b><span id="seafood-f-item"></span><b id="seafood-f-captured"></b><b id="seafood-f-owed"></b><b id="seafood-f-tracking"></b><small id="seafood-f-tracking-src"></small></span></p>
     </div>
     <div class="case-body">
       <label class="sr" for="seafood-text">The customer's message</label>
       <textarea id="seafood-text" maxlength="1500" placeholder="The customer's message"></textarea>
-      <div class="row"><button class="btn" id="seafood-send">Run both doors</button><button class="btn secondary" id="seafood-new">New orders</button><span class="timer num" id="seafood-timer"></span></div>
+      <div class="row"><button class="btn" id="seafood-send">Run both doors</button><span class="timer num" id="seafood-timer"></span><button class="linkbtn" id="seafood-new">New orders</button></div>
       <div class="err" id="seafood-err" role="status" aria-live="polite"></div>
       <p class="sum" id="seafood-sum" hidden></p>
       <div class="doors">
         <div class="door alone" id="seafood-d1">
-          <h3>AI alone <small>refund call straight to <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <h3>AI alone</h3>
           <div class="amount zero num" id="seafood-d1-amt">$0.00</div>
           <span class="tag" id="seafood-d1-tag">no refund yet</span>
           <div class="live" id="seafood-d1-live"></div>
-          <div class="reply" id="seafood-d1-reply"></div>
           <div class="ids" id="seafood-d1-ids"></div>
-          <details><summary>Trace</summary><pre id="seafood-d1-steps"></pre></details>
+          <details><summary>Reply and trace</summary><div class="reply" id="seafood-d1-reply"></div><pre id="seafood-d1-steps"></pre></details>
         </div>
         <div class="door owed" id="seafood-d2">
-          <h3>AI behind Owed <small>code checks the records, then pays through <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <h3>AI behind Owed</h3>
           <div class="amount zero num" id="seafood-d2-amt">$0.00</div>
           <span class="tag" id="seafood-d2-tag">no refund yet</span>
           <div class="live" id="seafood-d2-live"></div>
-          <div class="reply" id="seafood-d2-reply"></div>
           <div class="ids" id="seafood-d2-ids"></div>
-          <details><summary>Trace</summary><pre id="seafood-d2-steps"></pre></details>
+          <details><summary>Reply and trace</summary><div class="reply" id="seafood-d2-reply"></div><pre id="seafood-d2-steps"></pre></details>
         </div>
       </div>
       <details class="break"><summary>Now try to break it</summary><div class="chips" id="seafood-chips"></div><label class="share"><input type="checkbox" id="seafood-share"> Show my message on the public board</label></details>

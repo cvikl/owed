@@ -73,7 +73,7 @@ async function init() {
     for (const [k, label] of [['mug', 'The mug: owed $5, asks for $25'], ['seafood', 'The seafood box: owed all $60']]) { const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k; b.textContent = label; b.onclick = () => pick(k); $('levels').appendChild(b); }
     pick('mug');
     $('arena-text').addEventListener('input', () => { K(level, 'text').value = $('arena-text').value; });
-    $('arena-go').onclick = () => { K(level, 'text').value = $('arena-text').value; send(level); };
+    $('arena-go').onclick = async () => { K(level, 'text').value = $('arena-text').value; const b = $('arena-go'); b.disabled = true; b.textContent = 'Sending…'; try { await send(level); } finally { b.disabled = false; b.textContent = 'Send to both'; } };
     $('arena-text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('arena-go').click(); } });
     for (const [label, c] of CHIPS_BY_KIND.mug.concat(CHIPS_BY_KIND.seafood)) { /* chips live on the cards; the arena keeps one box */ }
   }
@@ -206,7 +206,7 @@ async function send(kind) {
     while (polling) {
       await new Promise((r) => setTimeout(r, 350));
       try { const l = await api('/api/live?token=' + encodeURIComponent(session.token)); if (!polling) break;
-        for (const d of [1, 2]) { const x = l.doors[d]; if (x.refundedCents > before[d] && x.lastRefundMs != null) { before[d] = x.refundedCents; const amt = K(kind, `d${d}-amt`); amt.className = 'amount num ' + (x.refundedCents > x.owedCents ? 'over' : 'ok'); countTo(amt, x.refundedCents / 100, { dec: 2, prefix: '$', ms: 500 }); liveLine(kind, d, x.lastRefundMs, x.refundedCents > x.owedCents); } }
+        for (const d of [1, 2]) { const x = l.doors[d]; if (x.refundedCents > before[d] && x.lastRefundMs != null) { before[d] = x.refundedCents; const amt = K(kind, `d${d}-amt`); amt.className = 'amount num ' + (x.refundedCents > x.owedCents ? 'over' : 'ok'); countTo(amt, x.refundedCents / 100, { dec: 2, prefix: '$', ms: 500 }); liveLine(kind, d, x.lastRefundMs, x.refundedCents > x.owedCents); if (window.OwedFlow) OwedFlow.live(d, x.refundedCents, x.owedCents, x.capturedCents); } }
       } catch { /* the final answer will paint the doors */ }
     }
   })();

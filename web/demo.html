@@ -194,7 +194,7 @@ body{background:var(--wash);position:relative}
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(55% 45% at 85% 0%,rgba(15,107,78,.14),transparent 70%),radial-gradient(45% 40% at 0% 100%,rgba(94,224,164,.16),transparent 70%),radial-gradient(40% 40% at 60% 90%,rgba(241,198,107,.10),transparent 70%),var(--wash)}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.06;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");mix-blend-mode:multiply}
 .wrap{max-width:1180px}
-.topbar{height:60px}
+.topbar{height:56px}
 .pp-pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px 6px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);color:#003087}
 .pp-pill img{width:18px;height:18px}
 .pp-in{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
@@ -262,6 +262,8 @@ section>p.lead{font-size:14px;margin-bottom:12px}
 #audit .lead{display:none}
 footer{margin:36px auto 28px}
 .hud{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.hud[hidden]{display:none}
+.arena-box{min-height:calc(100vh - 72px)}
 @media (max-width:760px){.hud{grid-template-columns:1fr}}
 .hud-cell{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:14px 18px;box-shadow:0 1px 2px rgba(16,22,20,.06);position:relative;overflow:hidden}
 .hud-cell::after{content:"";position:absolute;right:-30%;top:-60%;width:80%;height:160%;background:radial-gradient(closest-side,rgba(94,224,164,.18),transparent);pointer-events:none}
@@ -274,7 +276,15 @@ footer{margin:36px auto 28px}
 .more-all{margin-top:18px}.more-all>summary{font-size:14px;color:var(--ink-2);font-weight:600;padding:10px 0}
 .more-all.second{margin-top:8px}
 .dialbar.under{margin-top:12px}
-.arena-box{margin:14px 0 0;border:1px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.3)}
+.wrap.full{max-width:1400px}
+.try{margin:0}
+.arena-box{display:flex;flex-direction:column;min-height:calc(100vh - 76px)}
+.arena-box .flow{flex:1;display:flex;align-items:center}
+.arena-box .flow svg{width:100%}
+.dial-inline{display:flex;align-items:center;gap:10px;margin-left:auto}
+.dial-inline .dl{font-size:13px;font-weight:600;color:var(--ink-2)}
+.custom-row{padding:0 14px}.custom-row textarea{margin:10px 0 0}
+.arena-box{margin:8px 0 0;border:1px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.3)}
 .arena-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--wash)}
 .levels button{font-weight:600}
 .arena-hint{font-size:12px;color:var(--mute)}
@@ -315,22 +325,22 @@ footer{margin:36px auto 28px}
 </head>
 <body>
 
-<div class="wrap">
+<div class="wrap full">
 <div class="topbar">
   <a class="mark" href="index.html"><img src="owed_mark.svg" alt="">Owed</a>
   <nav class="topnav" aria-label="Sections"><a href="index.html">Overview</a><a href="#arena" class="active">Try it</a><a href="#audit">Audit</a><a href="#board">Board</a></nav>
   <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
 </div>
 <div class="try" id="top">
-  <h1>Can you get money past Owed?</h1>
-  <p>One message goes to the AI alone and to the AI behind Owed, on two real PayPal sandbox orders. Watch where the money goes.</p>
+  <h1 class="sr">Try Owed</h1>
   <div class="hud" hidden>
     <div class="hud-cell"><span class="hud-l">Your score</span><b class="hud-v num" id="hud-you">$0.00</b><span class="hud-s" id="hud-round">no attack sent yet</span></div>
     <div class="hud-cell"><span class="hud-l">Best score today</span><b class="hud-v num red" id="hud-best">$0.00</b><span class="hud-s" id="hud-best-s">out of the AI alone</span></div>
     <div class="hud-cell shield"><span class="hud-l">Owed has blocked</span><b class="hud-v num green" id="hud-blocked">0 of 0</b><span class="hud-s">attacks, nothing got past</span></div>
   </div>
   <div class="arena-box">
-    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Order"></div><span class="arena-hint">One message, two paths. Ribbons are the money; the numbers are PayPal's.</span></div>
+    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Order"></div><div class="dial-inline"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div></div>
+    <div class="custom-row"><label class="sr" for="custom">Your own instructions for the AI</label><textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea><details class="prompt-d" hidden><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details></div>
     <div class="flow">
       <svg viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="flow-t">
         <title id="flow-t">What happens to one message: the AI alone pays PayPal straight away; behind Owed, code checks the records, PayPal pays what they prove and the rest goes to a person</title>
@@ -367,7 +377,6 @@ footer{margin:36px auto 28px}
     <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
   </div>
   <canvas id="confetti" aria-hidden="true"></canvas>
-  <div class="dialbar under"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div>
     <label class="sr" for="custom">Your own instructions for the AI</label>
     <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea>
     <details class="prompt-d"><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details>

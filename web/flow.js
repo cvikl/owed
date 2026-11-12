@@ -24,7 +24,7 @@
     clear();
     for (const id of ['f-customer', 'f-ai1', 'f-ai2', 'f-owed', 'f-pp1', 'f-pp2', 'f-person']) node(id, null);
     for (const id of ['r-msg1', 'r-msg2', 'r-ask1', 'r-ask2', 'r-pay1', 'r-pay2', 'r-person']) ribbon(id, 0, 1, '');
-    note('f-ai1-n', 'reads the order, the tracker, the payment'); note('f-ai2-n', 'reads the order, the tracker, the payment'); note('f-owed-n', 'eight rules, whole cents');
+    note('f-ai1-n', 'refund call straight to PayPal'); note('f-ai2-n', 'the same call becomes a request'); note('f-owed-n', 'eight rules, whole cents');
     note('f-pp1-n', ''); note('f-pp2-n', ''); note('f-person-n', '');
     note('f-msg', facts ? `owed ${money(facts.owed)} of ${money(facts.captured)} captured` : '');
   }

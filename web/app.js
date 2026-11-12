@@ -89,7 +89,7 @@ function showPrompt() {
 function setPrompt(k, quiet) {
   promptKind = k;
   for (const b of $('seg').children) b.setAttribute('aria-pressed', String(b.dataset.k === k));
-  $('custom').hidden = k !== 'custom'; showPrompt();
+  $('custom').hidden = k !== 'custom'; const pd = document.querySelector('.prompt-d'); if (pd) pd.hidden = k !== 'custom'; showPrompt();
   if (!quiet) { for (const kind of KINDS) { sessions[kind] = null; resetDoors(kind); } if (k === 'custom') $('custom').focus(); }
 }
 

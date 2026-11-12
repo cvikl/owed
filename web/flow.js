@@ -32,7 +32,7 @@
     reset(facts); note('f-msg', text.length > 60 ? text.slice(0, 58) + '…' : text);
     node('f-customer', 'active');
     const col = getComputedStyle(document.documentElement).getPropertyValue('--line-strong').trim() || '#b8c0bb';
-    later(200, () => { ribbon('r-msg1', 1, 1, col); ribbon('r-msg2', 1, 1, col); $('r-msg1-l').textContent = ''; $('r-msg2-l').textContent = ''; node('f-ai1', 'active'); node('f-ai2', 'active'); note('f-ai1-n', 'reading the records, talking to PayPal…'); note('f-ai2-n', 'reading the records, talking to PayPal…'); });
+    later(200, () => { for (const id of ['r-msg1', 'r-msg2']) { const el = $(id); el.style.strokeWidth = 3; el.style.stroke = col; } $('r-msg1-l').textContent = ''; $('r-msg2-l').textContent = ''; node('f-ai1', 'active'); node('f-ai2', 'active'); note('f-ai1-n', 'reading the records, talking to PayPal…'); note('f-ai2-n', 'reading the records, talking to PayPal…'); });
   }
   /* r: { owed, captured, alone: cents paid by the AI alone, owedSide: cents paid behind Owed, asked1, asked2, steps1, steps2, ids1, ids2, person } */
   function finish(r) {
@@ -48,7 +48,7 @@
     later(t += 500, () => { if (r.alone > 0) { ribbon('r-pay1', r.alone, max, r.alone > r.owed ? red : green); node('f-pp1', r.alone > r.owed ? 'bad' : 'good'); note('f-pp1-n', (r.alone > r.owed ? money(r.alone - r.owed) + ' more than was owed' : 'exactly what was owed') + (r.ids1?.length ? ' · ' + r.ids1[0] : '')); } else { node('f-pp1', 'warn'); note('f-pp1-n', 'nothing paid, ' + money(r.owed) + ' still owed'); } });
     // behind Owed
     const s2 = seq(r.steps2); note('f-ai2-n', s2.length ? s2.join(' · ') : 'answered without a tool call');
-    later(t += 300, () => { node('f-ai2', 'done'); const ask = r.asked2 > 0 ? r.asked2 : r.owedSide; if (ask > 0) { ribbon('r-ask2', ask, max, mute); $('r-ask2-l').textContent = (r.asked2 > 0 ? 'create_refund ' : 'record settles ') + money(ask) + ' → a request'; } else { $('r-ask2-l').textContent = 'no refund call, nothing claimed'; } node('f-owed', 'active'); note('f-owed-n', 'checking PayPal\'s capture and refunds, the shop\'s order, the delivery record…'); });
+    later(t += 300, () => { node('f-ai2', 'done'); const ask = r.asked2 > 0 ? r.asked2 : r.owedSide; if (ask > 0) { ribbon('r-ask2', ask, max, mute); $('r-ask2-l').textContent = 'request ' + money(ask); } else { $('r-ask2-l').textContent = 'no call'; } node('f-owed', 'active'); note('f-owed-n', 'checking PayPal\'s capture and refunds, the shop\'s order, the delivery record…'); });
     later(t += 900, () => { node('f-owed', 'done'); note('f-owed-n', r.rule ? r.rule.replace(/record settled: /, '') : 'eight rules, whole cents');
       if (r.owedSide > 0) { ribbon('r-pay2', r.owedSide, max, green); node('f-pp2', 'good'); note('f-pp2-n', 'exactly what the records prove' + (r.ids2?.length ? ' · ' + r.ids2[0] : '')); } else { node('f-pp2', 'warn'); note('f-pp2-n', 'nothing paid'); }
       const person = Math.max(0, (r.asked2 > 0 ? r.asked2 : 0) - r.owedSide);

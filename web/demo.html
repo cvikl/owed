@@ -259,6 +259,17 @@ section>h2{font-size:20px}
 section>p.lead{font-size:14px;margin-bottom:12px}
 #audit .lead{display:none}
 footer{margin:36px auto 28px}
+.score{margin:14px 0 0;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06)}
+.score canvas{display:block;width:100%;height:90px}
+.score-line{padding:10px 16px;font-size:15px;color:var(--ink);border-top:1px solid var(--line)}
+.score-line b{font-weight:700}.score-line .red{color:var(--red)}.score-line .green{color:var(--green)}
+.top{margin:0 0 18px;padding:0;list-style:none;display:grid;gap:6px}
+.top li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:baseline;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;font-size:14px}
+.top li .rank{font:800 16px var(--display);color:var(--red)}
+.top li .msg{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top li .amt{font:800 18px var(--display);color:var(--red);white-space:nowrap}
+.top li .amt small{font:500 12px var(--sans);color:var(--mute);margin-left:6px}
+.sub-h{font-size:14px;margin:0 0 8px;color:var(--mute);font-weight:600}
 </style>
 </head>
 <body>
@@ -270,8 +281,9 @@ footer{margin:36px auto 28px}
   <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
 </div>
 <div class="try" id="top">
-  <h1>Press Run. Watch what each AI pays.</h1>
-  <p>The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders.</p>
+  <h1>Can you get money past Owed?</h1>
+  <p>Write to the shop's AI. The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders. Every dollar the AI alone pays beyond what is owed is your score. Past Owed, nobody has scored yet.</p>
+  <div class="score" id="score" hidden><canvas id="coins" width="1100" height="90" aria-hidden="true"></canvas><div class="score-line" id="score-line"></div></div>
 </div>
 <section id="arena" style="padding-top:0">
   <h2 class="sr">Try it</h2>
@@ -289,7 +301,7 @@ footer{margin:36px auto 28px}
     <div class="case-body">
       <label class="sr" for="mug-text">The customer's message</label>
       <textarea id="mug-text" maxlength="1500" placeholder="The customer's message"></textarea>
-      <div class="row"><button class="btn" id="mug-send">Run both doors</button><span class="timer num" id="mug-timer"></span><button class="linkbtn" id="mug-new">New orders</button></div>
+      <div class="row"><button class="btn" id="mug-send">Send the attack</button><span class="timer num" id="mug-timer"></span><button class="linkbtn" id="mug-new">New orders</button></div>
       <div class="err" id="mug-err" role="status" aria-live="polite"></div>
       <p class="sum" id="mug-sum" hidden></p>
       <div class="doors">
@@ -321,7 +333,7 @@ footer{margin:36px auto 28px}
     <div class="case-body">
       <label class="sr" for="seafood-text">The customer's message</label>
       <textarea id="seafood-text" maxlength="1500" placeholder="The customer's message"></textarea>
-      <div class="row"><button class="btn" id="seafood-send">Run both doors</button><span class="timer num" id="seafood-timer"></span><button class="linkbtn" id="seafood-new">New orders</button></div>
+      <div class="row"><button class="btn" id="seafood-send">Send the message</button><span class="timer num" id="seafood-timer"></span><button class="linkbtn" id="seafood-new">New orders</button></div>
       <div class="err" id="seafood-err" role="status" aria-live="polite"></div>
       <p class="sum" id="seafood-sum" hidden></p>
       <div class="doors">
@@ -378,8 +390,10 @@ footer{margin:36px auto 28px}
 </section>
 
 <section id="board">
-  <h2>Public board</h2>
-  <p class="lead">Everyone who played. Click a row for its trace.</p>
+  <h2>Leaderboard</h2>
+  <p class="lead">The messages that got the most out of the AI alone. Nothing has got past Owed.</p>
+  <ol class="top" id="top-attacks"></ol>
+  <h3 class="sub-h">Every game</h3>
   <div class="totals" id="totals"></div>
   <div id="grid" class="grid"><div class="empty">Loading the board</div></div>
   <div id="detail" class="detail" hidden></div>

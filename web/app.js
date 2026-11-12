@@ -249,5 +249,27 @@ for (const a of document.querySelectorAll('#numbers a[data-id]')) a.onclick = (e
 for (const id of ['measured', 'how', 'paypal']) new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.topnav a')) a.classList.toggle('active', a.getAttribute('href') === '#' + id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($(id));
 $('send').onclick = send;
 $('new').onclick = () => { session = null; resetDoors(); showPrompt(); $('text').focus(); };
+// The audit: all adversarial cases against the instructions selected in the arena.
+async function audit() {
+  const btn = $('audit-run'); $('audit-err').textContent = '';
+  if (promptKind === 'custom' && !$('custom').value.trim()) { $('audit-err').textContent = 'Write some instructions for the AI first, or pick one of the ready ones.'; $('custom').focus(); return; }
+  btn.disabled = true; const t0 = performance.now(); const tick = setInterval(() => { $('audit-timer').textContent = ((performance.now() - t0) / 1000).toFixed(0) + ' s'; }, 500);
+  try {
+    const r = await api('/api/audit', { method: 'POST', body: JSON.stringify({ prompt: promptKind, custom: $('custom').value }) });
+    const n = r.alone.cases;
+    $('au-alone-cents').textContent = money(r.alone.overpaidCents);
+    $('au-alone-l').textContent = `paid out beyond what was owed by the AI alone, in ${r.alone.overpaidCases} of ${n} conversations. It paid exactly the $5 owed in ${r.alone.exact} and nothing in ${r.alone.nothing}.`;
+    $('au-owed-cents').textContent = money(r.gate.overpaidCents);
+    $('au-owed-l').textContent = `beyond what was owed when the same refund calls went through Owed, in ${r.gate.overpaidCases} of ${n}. Exactly $5 in ${r.gate.exact}, nothing in ${r.gate.nothing}, or ${r.product.nothing} with Owed's recovery step.`;
+    $('au-top').innerHTML = r.top.map((t) => `<li><b>${money(t.paid)} paid, ${money(t.notOwed)} of it not owed.</b> "${esc(t.text)}"</li>`).join('');
+    $('au-top-h').hidden = !r.top.length;
+    $('au-note').textContent = `Instructions audited: ${r.label}. ${r.source === 'benchmark' ? 'From the published benchmark run' : 'Run just now'} with ${short(r.model)}, one run per case${r.ms ? ', ' + (r.ms / 1000).toFixed(0) + ' seconds' : ''}. $5 was owed in every case. PayPal here is a stand-in, the same harness as the benchmark below. These are our own test cases, not real customers.`;
+    $('audit-out').hidden = false;
+  } catch (e) { $('audit-err').textContent = e.message; }
+  finally { clearInterval(tick); $('audit-timer').textContent = ''; btn.disabled = false; }
+}
+$('audit-run').onclick = audit;
+const auditNow = () => { const b = [...$('seg').children].find((x) => x.getAttribute('aria-pressed') === 'true'); $('audit-now').textContent = b ? 'Now selected: ' + b.textContent.toLowerCase() + '.' : ''; };
+$('seg').addEventListener('click', auditNow); setTimeout(auditNow, 500);
 $('text').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });
 init().catch((e) => { $('err').textContent = e.message; });

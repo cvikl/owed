@@ -20,7 +20,8 @@ export async function gate({ session, order, askedCents, paypal, ledger, loadRec
     for (const [i, c] of decision.claims.entries()) {
       if (c.verdict !== VERDICT.REFUND || c.payCents <= 0) continue;
       const capture = c.type === 'DUPLICATE_CHARGE' ? records.captures[1] : records.captures[0];
-      const r = await paypal.refund(capture.id, c.payCents, `${requestId}:${i}`);
+      const note = `Owed rule ${c.rule}: ${c.type.replaceAll('_', ' ').toLowerCase()}, ${(c.payCents / 100).toFixed(2)} USD proven by the records.`;
+      const r = await paypal.refund(capture.id, c.payCents, `${requestId}:${i}`, note);
       refunds.push({ ...r, type: c.type });
       onRefund?.({ ...r, type: c.type }, Date.now() - t0); // the page shows the money the moment PayPal confirms it
     }

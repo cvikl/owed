@@ -49,9 +49,11 @@ export class PayPalRest {
     return this.#call('PATCH', `/v2/checkout/orders/${orderId}/trackers/${trackerId}`, [{ op: 'replace', path: '/status', value: status }]);
   }
   /** Refund part or all of a capture. With amountCents null PayPal refunds whatever is left, as the toolkit's call does. requestId makes a retry safe. */
-  async refund(captureId, amountCents, requestId) {
-    const r = await this.#call('POST', `/v2/payments/captures/${captureId}/refund`,
-      amountCents == null ? {} : { amount: { value: toValue(amountCents), currency_code: this.currency } },
+  async refund(captureId, amountCents, requestId, note) {
+    // note_to_payer puts Owed's reason inside PayPal's own refund record (max 255 chars); REFUND_NOTE=0 switches it off.
+    const body = amountCents == null ? {} : { amount: { value: toValue(amountCents), currency_code: this.currency } };
+    if (note && process.env.REFUND_NOTE !== '0') body.note_to_payer = String(note).slice(0, 255);
+    const r = await this.#call('POST', `/v2/payments/captures/${captureId}/refund`, body,
       requestId ? { 'PayPal-Request-Id': requestId } : {});
     // PayPal caps a refund at what is left on the capture (sandbox, 11 Nov 2026: asked 2500 after 500, got 2000). Report what PayPal did.
     return { id: r.id, captureId, amountCents: r.amount?.value ? toCents(r.amount.value) : amountCents, askedCents: amountCents, status: r.status };

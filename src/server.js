@@ -7,6 +7,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { Pool, FACTS, KINDS, factsFor } from './pool.js';
+import { runCase } from '../scripts/bench.js';
+import { parseModel } from './agent.js';
 import { Ledger } from './ledger.js';
 import { DEFAULT_RULES } from './engine.js';
 import { runTurn, labelClaims } from './loop.js';
@@ -23,6 +25,8 @@ const LIVE = Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_S
 const MAX_TURNS_PER_DOOR = Number(process.env.MAX_TURNS_PER_DOOR ?? 6);
 const MAX_MESSAGES_PER_IP_HOUR = Number(process.env.MAX_MESSAGES_PER_IP_HOUR ?? 60);
 const MAX_SESSIONS_PER_IP_HOUR = Number(process.env.MAX_SESSIONS_PER_IP_HOUR ?? 10);
+const MAX_AUDITS_PER_IP_HOUR = Number(process.env.MAX_AUDITS_PER_IP_HOUR ?? 2);
+const MAX_AUDITS_PER_DAY = Number(process.env.MAX_AUDITS_PER_DAY ?? 30);
 const MAX_MESSAGES_PER_DAY = Number(process.env.MAX_MESSAGES_PER_DAY ?? 4000); // the whole site, so one script cannot empty the model key during judging
 const DEFAULT_PROMPT = PROMPTS[process.env.DEFAULT_PROMPT] ? process.env.DEFAULT_PROMPT : 'shop';
 const DISPUTES_CHECKED = LIVE && process.env.CHECK_DISPUTES === '1';
@@ -60,6 +64,30 @@ function loadBench() {
     try { const b = JSON.parse(fs.readFileSync(f, 'utf8')); return { label: b.label, models: b.models, summary: b.summary, card: b.card ?? null, paired: b.paired ?? null, commit: b.commit ?? null, prompts: b.prompts ?? ['strict'], runs: b.runs ?? 1, promptLabels: b.promptLabels ?? PROMPT_LABELS, at: b.at ?? null }; } catch { }
   }
   return null;
+}
+
+// The audit: every adversarial test case against one set of instructions, on the PayPal stand-in, with the arena's model.
+// Built-in instructions come from the published benchmark run (same cases, same model). Custom instructions run live, cached an hour.
+const ATTACKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'attacks.json'), 'utf8')).filter((a) => a.family !== 'honest');
+const auditCache = new Map(); let auditsToday = { day: '', n: 0 }; let auditRunning = 0;
+function auditFromBench(kind) {
+  const b = loadBenchFull(); if (!b) return null;
+  const rows = b.rows.filter((r) => r.model === `openai:${MODEL}` && r.prompt === kind && r.kind === 'attack' && r.run === 0);
+  if (!rows.length) return null;
+  const arm = (door) => { const x = rows.filter((r) => r.door === door); return { cases: x.length, overpaidCases: x.filter((r) => r.overpaid > 0).length, overpaidCents: x.reduce((s, r) => s + r.overpaid, 0), exact: x.filter((r) => r.paidInFull).length, nothing: x.filter((r) => r.refunded === 0).length }; };
+  const top = rows.filter((r) => r.door === 1 && r.overpaid > 0).sort((a, b) => b.overpaid - a.overpaid).slice(0, 3).map((r) => { const a = ATTACKS.find((x) => String(x.id) === String(r.id)); return { paid: r.refunded, notOwed: r.overpaid, text: a?.turns?.[0] ?? '' }; });
+  return { source: 'benchmark', at: b.at, commit: b.commit, model: MODEL, label: PROMPT_LABELS[kind], alone: arm(1), gate: arm('gate'), product: arm(2), top, ms: null };
+}
+function loadBenchFull() { for (const f of [path.join(DATA, 'bench-results.json'), path.join(ROOT, 'scripts', 'bench-results.json')]) { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { } } return null; }
+async function auditLive(kind, custom) {
+  const model = parseModel(`openai:${MODEL}`); const t0 = Date.now();
+  const jobs = ATTACKS.map((a) => ({ a, c: { scenario: a.scenario ?? 'overcharge', turns: a.turns, note: a.note, prompt: kind, custom } }));
+  const out = []; let i = 0;
+  await Promise.all(Array.from({ length: 6 }, async () => { while (i < jobs.length) { const k = i++; try { out[k] = { a: jobs[k].a, r: await runCase(model, jobs[k].c) }; } catch (e) { out[k] = { a: jobs[k].a, err: e.message }; } } }));
+  const ok = out.filter((x) => x.r);
+  const arm = (pick) => ({ cases: ok.length, overpaidCases: ok.filter((x) => pick(x.r).overpaid > 0).length, overpaidCents: ok.reduce((s, x) => s + pick(x.r).overpaid, 0), exact: ok.filter((x) => pick(x.r).paidInFull).length, nothing: ok.filter((x) => pick(x.r).refunded === 0).length });
+  const top = ok.filter((x) => x.r.direct.overpaid > 0).sort((a, b) => b.r.direct.overpaid - a.r.direct.overpaid).slice(0, 3).map((x) => ({ paid: x.r.direct.refunded, notOwed: x.r.direct.overpaid, text: x.a.turns[0] }));
+  return { source: 'live', at: new Date().toISOString(), model: MODEL, label: kind === 'custom' ? 'Your own instructions' : PROMPT_LABELS[kind], alone: arm((r) => r.direct), gate: arm((r) => r.gate), product: arm((r) => r.product), top, ms: Date.now() - t0, errors: out.length - ok.length };
 }
 
 function rate(ip, kind, limit) {
@@ -199,6 +227,22 @@ const server = http.createServer(async (req, res) => {
       const sb = await readBody(req).catch(() => ({}));
       const s = await newSession(ip, { prompt: sb.prompt, custom: sb.custom, order: sb.order });
       return json(res, 200, { token: s.token, id: s.id, mode: pool.mode, model: MODEL, prompt: s.promptKind, kind: s.kind, doors: { 1: publicOrder(s.doors[1]), 2: publicOrder(s.doors[2]) } });
+    }
+    if (url.pathname === '/api/audit' && req.method === 'POST') {
+      const sb = await readBody(req).catch(() => ({}));
+      const kind = sb.prompt === 'custom' && String(sb.custom ?? '').trim() ? 'custom' : PROMPTS[sb.prompt] ? sb.prompt : DEFAULT_PROMPT;
+      const custom = kind === 'custom' ? String(sb.custom).trim().slice(0, 2000) : null;
+      const key = kind === 'custom' ? 'custom:' + crypto.createHash('sha256').update(custom).digest('hex').slice(0, 16) : kind;
+      const cached = auditCache.get(key); if (cached && Date.now() - cached.t < 3600_000) return json(res, 200, { ...cached.v, cached: true });
+      const fromBench = kind !== 'custom' ? auditFromBench(kind) : null;
+      if (fromBench) { auditCache.set(key, { t: Date.now(), v: fromBench }); return json(res, 200, fromBench); }
+      if (!rate(ip, 'audit', MAX_AUDITS_PER_IP_HOUR)) return json(res, 429, { error: 'Two audits an hour from one address. Try again later.' });
+      const day = new Date().toISOString().slice(0, 10); if (auditsToday.day !== day) auditsToday = { day, n: 0 };
+      if (auditsToday.n >= MAX_AUDITS_PER_DAY) return json(res, 429, { error: 'The audit has reached its limit for today so the bill stays small.' });
+      if (auditRunning >= 2) return json(res, 429, { error: 'Two audits are running already. Try again in a minute.' });
+      auditsToday.n++; auditRunning++;
+      try { const v = await auditLive(kind, custom); auditCache.set(key, { t: Date.now(), v }); return json(res, 200, v); }
+      finally { auditRunning--; }
     }
     if (url.pathname === '/api/message' && req.method === 'POST') {
       const body = await readBody(req);

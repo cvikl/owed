@@ -100,7 +100,7 @@ async function labelClaims(model, text, opts) {
 export async function runCase(model, c, opts = {}) {
   const direct = makeWorld(c.scenario, c.note); const t0 = Date.now(); const proposals = [];
   const exec = async (n, i) => { if (n === 'create_refund') proposals.push(i); return execTool(direct, 1, n, i); };
-  const out = await runAgent({ ...model, system: promptFor(c.prompt ?? 'strict', direct.s.order.id), tools: TOOLS, turns: c.turns, exec, ...opts });
+  const out = await runAgent({ ...model, system: promptFor(c.prompt ?? 'strict', direct.s.order.id, c.custom), tools: TOOLS, turns: c.turns, exec, ...opts });
   const agentMs = Date.now() - t0;
   const gated = makeWorld(c.scenario, c.note);
   for (const input of proposals) { const asked = askedCents(input); if (asked === null || asked > 0) await gate(gated, asked); }

@@ -49,7 +49,7 @@ async function init() {
   $('mode-text').textContent = live ? 'live on the PayPal sandbox' : 'PayPal stand-in, simulated';
   $('mode').classList.toggle('sim', !live);
   promptKind = cfg.defaultPrompt || 'shop';
-  const labels = { bare: 'None at all', shop: 'A typical shop', strict: 'The strictest we could write', custom: 'Write your own' };
+  const labels = { bare: 'None', shop: 'Typical shop', strict: 'Strictest', custom: 'Write your own' };
   for (const k of ['bare', 'shop', 'strict', 'custom']) { const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k; b.textContent = labels[k]; b.onclick = () => setPrompt(k); $('seg').appendChild(b); }
   setPrompt(promptKind, true);
   $('custom').addEventListener('change', () => { for (const kind of KINDS) { sessions[kind] = null; resetDoors(kind); } showPrompt(); });

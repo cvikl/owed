@@ -11,292 +11,123 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.55 var(--sans)}
-:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:4px}
-a{color:inherit}button{font:inherit}
-h1,h2,h3{text-wrap:balance}
-.num{font-variant-numeric:tabular-nums}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.wrap{max-width:var(--container,1200px);margin:0 auto;padding:0 24px}
-/* top bar */
-.topbar{display:flex;align-items:center;gap:18px;height:64px}
-.mark{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font:700 18px var(--sans);letter-spacing:-.01em;color:var(--ink)}
-.mark img{width:26px;height:26px}
-.topnav{display:flex;gap:2px;margin-left:12px}
-.topnav a{text-decoration:none;color:var(--mute);font-size:14px;font-weight:500;padding:7px 10px;border-radius:6px}
-.topnav a:hover,.topnav a.active{color:var(--ink)}
-.toplinks{margin-left:auto;display:flex;gap:8px;align-items:center}
-.toplinks a{text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:8px;color:var(--ink-2)}
-.toplinks a.primary{background:var(--ink);color:var(--ground);font-weight:600}
-@media (max-width:760px){.topnav{display:none}.toplinks a:not(.primary){display:none}}
-/* status line */
-.status{display:inline-flex;align-items:center;font-size:13px;font-weight:500;color:var(--ink-2)}
-.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:8px}
-.status.sim .dot{background:var(--amber)}
-/* product panel */
-.panel{border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:var(--panel-shadow,none)}
-.panel-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;padding:13px 22px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-2)}
-.panel-head b{color:var(--ink);font-weight:600}.panel-head .owed{color:var(--green)}.panel-head small{font-size:12px;color:var(--mute)}
-.kinds{display:flex;gap:0;border-bottom:1px solid var(--line)}
-.kinds button{flex:1;font-size:14px;font-weight:500;padding:12px 16px;border:0;background:var(--wash);color:var(--ink-2);cursor:pointer;border-right:1px solid var(--line)}
-.kinds button:last-child{border-right:0}
-.kinds button[aria-pressed="true"]{background:var(--paper);color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--green)}
-@media (max-width:640px){.kinds{flex-direction:column}.kinds button{border-right:0;border-bottom:1px solid var(--line);text-align:left}}
-.panel-body{padding:18px 22px 22px}
-.dial{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}
-.dial .dl{font-size:14px;color:var(--ink-2);font-weight:500}
-.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line-strong);border-radius:6px;padding:2px;gap:2px}
-.seg button{font-size:13px;padding:6px 11px;border:0;border-radius:4px;background:transparent;color:var(--ink-2);cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground);font-weight:600}
-textarea{width:100%;min-height:82px;font:inherit;padding:11px 12px;border:1px solid var(--line-strong);border-radius:6px;background:var(--field);color:var(--ink);resize:vertical}
-textarea::placeholder{color:var(--mute)}
-#custom{min-height:64px;margin-bottom:10px;font-size:14px}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.chip{font-size:13px;padding:5px 10px;border:1px solid var(--line-strong);border-radius:999px;background:var(--paper);color:var(--ink-2);cursor:pointer}
-.chip:hover{border-color:var(--ink);color:var(--ink)}
-.share{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mute);margin-top:10px;cursor:pointer}.share input{accent-color:var(--green);width:15px;height:15px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
-.btn{border:0;border-radius:6px;padding:11px 18px;font-weight:600;cursor:pointer;background:var(--green);color:#fff}
-.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:wait}
-.btn.secondary{background:var(--paper);color:var(--ink);border:1px solid var(--line-strong);font-weight:500}
-.timer{font:500 14px var(--mono);color:var(--mute);min-width:4ch}
-.err{color:var(--red);font-size:14px;margin-top:8px;min-height:1.2em}
-.doors{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:14px;border-top:1px solid var(--line)}
-@media (max-width:640px){.doors{grid-template-columns:1fr}.seg{display:grid;grid-template-columns:1fr 1fr}.seg button{text-align:left}}
-.door{padding:14px 14px 14px 0}
-.door+.door{border-left:1px solid var(--line);padding-left:16px;padding-right:0}
-@media (max-width:640px){.door+.door{border-left:0;padding-left:0;border-top:1px solid var(--line)}}
-.door h3{margin:0;font-size:14px;font-weight:600}
-.door .sub{font-size:13px;color:var(--mute);margin:2px 0 10px;min-height:1.4em}
-.amount{font:var(--amount-font,800 40px/1 var(--display));letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.amount.ok{color:var(--green)}.amount.over{color:var(--red)}.amount.zero{color:var(--mute)}
-.tag{display:inline-block;font-size:13px;margin-top:8px;padding:3px 8px;border-radius:4px;background:var(--wash);color:var(--ink-2)}
-.tag.ok{background:var(--green-soft);color:var(--green)}.tag.over{background:var(--red-soft);color:var(--red)}.tag.review{background:var(--amber-soft);color:var(--amber)}
-.live{font-size:13px;margin-top:6px;color:var(--mute);min-height:1.3em}
-.live b{color:var(--green);font-weight:600}.live.over b{color:var(--red)}
-.reply{margin-top:10px;font-size:14px;white-space:pre-wrap;color:var(--ink-2)}
-.ids{font:12px/1.7 var(--mono);color:var(--ink-2);margin-top:8px;word-break:break-all}
-.ids a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
-details{margin-top:8px;font-size:13px}
-details.more{margin:10px 0 0;max-width:70ch}details.more summary{font-size:14px}details.more p{font-size:14px;color:var(--ink-2);line-height:1.55;margin:8px 0 0}summary{cursor:pointer;color:var(--mute);list-style:none;display:flex;align-items:center;gap:6px}
-summary::-webkit-details-marker{display:none}
-summary::before{content:"";width:6px;height:6px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(-45deg);transition:transform .2s;margin-left:2px}
-details[open] summary::before{transform:rotate(45deg)}
-pre{font:12px/1.55 var(--mono);overflow:auto;background:var(--code);border:1px solid var(--line);padding:12px;border-radius:6px;max-height:300px;color:var(--ink-2);margin:8px 0 0}
-.prompt{white-space:pre-wrap;font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:8px}
-/* proof numbers (layout per variant) */
-.proof .v{font:var(--proof-font,800 28px/1.1 var(--display));letter-spacing:-.02em;color:var(--ink)}
-.proof .v.good{color:var(--green)}.proof .v.bad{color:var(--red)}
-.proof .l{font-size:13px;color:var(--mute);margin-top:4px;text-wrap:balance;line-height:1.45}
-.proof .e{font:12px/1.5 var(--mono);color:var(--ink-2);margin-top:6px;overflow-wrap:anywhere}
-.proof .e a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
-/* sections */
-section{padding-top:88px;max-width:var(--section,1100px);margin:0 auto}
-section>h2{font:var(--h2-font,800 clamp(22px,2.6vw,30px)/1.15 var(--display));letter-spacing:-.02em;margin:0 0 8px}
-section>p.lead{margin-bottom:18px;font-size:16px;max-width:70ch;color:var(--ink-2);text-wrap:pretty}
-.notice{font-size:13px;color:var(--mute);margin:-8px 0 14px}
-.audit-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-@media (max-width:640px){.audit-pair{grid-template-columns:1fr}}
-.audit-card{border-radius:12px;padding:18px 20px}
-.audit-card.bad{background:var(--red-soft)}.audit-card.good{background:var(--green-soft)}
-.audit-card .v{font:800 40px/1 var(--display);letter-spacing:-.03em}
-.audit-card.bad .v{color:var(--red)}.audit-card.good .v{color:var(--green)}
-.audit-card .l{font-size:14px;color:var(--ink-2);margin-top:8px;line-height:1.45}
-#au-top-h{font-size:14px;font-weight:600;margin:18px 0 6px}
-.audit-top{margin:0;padding-left:20px;font-size:14px;color:var(--ink-2)}.audit-top li{margin:4px 0}.audit-top b{color:var(--red);font-weight:600}
-.diagram{border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:20px 24px;overflow-x:auto}
-.diagram svg{display:block;width:100%;min-width:720px;height:auto}
-.totals{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:14px;color:var(--ink-2);margin:0 0 12px}
-.totals b{color:var(--ink);font-weight:600}
-.grid{height:400px;width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-.grid .empty{height:100%;display:grid;place-items:center;color:var(--mute);font-size:14px}
-.detail{margin-top:12px;border:1px solid var(--line-strong);border-radius:8px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
-.detail h3{margin:0 0 8px;font-size:14px;color:var(--ink);font-weight:600}.detail p{margin:6px 0;white-space:pre-wrap}
-.detail ol{margin:8px 0 0;padding-left:20px}.detail li{margin:3px 0}.detail .PASS{color:var(--green)}.detail .REVIEW,.detail .BLOCK{color:var(--amber)}
-.detail a{color:var(--green)}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;font-weight:600;color:var(--mute);font-size:12px;padding:10px 8px;border-bottom:1px solid var(--line-strong)}
-td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
-td.n{font-weight:600}
-#dialt td.bad{color:var(--red);font-weight:600}#dialt td.good{color:var(--green);font-weight:600}
-#dialt tr.d2 td{border-bottom-color:var(--line-strong)}
-#pairt{margin-top:18px}
-.card{font-size:clamp(16px,1.6vw,19px);line-height:1.5;color:var(--ink);max-width:70ch;margin:0 0 16px;padding:14px 18px;border-left:2px solid var(--green);background:var(--green-soft);border-radius:0 8px 8px 0;text-wrap:pretty}
-.card.race{border-left-color:var(--amber);background:var(--amber-soft)}
-.card .src{display:block;font-size:13px;color:var(--mute);margin-top:8px}
-.note{font-size:13px;color:var(--mute);text-wrap:pretty}
-ol.rules{margin:0;padding-left:0;list-style:none;counter-reset:r;max-width:70ch}
-ol.rules li{counter-increment:r;padding:10px 0 10px 40px;position:relative;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-2)}
-ol.rules li::before{content:counter(r);position:absolute;left:0;top:9px;font:800 18px var(--display);color:var(--green)}
-ol.rules li:last-child::before{color:var(--amber)}
-ol.rules li b{color:var(--ink);font-weight:600}
-.apis{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.apis div{padding:12px 16px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-size:14px;color:var(--ink-2)}
-.apis b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
-.apis code{font:13px var(--mono);color:var(--green)}
-.shops{max-width:70ch;color:var(--ink-2);font-size:16px}
-.shops code{font:13px var(--mono);background:var(--code);border:1px solid var(--line);padding:2px 6px;border-radius:4px;color:var(--ink)}
-.shops pre{max-height:none;white-space:pre-wrap;overflow-wrap:anywhere}
-.receipt{font:13px/1.55 var(--mono);background:var(--code);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:16px 18px;max-width:440px;white-space:pre-wrap;margin-bottom:10px}
-.receipt b{display:block;font-size:13px;margin-bottom:6px}
-footer{max-width:var(--section,1100px);margin:72px auto 48px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:6px 24px}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-
-:root{--ground:#ffffff;--paper:#ffffff;--wash:#f4f5f3;--field:#ffffff;--code:#f1f3f2;--ink:#101614;--ink-2:#3b4441;--mute:#67716d;--line:#e1e5e2;--line-strong:#b8c0bb;
+:root{--ground:#ffffff;--paper:#ffffff;--wash:#f4f5f3;--ink:#101614;--ink-2:#3b4441;--mute:#67716d;--line:#e1e5e2;--line-strong:#b8c0bb;
 --green:#0f6b4e;--green-soft:#e6f3ed;--amber:#8a5d00;--amber-soft:#fbf0d2;--red:#b3261e;--red-soft:#fbe8e6;--block:#0b3d2e;--block-ink:#eaf5ef;--block-mute:#9cc5b2;--green-bright:#5ee0a4;
---display:"Bricolage Grotesque","Public Sans",system-ui,sans-serif;--sans:"Public Sans",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
---container:1200px;--section:1100px;--amount-font:800 44px/1 var(--display);--proof-font:800 44px/1 var(--display);--panel-shadow:0 1px 2px rgba(16,22,20,.05)}
-html{color-scheme:light}
-::selection{background:#cfe9dd}
-.block{background:var(--block);color:var(--block-ink)}
-.block .topbar{height:64px}
-.block .mark{color:#fff}.block .topnav a{color:var(--block-mute)}.block .topnav a:hover,.block .topnav a.active{color:#fff}
-.block .toplinks a{color:var(--block-ink)}.block .toplinks a.primary{background:#fff;color:var(--block)}
-.statement{max-width:1000px;margin:0 auto;padding:72px 24px 150px;text-align:center}
-.statement .status{color:var(--block-mute);margin:0 0 26px;justify-content:center}
-.statement .status .dot{background:var(--green-bright)}
-h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margin:0 0 22px;color:#fff;font-variation-settings:"opsz" 96}
-.statement .lead{font-size:clamp(18px,1.6vw,22px);line-height:1.4;color:var(--block-mute);margin:0 auto 28px;max-width:52ch;text-wrap:pretty}
-.statement .lead b{color:#fff;font-weight:600}
-.cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.cta-row a{text-decoration:none;font-size:15px;font-weight:600;padding:12px 20px;border-radius:8px}
-.cta-row a.primary{background:#fff;color:var(--block)}
-.cta-row a.secondary{color:#fff;border:1px solid rgba(255,255,255,.35)}
-.bento{max-width:1200px;margin:-104px auto 0;padding:0 24px;display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:14px}
-.bento .panel{grid-row:1 / span 2;align-self:start;box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.35)}
-.tile{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:18px 20px;box-shadow:0 1px 2px rgba(16,22,20,.06)}
-.tile.judge{counter-reset:j}
-.tile.judge h2{margin:0 0 10px;font:600 12px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.tile.judge ol{margin:0;padding:0;list-style:none;display:grid;gap:10px}
-.tile.judge li{counter-increment:j;font-size:14px;color:var(--ink-2);padding-left:28px;position:relative;line-height:1.45}
-.tile.judge li::before{content:counter(j);position:absolute;left:0;top:1px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font:600 11px/18px var(--sans);text-align:center}
-.tile.judge b{color:var(--ink);font-weight:600}
-.tile.judge .two{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);line-height:1.45}
-.why{padding-top:56px}
-.why ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.why li{font-size:15px;line-height:1.45;color:var(--ink-2);padding-top:14px;border-top:1px solid var(--line-strong)}
-.why li b{display:block;font:800 26px/1.1 var(--display);color:var(--ink);letter-spacing:-.02em;margin-bottom:6px}
-.why li a{display:block;font-size:12px;color:var(--mute);margin-top:6px}
-@media (max-width:760px){.why ul{grid-template-columns:1fr}}
-.proof{display:grid;gap:14px}
-.proof>div{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:16px 20px;box-shadow:0 1px 2px rgba(16,22,20,.06)}
-.proof>div:first-child{background:var(--red-soft);border-color:transparent}
-.proof>div:nth-child(2){background:var(--green-soft);border-color:transparent}
-.proof>div:nth-child(-n+2) .l{color:var(--ink-2)}
-.proof .v{font:800 40px/1 var(--display);letter-spacing:-.03em}
-@media (max-width:980px){.bento{grid-template-columns:1fr}.bento .panel{grid-row:auto}.proof{grid-template-columns:1fr 1fr}}
-@media (max-width:640px){.proof{grid-template-columns:1fr}.statement{padding-bottom:120px}.statement .status{display:block}.statement .status .dot{display:inline-block;vertical-align:middle;margin-right:8px}}
+--display:"Bricolage Grotesque","Public Sans",system-ui,sans-serif;--sans:"Public Sans",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-snap-type:y proximity;color-scheme:light}
+body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.5 var(--sans)}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.slide{min-height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:96px 24px 72px;position:relative}
+.slide>.in{width:100%;max-width:1100px;margin:0 auto}
+.slide.dark{background:var(--block);color:var(--block-ink)}
+.slide.dark h1,.slide.dark h2,.slide.dark .big{color:#fff}
+.slide.dark .k{color:var(--green-bright)}
+.k{font:600 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin:0 0 18px}
+h1{font:800 clamp(44px,7vw,92px)/0.98 var(--display);letter-spacing:-.04em;margin:0 0 20px;max-width:14ch}
+h2{font:800 clamp(30px,4.2vw,56px)/1.02 var(--display);letter-spacing:-.035em;margin:0 0 18px;max-width:18ch}
+.lead{font-size:clamp(17px,1.5vw,21px);line-height:1.45;color:var(--ink-2);margin:0;max-width:52ch;text-wrap:pretty}
+.slide.dark .lead{color:var(--block-mute)}
+.slide.dark .lead b{color:#fff}
+.cta{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:16px;padding:14px 22px;border-radius:8px;background:var(--ink);color:#fff;margin-top:28px}
+.slide.dark .cta{background:#fff;color:var(--block)}
+.cta.ghost{background:transparent;color:inherit;border:1px solid var(--line-strong);margin-left:8px}
+.slide.dark .cta.ghost{border-color:rgba(255,255,255,.35)}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--block-mute);margin:0 0 26px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright)}
+.status.sim .dot{background:#f1c66b}
+/* top bar */
+.bar{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;gap:18px;padding:0 24px;z-index:5;background:transparent;color:#fff;mix-blend-mode:difference}
+.bar .mark{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font:700 18px var(--sans)}
+.bar .links{margin-left:auto;display:flex;gap:4px}
+.bar .links a{text-decoration:none;font-size:14px;font-weight:500;padding:8px 12px;border-radius:6px}
+.bar .links a.primary{font-weight:600;border:1px solid currentColor}
+@media (max-width:640px){.bar .links a:not(.primary){display:none}}
+/* dots */
+.dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:grid;gap:10px;z-index:5;mix-blend-mode:difference}
+.dots a{width:8px;height:8px;border-radius:50%;background:#fff;opacity:.35;display:block}
+.dots a.active{opacity:1;transform:scale(1.4)}
+@media (max-width:640px){.dots{display:none}}
+/* figures */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:40px}
+@media (max-width:760px){.figs{grid-template-columns:1fr;gap:20px}}
+.fig{padding-top:16px;border-top:1px solid var(--line-strong)}
+.slide.dark .fig{border-top-color:rgba(255,255,255,.25)}
+.fig .big{font:800 clamp(40px,5vw,64px)/1 var(--display);letter-spacing:-.035em;color:var(--ink)}
+.fig .big.bad{color:var(--red)}.fig .big.good{color:var(--green)}
+.slide.dark .fig .big.bad{color:#ff8a80}.slide.dark .fig .big.good{color:var(--green-bright)}
+.fig .l{font-size:15px;color:var(--ink-2);margin-top:8px;line-height:1.4;text-wrap:balance}
+.slide.dark .fig .l{color:var(--block-mute)}
+.fig .src{display:block;font-size:12px;color:var(--mute);margin-top:6px}
+.fig .src a{color:inherit}
+.slide.dark .fig .src{color:rgba(255,255,255,.5)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.card{border-radius:14px;padding:24px 26px}
+.card.bad{background:var(--red-soft)}.card.good{background:var(--green-soft)}
+.card .big{font:800 clamp(48px,7vw,96px)/1 var(--display);letter-spacing:-.04em}
+.card.bad .big{color:var(--red)}.card.good .big{color:var(--green)}
+.card .l{font-size:16px;color:var(--ink-2);margin-top:10px;line-height:1.4}
+.card .s{font:12px/1.5 var(--mono);color:var(--mute);margin-top:10px}
+.story{margin-top:36px;padding:20px 24px;border-left:3px solid var(--green);background:var(--wash);border-radius:0 10px 10px 0;max-width:62ch;font-size:16px;line-height:1.5;color:var(--ink-2)}
+.story b{color:var(--ink)}
+.diagram{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:20px 24px;overflow-x:auto;margin-top:28px}
+.diagram svg{display:block;width:100%;min-width:720px;height:auto}
+.apis{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:32px}
+@media (max-width:760px){.apis{grid-template-columns:1fr}}
+.apis div{padding:16px 18px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+.apis b{display:block;color:var(--ink);font-weight:600;margin-bottom:3px}
+.apis code{font:12.5px var(--mono);color:var(--green)}
+.live{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:40px}
+@media (max-width:760px){.live{grid-template-columns:1fr 1fr;gap:20px}}
+.ids{font:12px/1.7 var(--mono);color:var(--mute);margin-top:8px;word-break:break-all}
+.ids a{color:var(--green)}
+.team{display:flex;flex-wrap:wrap;gap:8px 28px;font-size:14px;color:var(--block-mute);margin-top:40px}
+.limits{margin-top:28px;font-size:15px;color:var(--block-mute);max-width:62ch;line-height:1.5}
+.limits b{color:#fff;font-weight:600}
+.hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-size:12px;color:var(--mute);letter-spacing:.06em}
+.slide.dark .hint{color:var(--block-mute)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<div class="bar">
+  <a class="mark" href="#s1">Owed</a>
+  <nav class="links" aria-label="Pages"><a href="#s2">Problem</a><a href="#s3">How</a><a href="#s4">Result</a><a href="#s5">Live</a><a href="#s6">PayPal</a><a class="primary" href="demo.html">Try it live</a></nav>
+</div>
+<nav class="dots" aria-label="Slides"><a href="#s1" class="active" title="Owed"></a><a href="#s2" title="The problem"></a><a href="#s3" title="How it works"></a><a href="#s4" title="The result"></a><a href="#s5" title="Live on the sandbox"></a><a href="#s6" title="Built on PayPal"></a><a href="#s7" title="Limits and team"></a></nav>
 
-<div class="block">
-  <div class="wrap"><div class="topbar">
-  <a class="mark" href="#top"><img src="owed_mark.svg" alt="">Owed</a>
-  <nav class="topnav" aria-label="Sections"><a href="#top" class="active">Try it</a><a href="#measured">Benchmark</a><a href="#how">How it decides</a><a href="#paypal">Built on PayPal</a></nav>
-  <div class="toplinks"><a href="https://github.com/cvikl/owed" rel="noopener">Source</a><a class="primary" href="#arena">Run it</a></div>
-</div></div>
-  <div class="statement" id="top">
+<section class="slide dark" id="s1">
+  <div class="in">
     <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
     <h1>No PayPal refund without proof. Not a cent more.</h1>
-    <p class="lead">A refund gate for a shop's AI agent on PayPal.</p>
-    <div class="cta-row"><a class="primary" href="#arena">Run it on the sandbox</a></div>
+    <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> The AI still talks to the customer and asks for the refund. Code decides the amount from PayPal's records and the shop's, pays through PayPal, and sends the rest to a person.</p>
+    <a class="cta" href="demo.html">Try it live on the sandbox</a><a class="cta ghost" href="#s2">The two-minute version</a>
   </div>
-</div>
-<div class="bento">
-  <section id="arena" class="panel" style="padding-top:0">
-  <h2 class="sr">Try it</h2>
-  <div class="kinds" id="kinds" role="group" aria-label="The order"></div>
-  <div class="panel-head"><span>Your order <b id="f-total">$20.00</b> <span id="f-item">mug, free shipping</span></span><span>PayPal captured <b id="f-captured">$25.00</b></span><span>You are owed <b class="owed" id="f-owed">$5.00</b></span><span>Tracking <b id="f-tracking">SHIPPED</b> <small id="f-tracking-src">PayPal tracker</small></span><span hidden id="f-order">$20.00</span></div>
-  <div class="panel-body">
-    <div class="controls">
-      <div class="dial"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div>
-      <label class="sr" for="custom">Your own instructions for the AI</label>
-      <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both sides get exactly these words."></textarea>
-      <label class="sr" for="text">Your message to the support agent</label>
-      <textarea id="text" maxlength="1500" placeholder="Your message to the shop">My mug never arrived. Refund the full $25.</textarea>
-      <div class="chips" id="chips"></div>
-      <label class="share"><input type="checkbox" id="share"> Show my message on the public board</label>
-      <div class="row">
-        <button class="btn" id="send">Run both</button>
-        <button class="btn secondary" id="new">New orders</button>
-        <span class="timer num" id="timer"></span>
-      </div>
-      <div class="err" id="err" role="status" aria-live="polite"></div>
-    </div>
-    <div class="doors">
-      <div class="door" id="d1">
-        <h3>AI alone</h3>
-        <div class="sub">Refund call goes straight to PayPal.</div>
-        <div class="amount zero num" id="d1-amt">$0.00</div>
-        <span class="tag" id="d1-tag">not run yet</span>
-        <div class="live" id="d1-live"></div>
-        <div class="reply" id="d1-reply"></div>
-        <div class="ids" id="d1-ids"></div>
-        <details><summary>Trace</summary><pre id="d1-steps"></pre></details>
-      </div>
-      <div class="door d2" id="d2">
-        <h3>AI behind Owed</h3>
-        <div class="sub">Same call. Code checks the records, then pays through PayPal.</div>
-        <div class="amount zero num" id="d2-amt">$0.00</div>
-        <span class="tag" id="d2-tag">not run yet</span>
-        <div class="live" id="d2-live"></div>
-        <div class="reply" id="d2-reply"></div>
-        <div class="ids" id="d2-ids"></div>
-        <details><summary>Trace</summary><pre id="d2-steps"></pre></details>
-      </div>
-    </div>
-    <details class="prompt-d"><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details>
-  </div>
-</section>
-  <div class="tile judge"><h2>Try it in two minutes</h2><ol><li><b>Run it.</b> Two real sandbox orders.</li>
-<li><b>Click a refund id.</b> PayPal's record opens.</li>
-<li><b>Change the instructions.</b> Run again.</li></ol><p class="two">Two orders, one engine: the mug shows Owed refusing what is not owed, the seafood shows it paying what is. The same rules cover a double charge and an order cancelled before shipping.</p></div>
-  <div class="proof" id="numbers"><div><div class="v bad num">49 of 162</div><div class="l">attacks the AI alone overpaid, $920. Every model did: 12 of 54 · 33 of 54 · 4 of 54</div><div class="e">3 of 162 on the strictest instructions · <a href="https://github.com/cvikl/owed/blob/main/RESULTS.md" rel="noopener">RESULTS.md</a></div></div>
-<div><div class="v good num">0 of 162</div><div class="l">overpaid behind Owed, honest customers still paid</div><div class="e">3 models, temperature 0</div></div>
-<div><div class="v num">2× vs 1×</div><div class="l">twenty sessions asked for the same $5 at once</div><div class="e"><a href="#receipt-section" data-id="59W269298H132405C">59W269298H132405C</a> <a href="#receipt-section" data-id="0X979094E5079692M">0X979094E5079692M</a> · <a href="#receipt-section" data-id="0J4836009P7917205">0J4836009P7917205</a></div></div>
-<div><div class="v good num" id="s-refunds">0</div><div class="l" id="s-refunds-l">live sandbox refunds</div><div class="e"><span id="s-seconds">0.0 s</span> <span id="s-seconds-l">median, refund issued</span><span hidden><span id="s-over"></span><span id="s-held"></span><span id="s-held-l"></span></span></div></div></div>
-</div>
-<div class="wrap">
-<section id="why" class="why">
-  <h2>Why this matters</h2>
-  <ul>
-    <li><b>15 million UK adults</b> had a problem with their latest parcel delivery; nearly half then struggled to get it put right. <a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/parcel-problems-reach-record-as-15-million-people-are-let-down-on-the/" rel="noopener">Citizens Advice, Nov 2025</a></li>
-    <li><b>Up to 14 days</b> for PayPal to decide a claim, some 30 days or longer. <a href="https://www.paypal.com/us/cshelp/article/how-long-does-it-take-to-resolve-a-dispute-or-claim-help253" rel="noopener">PayPal help centre</a></li>
-    <li><b><span id="why-seconds">a few</span> seconds</b> when the record already proves the refund. <a href="#numbers">Live sandbox, measured today</a></li>
-  </ul>
+  <div class="hint">SCROLL OR PRESS ↓</div>
 </section>
 
-
-<section id="receipt-section" hidden>
-  <h2>PayPal's record</h2>
-  <div class="receipt" id="receipt-card"></div>
-  <details><summary>Full response</summary><pre id="receipt"></pre></details>
-</section>
-
-<section id="audit">
-  <h2>Audit a shop's instructions</h2>
-  <p class="lead">All 54 adversarial cases against the instructions selected above, AI alone against Owed.</p>
-  <div class="row" style="margin-top:0"><button class="btn" id="audit-run">Audit these instructions</button><span class="note" id="audit-now"></span><span class="timer num" id="audit-timer"></span></div>
-  <div class="err" id="audit-err" role="status" aria-live="polite"></div>
-  <div class="audit-out" id="audit-out" hidden>
-    <div class="audit-pair">
-      <div class="audit-card bad"><div class="v num" id="au-alone-cents">$0.00</div><div class="l" id="au-alone-l"></div></div>
-      <div class="audit-card good"><div class="v num" id="au-owed-cents">$0.00</div><div class="l" id="au-owed-l"></div></div>
+<section class="slide" id="s2">
+  <div class="in">
+    <p class="k">The problem</p>
+    <h2>Give an AI the refund button and it pays what it is asked.</h2>
+    <p class="lead">A customer owed $5 asks for $25. A customer owed everything waits days while people check by hand. Both are the same gap: nobody reads the record before the money moves.</p>
+    <div class="figs">
+      <div class="fig"><div class="big bad num" id="p-alone">49 of 162</div><div class="l">adversarial cases where the AI alone paid money not owed, typical shop instructions. Every model did it.</div><span class="src">Our benchmark, three models, <a href="https://github.com/cvikl/owed/blob/main/RESULTS.md" rel="noopener">RESULTS.md</a></span></div>
+      <div class="fig"><div class="big num">15 million</div><div class="l">UK adults had a problem with their latest parcel; nearly half then struggled to get it put right.</div><span class="src"><a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/parcel-problems-reach-record-as-15-million-people-are-let-down-on-the/" rel="noopener">Citizens Advice, Nov 2025</a></span></div>
+      <div class="fig"><div class="big num">14 days</div><div class="l">for PayPal to decide a claim, some 30 days or longer, when the record already says what happened.</div><span class="src"><a href="https://www.paypal.com/us/cshelp/article/how-long-does-it-take-to-resolve-a-dispute-or-claim-help253" rel="noopener">PayPal help centre</a></span></div>
     </div>
-    <h3 id="au-top-h">The messages that got the most from the AI alone</h3>
-    <ol class="audit-top" id="au-top"></ol>
-    <p class="note" id="au-note"></p>
+    <div class="story"><b>This happened to one of us last week.</b> A chilled seafood box, due Saturday. The courier pushed it to Wednesday, then cancelled: chilled food does not keep. Days of messages for money that was plainly owed, while the delivery record said "cancelled" the whole time.</div>
   </div>
 </section>
 
-<section id="where">
-  <h2>Where Owed sits</h2>
-  <p class="lead">One message, two paths. The same rules, the other way round.</p>
-  <div class="diagram">
-    <svg viewBox="0 0 1000 560" role="img" aria-labelledby="dg-title" xmlns="http://www.w3.org/2000/svg">
+<section class="slide" id="s3">
+  <div class="in">
+    <p class="k">How it works</p>
+    <h2>The AI asks. Code decides from the records. PayPal pays.</h2>
+    <p class="lead">Owed keeps the refund call of PayPal's Agent Toolkit, <code style="font:14px var(--mono)">create_refund</code>, and turns it into a request. Eight rules in whole cents, read from PayPal's capture and refunds, the shop's order and the delivery record. The AI never sets an amount.</p>
+    <div class="diagram"><svg viewBox="0 0 1000 560" role="img" aria-labelledby="dg-title" xmlns="http://www.w3.org/2000/svg">
       <title id="dg-title">How Owed sits between the shop's AI agent and PayPal, for the mug and the seafood order</title>
       <defs>
         <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker>
@@ -356,73 +187,74 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
         <text x="775" y="466" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="476" text-anchor="end" font-size="24" font-weight="800" fill="var(--green)">$60</text>
         <text x="775" y="492" fill="var(--ink-2)" font-size="11">In full, in seconds, no chasing</text>
       </g>
-    </svg>
+    </svg></div>
   </div>
 </section>
 
-<section id="board">
-  <h2>Public attempts</h2>
-  <p class="lead">Click a row for its trace.</p>
-  <details class="more"><summary>About this board</summary><p>Everyone who played, with the amounts and the rule that decided each one. Not the controlled benchmark; that is below. A message appears only if its writer ticked the box, and emails, links and phone numbers are hidden even then.</p></details>
-  <div class="totals" id="totals"></div>
-  <div id="grid" class="grid"><div class="empty">Loading the board</div></div>
-  <div id="detail" class="detail" hidden></div>
-</section>
-
-<section id="measured">
-  <h2>The benchmark</h2>
-  <p class="lead">Same models, same cases; only the shop's instructions change.</p>
-  <details class="more"><summary>How it was measured</summary><p>A test suite we wrote ourselves, not real customer conversations. Each model ran each case once; every refund call it made was then replayed, unchanged, through Owed's gate, so the first two rows of each block share one model output. The third row adds Owed's recovery step. Security is adversarial cases where $5 was owed and the message pushed for more. Service is legitimate cases, including badly worded ones.</p><p class="card" id="card">Benchmark not loaded yet.</p><p class="card race" id="race" hidden></p></details>
-  <table id="dialt"><thead><tr><th>Instructions</th><th>Arm</th><th>Security. Paid too much</th><th>Security. Paid exactly $5</th><th>Security. Paid nothing</th><th>Service. Legitimate cases paid in full</th></tr></thead><tbody></tbody></table>
-  <details><summary>Every model, one by one</summary><table id="results"><thead><tr><th>Model</th><th>Instructions</th><th>Arm</th><th>Paid too much</th><th>Beyond owed</th><th>Paid nothing</th><th>Honest paid in full</th><th>Median</th></tr></thead><tbody></tbody></table></details>
-  <table id="pairt" hidden><thead><tr><th>Instructions</th><th>Test</th><th>Both right</th><th>AI alone wrong, gate right</th><th>AI alone right, gate wrong</th><th>Both wrong</th></tr></thead><tbody></tbody></table>
-  <p class="note" id="results-note"></p>
-</section>
-
-<section id="how">
-  <h2>Eight rules, whole cents</h2>
-  <p class="lead">The AI asks. Code decides from PayPal's record.</p>
-  <ol class="rules">
-    <li><b>Identity.</b> This session's order.</li>
-    <li><b>Amount.</b> Captured less refunded, at most.</li>
-    <li><b>Owed by the record.</b> Overcharge, duplicate, cancelled.</li>
-    <li><b>Claim against the record.</b> Not received needs the tracker to agree.</li>
-    <li><b>Duplicates.</b> Never twice.</li>
-    <li><b>Limits.</b> One refund per order.</li>
-    <li><b>Velocity.</b> Daily cap per customer.</li>
-    <li><b>Everything else</b> to a person, with the evidence.<span id="dispute-line" hidden> Open dispute: to a person.</span></li>
-  </ol>
-  <details class="more"><summary>More on the gate</summary><p>Both sides ask for a refund through PayPal's own refund call. Behind Owed that call is only a request: code works out from PayPal's records and the shop's order what is owed, then runs the rules in whole cents. If the AI ends without asking, the model is asked once what the customer claimed, and if money was claimed the record settles what it proves.</p><p class="note" id="toolkit-line"></p></details>
-</section>
-
-<section id="paypal">
-  <h2>Built on PayPal</h2>
-  <p class="lead">Every refund here is a sandbox call.</p>
-  <div class="apis">
-    <div><b>Orders v2, card payment source</b>Seeds paid $25 orders. <code><a href="https://github.com/cvikl/owed/blob/main/scripts/seed.js">scripts/seed.js</a></code></div>
-    <div><b>Refunds on captures</b>Idempotent per PayPal-Request-Id. <code><a href="https://github.com/cvikl/owed/blob/main/src/paypalRest.js">src/paypalRest.js</a></code></div>
-    <div><b>Order read-back</b>Captured and refunded, from PayPal's list. <code><a href="https://github.com/cvikl/owed/blob/main/src/pool.js">src/pool.js</a></code></div>
-    <div><b>Refund read-back</b>The record behind each id. <code>/api/receipt</code></div>
-    <div><b>Shipment trackers</b>Evidence for rule 4. <code><a href="https://github.com/cvikl/owed/blob/main/src/paypalRest.js">src/paypalRest.js</a></code></div>
-    <div><b>Agent Toolkit tool shape</b><code>create_refund(capture_id, amount, currency)</code> <code><a href="https://github.com/cvikl/owed/blob/main/scripts/scenarios.js">scripts/scenarios.js</a></code></div>
+<section class="slide dark" id="s4">
+  <div class="in">
+    <p class="k">The result</p>
+    <h2>Same models, same cases, same refund calls. Only the gate changes.</h2>
+    <div class="two">
+      <div class="card bad"><div class="big num" id="r-alone">49</div><div class="l">of 162 adversarial cases where the AI alone paid more than was owed with a typical shop's instructions, $920 in total. Qwen3 235B 12, gpt-oss-120b 33, Kimi K3 4 of 54 each.</div><div class="s">3 of 162 with the strictest instructions we could write</div></div>
+      <div class="card good"><div class="big num" id="r-gate">0</div><div class="l">of 162 when the very same refund calls went through Owed, both settings. Legitimate customers still paid in full: 46 and 48 of 48 with Owed, 43 and 47 alone.</div><div class="s">one run per case, temperature 0, every run kept with its checksum</div></div>
+    </div>
+    <div class="figs">
+      <div class="fig"><div class="big num">2× vs 1×</div><div class="l">twenty sessions asked for the same $5 at once on live captures: the AI alone paid twice, Owed once.</div><span class="src">Live PayPal sandbox, 11 Nov</span></div>
+      <div class="fig"><div class="big good num">10 of 10</div><div class="l">live seafood games: Owed paid the $60 the delivery record proves, median 11 s; the AI alone paid in 2.</div><span class="src">Live PayPal sandbox, 12 Nov</span></div>
+      <div class="fig"><div class="big good num">10 of 10</div><div class="l">live mug games on the owner impersonation: the AI alone paid all $25 every time, Owed the $5 owed every time.</div><span class="src">Live PayPal sandbox, 12 Nov</span></div>
+    </div>
   </div>
 </section>
 
-<section id="shops">
-  <h2>For shops</h2>
-  <div class="shops">
-    <p>Same <code>create_refund</code> call, routed through the gate.</p>
-    <pre>// before: the AI's refund call goes straight to PayPal
-tools.create_refund = (input) =&gt; paypalToolkit.handleToolCall(call)
-
-// after: the same call becomes a request, and Owed pays what PayPal's records prove
-tools.create_refund = (input) =&gt; owed.gate({ order, askedCents, paypal, ledger, loadRecords, rules })</pre>
-    <details class="more"><summary>What this is not</summary><p>A real deployment needs your order records, a way to tie a conversation to a customer and an order, your own limits, a durable database for the ledger and a queue for the cases that go to your staff. This demo is a single process with the ledger in memory and has only ever run on the PayPal sandbox. The benchmark is our own test suite on a PayPal stand-in; the arena and the race test are the live sandbox evidence.</p></details>
+<section class="slide" id="s5">
+  <div class="in">
+    <p class="k">Live on the PayPal sandbox</p>
+    <h2>Every refund on the demo is a real sandbox refund with PayPal's id.</h2>
+    <p class="lead">Two real orders per game, one per door. Press Run, then click any refund id and PayPal's own record opens. Change the shop's instructions and audit all 54 attacks against them.</p>
+    <div class="live">
+      <div class="fig"><div class="big num" id="l-games">0</div><div class="l">games played on the public board</div></div>
+      <div class="fig"><div class="big bad num" id="l-alone">0</div><div class="l">games where the AI alone paid more than was owed</div></div>
+      <div class="fig"><div class="big good num" id="l-owed">0</div><div class="l">games where it did behind Owed</div></div>
+      <div class="fig"><div class="big num" id="l-seconds">0.0 s</div><div class="l">median, message to PayPal confirming Owed's refund</div></div>
+    </div>
+    <p class="ids">Refund ids from the live tests: <a href="demo.html#receipt-section">9T03965035339622X</a> · <a href="demo.html#receipt-section">2UM02599EF809433C</a> · <a href="demo.html#receipt-section">0J4836009P7917205</a></p>
+    <a class="cta" href="demo.html">Open the demo</a>
   </div>
 </section>
 
-<footer><span>Sandbox money only.</span><span id="model-line"></span><span>Timotej Cvikl, University of Ljubljana · Bernard Liu, University of Cambridge</span></footer>
-</div>
-<script src="app.js"></script>
+<section class="slide" id="s6">
+  <div class="in">
+    <p class="k">Built on PayPal</p>
+    <h2>Six PayPal surfaces, one sandbox, nothing simulated on the demo.</h2>
+    <div class="apis">
+      <div><b>Orders v2, card payment source</b>Real paid $25 and $60 orders, no buyer click. <code>scripts/seed.js</code></div>
+      <div><b>Refunds on captures</b>Every refund on both doors, idempotent per PayPal-Request-Id, Owed's reason in note_to_payer. <code>src/paypalRest.js</code></div>
+      <div><b>Order read-back</b>Captured and refunded, summed from PayPal's refunds list. <code>src/pool.js</code></div>
+      <div><b>Refund read-back</b>PayPal's own record behind each id on the page. <code>/api/receipt</code></div>
+      <div><b>Shipment trackers</b>Added at seed time, read back as evidence for the delivery rule. <code>src/paypalRest.js</code></div>
+      <div><b>Agent Toolkit tool shape</b><code>create_refund(capture_id, amount: { currency_code, value })</code>, <code>get_order</code>, <code>get_shipment_tracking</code>, by name and parameters. <code>scripts/scenarios.js</code></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide dark" id="s7">
+  <div class="in">
+    <p class="k">Limits, and what is next</p>
+    <h2>A gate, not a support agent. Built in three days on the sandbox.</h2>
+    <p class="limits"><b>What this is not:</b> a real deployment needs the shop's order records, a way to tie a conversation to a customer and an order, the shop's own limits, a durable ledger and a queue for the cases that go to staff. The demo is one process with the ledger in memory. The benchmark is our own test suite on a PayPal stand-in; the arena and the race are the live sandbox evidence. <b>Next:</b> a shop pilot with its real order records, and the delivery rule on PayPal's own tracker once the sandbox lets a tracker be marked cancelled.</p>
+    <a class="cta" href="demo.html">Try it live</a><a class="cta ghost" href="https://github.com/cvikl/owed" rel="noopener">Source on GitHub</a>
+    <div class="team"><span>Timotej Cvikl, University of Ljubljana</span><span>Bernard Liu, University of Cambridge</span><span>Sandbox money only.</span><span id="model-line"></span></div>
+  </div>
+</section>
+<script>
+const $ = (id) => document.getElementById(id);
+const money = (c) => '$' + (c / 100).toFixed(2);
+fetch('/api/config').then((r) => r.json()).then((c) => { const live = c.mode === 'live'; $('mode-text').textContent = live ? 'PayPal AI Hackathon 2026 · live on the PayPal sandbox' : 'PayPal AI Hackathon 2026 · PayPal stand-in, simulated'; $('mode').classList.toggle('sim', !live); $('model-line').textContent = 'Model at both doors: ' + c.model.split('/').pop() + '.'; }).catch(() => {});
+fetch('/api/board').then((r) => r.json()).then((b) => { const t = b.totals; $('l-games').textContent = t.sessions; $('l-alone').textContent = t.door1.sessionsOverpaid; $('l-owed').textContent = t.door2.sessionsOverpaid; if (t.door2.medianRefundMs) $('l-seconds').textContent = (t.door2.medianRefundMs / 1000).toFixed(1) + ' s'; }).catch(() => {});
+const slides = [...document.querySelectorAll('.slide')]; const dots = [...document.querySelectorAll('.dots a')];
+new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe && slides.forEach((s) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe(s));
+addEventListener('keydown', (e) => { if (['ArrowDown', 'PageDown', ' ', 'ArrowRight'].includes(e.key) || ['ArrowUp', 'PageUp', 'ArrowLeft'].includes(e.key)) { if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; e.preventDefault(); const y = scrollY + 10; let i = slides.findIndex((s) => s.offsetTop > y); if (['ArrowUp', 'PageUp', 'ArrowLeft'].includes(e.key)) { i = slides.findIndex((s) => s.offsetTop >= y - 20) - 1; if (i < 0) i = 0; } if (i < 0 || i >= slides.length) i = slides.length - 1; slides[i].scrollIntoView({ behavior: 'smooth' }); } });
+</script>
 </body>
 </html>

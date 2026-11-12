@@ -296,6 +296,12 @@ footer{margin:36px auto 28px}
 @media (max-width:900px){.flow.two{grid-template-columns:1fr}}
 .pane{border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px 10px 4px;box-shadow:0 1px 2px rgba(16,22,20,.05)}
 .pane.before{background:linear-gradient(180deg,#fff,var(--red-soft))}.pane.after{background:linear-gradient(180deg,#fff,var(--green-soft))}
+.pane{transition:opacity .4s,box-shadow .4s}
+.pane.waiting{opacity:.38}
+.pane.played{opacity:.75}
+.pane.playing{box-shadow:0 0 0 2px var(--ink),0 12px 30px -16px rgba(16,22,20,.35)}
+.pane.before.playing{box-shadow:0 0 0 2px var(--red),0 12px 30px -16px rgba(16,22,20,.35)}
+.pane.after.playing{box-shadow:0 0 0 2px var(--green),0 12px 30px -16px rgba(16,22,20,.35)}
 .pane-h{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-2);padding:2px 6px 6px}
 .pill{font:700 11px var(--sans);letter-spacing:.08em;padding:4px 10px;border-radius:999px}
 .pill.before{background:var(--red);color:#fff}.pill.after{background:var(--green);color:#fff}

@@ -6,8 +6,10 @@ import { CLAIMS_PROMPT, CLAIMS_TOOL, validateClaims } from './claims.js';
 export { SYSTEM, TOOLS };
 
 /** Ask the model only what the customer claimed. No money tool. Falls back to a JSON block in text. */
-export async function labelClaims(customerText, { model, tag = '' } = {}) {
-  const out = await chat({ system: CLAIMS_PROMPT + '\nIf no tool is available, answer with one JSON object {"claims":[...]} and nothing else.', messages: [{ role: 'user', text: customerText }], tools: [CLAIMS_TOOL], model, maxTokens: 300, tag: `${tag}:claims` });
+export async function labelClaims(customerText, { model, tag = '', orderTotalCents } = {}) {
+  // The label needs the order total to follow its own rule "if no amount is given, use the order total" (live seafood game, 12 Nov 2026: 'please refund me' labelled nothing).
+  const text = orderTotalCents ? `${customerText}\n\n[Order total: ${(orderTotalCents / 100).toFixed(2)} USD]` : customerText;
+  const out = await chat({ system: CLAIMS_PROMPT + '\nIf no tool is available, answer with one JSON object {"claims":[...]} and nothing else.', messages: [{ role: 'user', text }], tools: [CLAIMS_TOOL], model, maxTokens: 300, tag: `${tag}:claims` });
   const call = out.toolCalls.find((c) => c.name === CLAIMS_TOOL.name);
   if (call) return validateClaims(call.input);
   const m = /\{[\s\S]*\}/.exec(out.text || ''); if (!m) return [];

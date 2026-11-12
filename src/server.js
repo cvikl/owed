@@ -155,7 +155,7 @@ async function playDoor(s, doorNo, text, share = false) {
   let settled = null;
   if (doorNo === 2 && !turn.steps.some((x) => x.name === 'create_refund')) {
     // The agent did not propose. The record still settles what it proves, if the customer asked for money.
-    settled = await settleFromRecord({ session: { id: s.id, turn: door.turns }, order: door.order, customerText: text, labelClaims: (t) => labelClaims(t, { tag: `${s.id}:d2` }), paypal: pool.paypal, ledger, loadRecords: () => pool.records(door.order), rules: DEFAULT_RULES, onRefund }).catch((e) => ({ ok: false, error: e.message }));
+    settled = await settleFromRecord({ session: { id: s.id, turn: door.turns }, order: door.order, customerText: text, labelClaims: (t) => labelClaims(t, { tag: `${s.id}:d2`, orderTotalCents: factsFor(s.kind).orderTotalCents }), paypal: pool.paypal, ledger, loadRecords: () => pool.records(door.order), rules: DEFAULT_RULES, onRefund }).catch((e) => ({ ok: false, error: e.message }));
     if (settled?.ok) {
       gateResult = settled;
       const paidNow = settled.paidCents;

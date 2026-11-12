@@ -30,6 +30,7 @@
   }
   function node(id, state) { const el = $(id); if (!el) return; el.classList.remove('active', 'done', 'bad', 'good', 'warn'); if (state) el.classList.add(state); }
   function note(id, text) { const el = $(id); if (el) el.textContent = text; }
+  function say(html) { const el = $('caption'); if (el) { el.innerHTML = html; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
 
   function reset(facts) {
     clear();
@@ -55,18 +56,19 @@
     let t = 0; pane('before');
     // AI alone
     const s1 = seq(r.steps1); note('f-ai1-n', s1.length ? s1.join(' · ') : 'answered without a tool call');
-    later(t += 400, () => { node('f-ai1', 'done'); if (r.alone > 0) { ribbon('r-ask1', r.alone, max, r.alone > r.owed ? red : green); label('r-ask1-l', 'create_refund ' + money(r.alone)); } else { label('r-ask1-l', r.asked1 > 0 ? 'refund refused by PayPal' : 'no refund call'); } });
-    later(t += 600, () => { if (r.alone > 0) { ribbon('r-pay1', r.alone, max, r.alone > r.owed ? red : green); node('f-pp1', r.alone > r.owed ? 'bad' : 'good'); note('f-pp1-n', (r.alone > r.owed ? money(r.alone - r.owed) + ' more than was owed' : 'exactly what was owed') + (r.ids1?.length ? ' · ' + r.ids1[0] : '')); } else { node('f-pp1', 'warn'); note('f-pp1-n', 'nothing paid, ' + money(r.owed) + ' still owed'); } });
+    later(t += 200, () => say(`<b>Before.</b> The shop's AI reads PayPal's payment and the order, then calls <b>create_refund</b>. Its call goes straight to PayPal.`));
+    later(t += 1800, () => { node('f-ai1', 'done'); if (r.alone > 0) { ribbon('r-ask1', r.alone, max, r.alone > r.owed ? red : green); label('r-ask1-l', 'create_refund ' + money(r.alone)); } else { label('r-ask1-l', r.asked1 > 0 ? 'refund refused by PayPal' : 'no refund call'); } });
+    later(t += 1600, () => { say(r.alone > r.owed ? `<b>PayPal pays ${money(r.alone)}.</b> ${money(r.alone - r.owed)} of it was never owed. Nobody checked the record before the money moved.` : r.alone > 0 ? `<b>PayPal pays ${money(r.alone)}</b>, which is what was owed this time.` : `<b>The AI alone paid nothing.</b> The customer is still owed ${money(r.owed)}.`); if (r.alone > 0) { ribbon('r-pay1', r.alone, max, r.alone > r.owed ? red : green); node('f-pp1', r.alone > r.owed ? 'bad' : 'good'); note('f-pp1-n', (r.alone > r.owed ? money(r.alone - r.owed) + ' more than was owed' : 'exactly what was owed') + (r.ids1?.length ? ' · ' + r.ids1[0] : '')); } else { node('f-pp1', 'warn'); note('f-pp1-n', 'nothing paid, ' + money(r.owed) + ' still owed'); } });
     // behind Owed, after the before pane has finished
     const s2 = seq(r.steps2);
-    later(t += 1100, () => { pane('after'); const el = $('r-msg2'); el.style.strokeWidth = 3; el.style.stroke = mute; if (!reduced) { el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); } node('f-you2', 'active'); node('f-ai2', 'active'); note('f-ai2-n', s2.length ? s2.join(' · ') : 'answered without a tool call'); });
-    later(t += 350, () => { node('f-you2', 'done'); node('f-ai2', 'done'); const ask = r.asked2 > 0 ? r.asked2 : r.owedSide; if (ask > 0) { ribbon('r-ask2', ask, max, mute); label('r-ask2-l', 'request ' + money(ask)); } else { label('r-ask2-l', 'no call'); } node('f-owed', 'active'); note('f-owed-n', 'checking PayPal\'s capture and refunds, the shop\'s order, the delivery record…'); });
-    later(t += 600, () => { node('f-owed', 'done'); note('f-owed-n', r.rule ? r.rule.replace(/record settled: /, '') : 'eight rules, whole cents');
+    later(t += 2600, () => { pane('after'); say(`<b>After.</b> The same message, the same AI, the same refund call. Behind Owed the call is only a request.`); const el = $('r-msg2'); el.style.strokeWidth = 3; el.style.stroke = mute; if (!reduced) { el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); } node('f-you2', 'active'); node('f-ai2', 'active'); note('f-ai2-n', s2.length ? s2.join(' · ') : 'answered without a tool call'); });
+    later(t += 1800, () => { say(`<b>Owed checks the records:</b> PayPal's capture and refunds, the shop's order, the delivery record. Eight rules, whole cents. The AI never sets the amount.`); node('f-you2', 'done'); node('f-ai2', 'done'); const ask = r.asked2 > 0 ? r.asked2 : r.owedSide; if (ask > 0) { ribbon('r-ask2', ask, max, mute); label('r-ask2-l', 'request ' + money(ask)); } else { label('r-ask2-l', 'no call'); } node('f-owed', 'active'); note('f-owed-n', 'checking PayPal\'s capture and refunds, the shop\'s order, the delivery record…'); });
+    later(t += 2200, () => { const personCents = Math.max(0, (r.asked2 > 0 ? r.asked2 : 0) - r.owedSide); say(r.owedSide > 0 ? `<b>PayPal pays ${money(r.owedSide)}</b>, exactly what the records prove${personCents > 0 ? `. The other ${money(personCents)} goes to a person at the shop, with the evidence` : ''}.` : `<b>Nothing is paid.</b> The records do not prove a refund; a person at the shop decides, with the evidence.`); node('f-owed', 'done'); note('f-owed-n', r.rule ? r.rule.replace(/record settled: /, '') : 'eight rules, whole cents');
       if (r.owedSide > 0) { ribbon('r-pay2', r.owedSide, max, green); node('f-pp2', 'good'); note('f-pp2-n', 'exactly what the records prove' + (r.ids2?.length ? ' · ' + r.ids2[0] : '')); } else { node('f-pp2', 'warn'); note('f-pp2-n', 'nothing paid'); }
       const person = Math.max(0, (r.asked2 > 0 ? r.asked2 : 0) - r.owedSide);
       if (person > 0) { ribbon('r-person', person, max, amber); node('f-person', 'warn'); note('f-person-n', money(person) + ' the records do not prove, with the evidence'); } else { note('f-person-n', 'nothing to review'); }
     });
-    later(t += 900, () => pane(null));
+    later(t += 2400, () => { pane(null); say(`<b>Same AI, same message.</b> Before: ${money(r.alone)} paid. After: ${money(r.owedSide)} paid, and every PayPal refund id above is real. Press Play again.`); });
   }
   /* replay a recorded real run: the same picture, the real amounts and ids, no waiting */
   function pane(which, state) { for (const p of document.querySelectorAll('.pane')) { p.classList.remove('playing', 'waiting', 'played'); } const b = document.querySelector('.pane.before'), a = document.querySelector('.pane.after'); if (!b || !a) return; if (which === 'before') { b.classList.add('playing'); a.classList.add('waiting'); } else if (which === 'after') { b.classList.add('played'); a.classList.add('playing'); } }
@@ -75,7 +77,8 @@
     const askedOf = (d) => (d.steps || []).filter((x) => x.name === 'create_refund').reduce((t, x) => t + (Number(x.input?.amount?.value ?? x.input?.amount ?? 0) * 100 || 0), 0);
     pane('before');
     start(rec.text, { owed: rec.owed, captured: rec.captured });
-    later(700, () => finish({ owed: rec.owed, captured: rec.captured, alone: d1.refunded, owedSide: d2.refunded, asked1: Math.round(askedOf(d1)), asked2: Math.round(askedOf(d2)) || (d2.claims || []).reduce((t, c) => t + c.amountCents, 0), steps1: d1.steps, steps2: d2.steps, ids1: (d1.refunds || []).map((x) => x.id), ids2: (d2.refunds || []).map((x) => x.id), rule: d2.rule }));
+    say(`<b>The customer writes:</b> “${rec.text}” Only ${money(rec.owed)} of the ${money(rec.captured)} captured is owed.`);
+    later(2400, () => finish({ owed: rec.owed, captured: rec.captured, alone: d1.refunded, owedSide: d2.refunded, asked1: Math.round(askedOf(d1)), asked2: Math.round(askedOf(d2)) || (d2.claims || []).reduce((t, c) => t + c.amountCents, 0), steps1: d1.steps, steps2: d2.steps, ids1: (d1.refunds || []).map((x) => x.id), ids2: (d2.refunds || []).map((x) => x.id), rule: d2.rule }));
   }
   window.OwedFlow = { reset, start, finish, live, play };
 })();

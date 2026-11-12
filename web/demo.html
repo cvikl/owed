@@ -263,6 +263,11 @@ section>p.lead{font-size:14px;margin-bottom:12px}
 footer{margin:36px auto 28px}
 .hud{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
 .hud[hidden]{display:none}
+.arena-top,.cases-seg,.live-btn,.rec-note,details.more-all,.custom-row{display:none !important}
+.caption{padding:12px 18px 4px;font-size:17px;line-height:1.45;color:var(--ink);min-height:3.2em;text-wrap:pretty}
+.caption b{font-weight:700}
+.arena-ctl{grid-template-columns:1fr auto}
+.arena-ctl textarea{background:var(--wash);color:var(--ink-2)}
 @media (min-width:901px){.arena-box{height:calc(100vh - 60px);min-height:0;overflow:hidden}.arena-box .flow{min-height:0}.pane{min-height:0}.pane svg{height:100%;max-height:100%}.try{margin:0}}
 @media (max-width:760px){.hud{grid-template-columns:1fr}}
 .hud-cell{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:14px 18px;box-shadow:0 1px 2px rgba(16,22,20,.06);position:relative;overflow:hidden}
@@ -364,7 +369,7 @@ footer{margin:36px auto 28px}
 <div class="wrap full">
 <div class="topbar">
   <a class="mark" href="index.html"><img src="owed_mark.svg" alt="">Owed</a>
-  <nav class="topnav" aria-label="Sections"><a href="index.html">Overview</a><a href="#arena" class="active">Try it</a><a href="#audit">Audit</a><a href="#board">Board</a></nav>
+  <nav class="topnav" aria-label="Sections"><a href="index.html">Overview</a><a href="#arena" class="active">Demo</a></nav>
   <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
 </div>
 <div class="try" id="top">
@@ -377,6 +382,7 @@ footer{margin:36px auto 28px}
   <div class="arena-box">
     <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Order"></div><div class="seg cases-seg" id="cases-seg" role="group" aria-label="Message"></div><div class="dial-inline"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div></div>
     <div class="custom-row"><label class="sr" for="custom">Your own instructions for the AI</label><textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea><details class="prompt-d" hidden><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details></div>
+    <div class="caption" id="caption">One message to a shop's AI support agent. Left: what happens today. Right: the same message behind Owed. Press Play.</div>
     <div class="flow two">
       <div class="pane before">
         <div class="pane-h"><span class="pill before">BEFORE</span><span>The shop's AI today: its refund call goes straight to PayPal</span></div>
@@ -415,7 +421,7 @@ footer{margin:36px auto 28px}
         </svg>
       </div>
     </div>
-    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI"></textarea><button class="btn attack" id="arena-play">Play</button><button class="btn secondary live-btn" id="arena-go">Run it live</button></div>
+    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI" readonly></textarea><button class="btn attack" id="arena-play">Play</button><button class="btn secondary live-btn" id="arena-go">Run it live</button></div>
     <div class="rec-note" id="rec-note"></div>
     <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
   </div>

@@ -66,5 +66,12 @@
       if (person > 0) { ribbon('r-person', person, max, amber); node('f-person', 'warn'); note('f-person-n', money(person) + ' the records do not prove, with the evidence'); } else { note('f-person-n', 'nothing to review'); }
     });
   }
-  window.OwedFlow = { reset, start, finish, live };
+  /* replay a recorded real run: the same picture, the real amounts and ids, no waiting */
+  function play(rec) {
+    const d1 = rec.doors['1'], d2 = rec.doors['2'];
+    const askedOf = (d) => (d.steps || []).filter((x) => x.name === 'create_refund').reduce((t, x) => t + (Number(x.input?.amount?.value ?? x.input?.amount ?? 0) * 100 || 0), 0);
+    start(rec.text, { owed: rec.owed, captured: rec.captured });
+    later(700, () => finish({ owed: rec.owed, captured: rec.captured, alone: d1.refunded, owedSide: d2.refunded, asked1: Math.round(askedOf(d1)), asked2: Math.round(askedOf(d2)) || (d2.claims || []).reduce((t, c) => t + c.amountCents, 0), steps1: d1.steps, steps2: d2.steps, ids1: (d1.refunds || []).map((x) => x.id), ids2: (d2.refunds || []).map((x) => x.id), rule: d2.rule }));
+  }
+  window.OwedFlow = { reset, start, finish, live, play };
 })();

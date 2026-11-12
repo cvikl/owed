@@ -290,6 +290,14 @@ footer{margin:36px auto 28px}
 .arena-hint{font-size:12px;color:var(--mute)}
 .flow{padding:6px 10px 0;background:linear-gradient(180deg,#fff,var(--wash))}
 .flow svg{display:block;width:100%;height:auto}
+.flow.two{display:grid;grid-template-columns:52fr 58fr;gap:14px;padding:12px}
+@media (max-width:900px){.flow.two{grid-template-columns:1fr}}
+.pane{border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px 10px 4px;box-shadow:0 1px 2px rgba(16,22,20,.05)}
+.pane.before{background:linear-gradient(180deg,#fff,var(--red-soft))}.pane.after{background:linear-gradient(180deg,#fff,var(--green-soft))}
+.pane-h{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);padding:2px 6px 6px}
+.pill{font:700 11px var(--sans);letter-spacing:.08em;padding:4px 10px;border-radius:999px}
+.pill.before{background:var(--red);color:#fff}.pill.after{background:var(--green);color:#fff}
+.node .nn2{font-size:10px;fill:var(--mute)}
 .ribbons path{opacity:.9;transition:stroke-width .45s cubic-bezier(.2,.8,.2,1),stroke .25s;stroke-linecap:round;will-change:stroke-dashoffset}
 .ribbons path.draw{stroke-dasharray:1;animation:drawin .7s cubic-bezier(.16,1,.3,1) both}
 @keyframes drawin{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
@@ -316,7 +324,9 @@ footer{margin:36px auto 28px}
 .node.owed rect{fill:var(--block);stroke:var(--block)}.node.owed .nt{fill:#fff}.node.owed .nn{color:#cfe9dd}
 .node.owed.active rect{fill:#0f4f3c;stroke:var(--green-bright)}.node.owed.done rect{fill:var(--block)}
 .btn.attack{background:var(--green)}
-.arena-ctl{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 14px;border-top:1px solid var(--line);align-items:stretch}
+.arena-ctl{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:12px 14px;border-top:1px solid var(--line);align-items:stretch}
+.live-btn{font-size:14px;padding:0 16px}
+.rec-note{padding:6px 16px 10px;font-size:12px;color:var(--mute)}
 .arena-ctl textarea{min-height:56px;font-size:16px}
 .btn.attack{font:800 18px var(--display);padding:0 28px;letter-spacing:-.01em;background:var(--red)}
 .btn.attack:hover{filter:brightness(1.1)}
@@ -350,41 +360,48 @@ footer{margin:36px auto 28px}
     <div class="hud-cell shield"><span class="hud-l">Owed has blocked</span><b class="hud-v num green" id="hud-blocked">0 of 0</b><span class="hud-s">attacks, nothing got past</span></div>
   </div>
   <div class="arena-box">
-    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Order"></div><div class="dial-inline"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div></div>
+    <div class="arena-top"><div class="seg levels" id="levels" role="group" aria-label="Order"></div><div class="seg cases-seg" id="cases-seg" role="group" aria-label="Message"></div><div class="dial-inline"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div></div>
     <div class="custom-row"><label class="sr" for="custom">Your own instructions for the AI</label><textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea><details class="prompt-d" hidden><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details></div>
-    <div class="flow">
-      <svg viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="flow-t">
-        <title id="flow-t">What happens to one message: the AI alone pays PayPal straight away; behind Owed, code checks the records, PayPal pays what they prove and the rest goes to a person</title>
-        <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
-        <g class="ribbons" fill="none" stroke-linecap="round">
-          <path id="r-msg1" d="M170 210C240 210 240 110 300 110" pathLength="1" stroke-width="0"/>
-          <path id="r-msg2" d="M170 210C240 210 240 310 300 310" pathLength="1" stroke-width="0"/>
-          <path id="r-ask1" d="M480 110H872" pathLength="1" stroke-width="0"/>
-          <path id="r-ask2" d="M480 310H620" pathLength="1" stroke-width="0"/>
-          <path id="r-pay2" d="M780 300C830 300 830 260 880 260" pathLength="1" stroke-width="0"/>
-          <path id="r-person" d="M780 320C830 320 830 370 880 370" pathLength="1" stroke-width="0"/>
-          <path id="r-pay1" d="M870 110H878" pathLength="1" stroke-width="0"/>
-        </g>
-        <g class="labels" font-family="var(--mono)" font-size="12" text-anchor="middle">
-          <text id="r-msg1-l" x="250" y="150"></text><text id="r-msg2-l" x="250" y="280"></text>
-          <text id="r-ask1-l" x="680" y="72" class="rl"></text><text id="r-ask2-l" x="550" y="292" class="rl" font-size="11"></text>
-          <text id="r-pay2-l" x="830" y="240" class="rl"></text><text id="r-person-l" x="830" y="402" class="rl"></text><text id="r-pay1-l" x="890" y="96"></text>
-        </g>
-        <g class="lanes" font-family="var(--sans)" font-size="11" font-weight="700" letter-spacing=".08em">
-          <rect x="300" y="38" width="150" height="22" rx="11" class="lp before"/><text x="375" y="53" text-anchor="middle">BEFORE · AI ALONE</text><rect x="300" y="238" width="150" height="22" rx="11" class="lp after"/><text x="375" y="253" text-anchor="middle">AFTER · WITH OWED</text>
-        </g>
-        <g class="nodes" font-family="var(--sans)">
-          <g id="f-customer" class="node"><rect x="40" y="160" width="130" height="100" rx="14"/><circle cx="105" cy="176" r="9" class="ic"/><path d="M90 198c0-8 7-13 15-13s15 5 15 13" class="ic"/><text x="105" y="214" text-anchor="middle" class="nt">You</text><foreignObject x="46" y="222" width="118" height="32"><div xmlns="http://www.w3.org/1999/xhtml" class="nn msg" id="f-msg"></div></foreignObject></g>
-          <g id="f-ai1" class="node"><rect x="300" y="70" width="180" height="80" rx="14"/><rect x="316" y="86" width="22" height="18" rx="5" class="ic"/><circle cx="323" cy="95" r="2" class="icf"/><circle cx="331" cy="95" r="2" class="icf"/><text x="348" y="100" class="nt">The shop's AI today</text><foreignObject x="306" y="104" width="168" height="44"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-ai1-n">reads the order, the tracker, the payment</div></foreignObject></g>
-          <g id="f-pp1" class="node pp"><rect x="880" y="70" width="190" height="80" rx="14"/><image href="paypal-mark-color.svg" x="896" y="86" width="18" height="18"/><text x="920" y="100" class="nt">PayPal pays</text><foreignObject x="886" y="106" width="178" height="44"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-pp1-n"></div></foreignObject></g>
-          <g id="f-ai2" class="node"><rect x="300" y="270" width="180" height="80" rx="14"/><rect x="316" y="286" width="22" height="18" rx="5" class="ic"/><circle cx="323" cy="295" r="2" class="icf"/><circle cx="331" cy="295" r="2" class="icf"/><text x="348" y="300" class="nt">The same AI, gated</text><foreignObject x="306" y="304" width="168" height="44"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-ai2-n">reads the order, the tracker, the payment</div></foreignObject></g>
-          <g id="f-owed" class="node owed"><rect x="620" y="266" width="160" height="88" rx="14"/><path d="M640 280l9-4 9 4v7c0 6-4 10-9 12-5-2-9-6-9-12z" class="shield"/><path d="M645 288l3 3 6-6" class="tick"/><text x="668" y="292" class="nt">Owed</text><foreignObject x="626" y="298" width="148" height="52"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-owed-n">eight rules, whole cents</div></foreignObject></g>
-          <g id="f-pp2" class="node pp"><rect x="880" y="222" width="190" height="76" rx="14"/><image href="paypal-mark-color.svg" x="896" y="236" width="18" height="18"/><text x="920" y="250" class="nt">PayPal pays</text><foreignObject x="886" y="256" width="178" height="40"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-pp2-n"></div></foreignObject></g>
-          <g id="f-person" class="node person"><rect x="880" y="334" width="190" height="72" rx="14"/><circle cx="902" cy="352" r="6" class="ic"/><path d="M892 366c0-5 4-8 10-8s10 3 10 8" class="ic"/><text x="918" y="358" class="nt">A person at the shop</text><foreignObject x="886" y="366" width="178" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-person-n"></div></foreignObject></g>
-        </g>
-      </svg>
+    <div class="flow two">
+      <div class="pane before">
+        <div class="pane-h"><span class="pill before">BEFORE</span><span>The shop's AI today: its refund call goes straight to PayPal</span></div>
+        <svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Before: the customer's message goes to the shop's AI, whose refund call goes straight to PayPal">
+          <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
+          <g class="ribbons" fill="none" stroke-linecap="round">
+            <path id="r-msg1" d="M130 150H178" pathLength="1" stroke-width="0"/>
+            <path id="r-ask1" d="M350 150H402" pathLength="1" stroke-width="0"/>
+            <path id="r-pay1" d="M404 150H410" pathLength="1" stroke-width="0"/>
+          </g>
+          <g class="labels" font-family="var(--mono)" font-size="11" text-anchor="middle"><text id="r-msg1-l" x="154" y="130"></text><text id="r-ask1-l" x="376" y="112" class="rl"></text><text id="r-pay1-l" x="0" y="0"></text></g>
+          <g class="nodes" font-family="var(--sans)">
+            <g id="f-customer" class="node"><rect x="20" y="100" width="110" height="100" rx="14"/><circle cx="75" cy="118" r="8" class="ic"/><path d="M62 138c0-7 6-11 13-11s13 4 13 11" class="ic"/><text x="75" y="156" text-anchor="middle" class="nt">You</text><foreignObject x="24" y="162" width="102" height="34"><div xmlns="http://www.w3.org/1999/xhtml" class="nn msg" id="f-msg"></div></foreignObject></g>
+            <g id="f-ai1" class="node"><rect x="180" y="106" width="170" height="88" rx="14"/><rect x="196" y="122" width="22" height="18" rx="5" class="ic"/><circle cx="203" cy="131" r="2" class="icf"/><circle cx="211" cy="131" r="2" class="icf"/><text x="226" y="136" class="nt">The shop's AI</text><foreignObject x="186" y="144" width="158" height="46"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-ai1-n">refund call straight to PayPal</div></foreignObject></g>
+            <g id="f-pp1" class="node pp"><rect x="404" y="106" width="100" height="88" rx="14"/><image href="paypal-mark-color.svg" x="416" y="120" width="16" height="16"/><text x="436" y="133" class="nt">PayPal</text><foreignObject x="410" y="142" width="90" height="48"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-pp1-n"></div></foreignObject></g>
+          </g>
+        </svg>
+      </div>
+      <div class="pane after">
+        <div class="pane-h"><span class="pill after">AFTER</span><span>The same AI behind Owed: the call becomes a request, code decides from the records</span></div>
+        <svg viewBox="0 0 580 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="After: the same message, the AI's call becomes a request, Owed checks the records, PayPal pays what they prove and the rest goes to a person">
+          <g class="ribbons" fill="none" stroke-linecap="round">
+            <path id="r-msg2" d="M110 150H148" pathLength="1" stroke-width="0"/>
+            <path id="r-ask2" d="M290 150H318" pathLength="1" stroke-width="0"/>
+            <path id="r-pay2" d="M440 140C462 140 462 100 484 100" pathLength="1" stroke-width="0"/>
+            <path id="r-person" d="M440 160C462 160 462 210 484 210" pathLength="1" stroke-width="0"/>
+          </g>
+          <g class="labels" font-family="var(--mono)" font-size="11" text-anchor="middle"><text id="r-msg2-l" x="0" y="0"></text><text id="r-ask2-l" x="304" y="130" class="rl"></text><text id="r-pay2-l" x="462" y="84" class="rl"></text><text id="r-person-l" x="462" y="240" class="rl"></text></g>
+          <g class="nodes" font-family="var(--sans)">
+            <g id="f-you2" class="node"><rect x="10" y="110" width="100" height="80" rx="14"/><circle cx="60" cy="128" r="8" class="ic"/><path d="M47 148c0-7 6-11 13-11s13 4 13 11" class="ic"/><text x="60" y="168" text-anchor="middle" class="nt">You</text><text x="60" y="182" text-anchor="middle" class="nn2">same message</text></g>
+            <g id="f-ai2" class="node"><rect x="150" y="106" width="140" height="88" rx="14"/><rect x="164" y="122" width="22" height="18" rx="5" class="ic"/><circle cx="171" cy="131" r="2" class="icf"/><circle cx="179" cy="131" r="2" class="icf"/><text x="194" y="136" class="nt">The same AI</text><foreignObject x="156" y="144" width="128" height="46"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-ai2-n">the same call becomes a request</div></foreignObject></g>
+            <g id="f-owed" class="node owed"><rect x="320" y="102" width="120" height="96" rx="14"/><path d="M336 118l9-4 9 4v7c0 6-4 10-9 12-5-2-9-6-9-12z" class="shield"/><path d="M341 126l3 3 6-6" class="tick"/><text x="362" y="130" class="nt">Owed</text><foreignObject x="326" y="138" width="108" height="56"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-owed-n">eight rules, whole cents</div></foreignObject></g>
+            <g id="f-pp2" class="node pp"><rect x="484" y="62" width="90" height="76" rx="14"/><image href="paypal-mark-color.svg" x="494" y="74" width="16" height="16"/><text x="514" y="87" class="nt">PayPal</text><foreignObject x="488" y="94" width="82" height="40"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-pp2-n"></div></foreignObject></g>
+            <g id="f-person" class="node person"><rect x="484" y="172" width="90" height="76" rx="14"/><circle cx="500" cy="188" r="6" class="ic"/><path d="M490 202c0-5 4-8 10-8s10 3 10 8" class="ic"/><text x="514" y="194" class="nt">Person</text><foreignObject x="488" y="204" width="82" height="40"><div xmlns="http://www.w3.org/1999/xhtml" class="nn" id="f-person-n"></div></foreignObject></g>
+          </g>
+        </svg>
+      </div>
     </div>
-    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI"></textarea><button class="btn attack" id="arena-go">Send to both</button></div>
+    <div class="arena-ctl"><label class="sr" for="arena-text">Your attack</label><textarea id="arena-text" rows="2" maxlength="1500" placeholder="Write to the shop's AI"></textarea><button class="btn attack" id="arena-play">Play</button><button class="btn secondary live-btn" id="arena-go">Run it live</button></div>
+    <div class="rec-note" id="rec-note"></div>
     <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
   </div>
   <canvas id="confetti" aria-hidden="true"></canvas>

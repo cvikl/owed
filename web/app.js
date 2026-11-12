@@ -68,13 +68,18 @@ async function init() {
     resetDoors(kind);
   }
   if (window.OwedFlow && $('levels')) {
-    let level = 'mug';
-    const pick = (k) => { level = k; const f = cfg.kinds?.[k] ?? cfg.facts; OwedFlow.reset({ owed: f.owedCents, captured: f.capturedCents }); for (const b of $('levels').children) b.setAttribute('aria-pressed', String(b.dataset.k === k)); $('arena-text').value = K(k, 'text').value; };
+    let level = 'mug', recorded = null, current = null;
+    try { recorded = await api('/recorded.json'); } catch { recorded = null; }
+    const runsFor = (k) => (recorded?.runs || []).filter((r) => r.kind === k);
+    const CASE_LABELS = { owner: 'Pretend to be the owner', never: 'Say it never arrived', honest: 'Ask for the money back', rude: 'Be rude about it' };
+    const pickCase = (r) => { current = r; for (const b of $('cases-seg').children) b.setAttribute('aria-pressed', String(b.dataset.key === r.key)); $('arena-text').value = r.text; K(level, 'text').value = r.text; const f = cfg.kinds?.[level] ?? cfg.facts; OwedFlow.reset({ owed: f.owedCents, captured: f.capturedCents }); $('score').hidden = true; $('rec-note').textContent = ''; };
+    const pick = (k) => { level = k; for (const b of $('levels').children) b.setAttribute('aria-pressed', String(b.dataset.k === k)); const seg = $('cases-seg'); seg.innerHTML = ''; for (const r of runsFor(k)) { const b = document.createElement('button'); b.type = 'button'; b.dataset.key = r.key; b.textContent = CASE_LABELS[r.key] || r.key; b.onclick = () => pickCase(r); seg.appendChild(b); } const first = runsFor(k)[0]; if (first) pickCase(first); else { const f = cfg.kinds?.[k] ?? cfg.facts; OwedFlow.reset({ owed: f.owedCents, captured: f.capturedCents }); $('arena-text').value = K(k, 'text').value; } };
+    $('arena-play').onclick = () => { if (!current) return; $('arena-text').value = current.text; OwedFlow.play(current); const d1 = current.doors['1'], d2 = current.doors['2']; setTimeout(() => { score(level, { 1: { owedCents: current.owed, refundedCents: d1.refunded, capturedCents: current.captured }, 2: { owedCents: current.owed, refundedCents: d2.refunded } }); const ids = [...(d1.refunds || []), ...(d2.refunds || [])].map((x) => `<a href="#receipt-section" data-id="${esc(x.id)}">${esc(x.id)}</a>`).join(', '); $('rec-note').innerHTML = `Recorded ${new Date(recorded.recordedAt).toLocaleDateString()} on the PayPal sandbox with ${esc(short(current.model || ''))}. PayPal's refund ids: ${ids || 'none'}. Press Run it live to make a new one with this message.`; for (const a of $('rec-note').querySelectorAll('a')) a.onclick = (ev) => { ev.preventDefault(); receipt(a.dataset.id); }; }, 1900); };
     for (const [k, label] of [['mug', 'The mug: owed $5, asks for $25'], ['seafood', 'The seafood box: owed all $60']]) { const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k; b.textContent = label; b.onclick = () => pick(k); $('levels').appendChild(b); }
     pick('mug');
-    $('arena-text').addEventListener('input', () => { K(level, 'text').value = $('arena-text').value; });
-    $('arena-go').onclick = async () => { K(level, 'text').value = $('arena-text').value; const b = $('arena-go'); b.disabled = true; b.textContent = 'Sending…'; try { await send(level); } finally { b.disabled = false; b.textContent = 'Send to both'; } };
-    $('arena-text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('arena-go').click(); } });
+    $('arena-text').addEventListener('input', () => { K(level, 'text').value = $('arena-text').value; $('rec-note').textContent = ''; });
+    $('arena-go').onclick = async () => { K(level, 'text').value = $('arena-text').value; const b = $('arena-go'); b.disabled = true; b.textContent = 'Running live…'; $('rec-note').textContent = ''; try { await send(level); } finally { b.disabled = false; b.textContent = 'Run it live'; } };
+    $('arena-text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('arena-play').click(); } });
     for (const [label, c] of CHIPS_BY_KIND.mug.concat(CHIPS_BY_KIND.seafood)) { /* chips live on the cards; the arena keeps one box */ }
   }
   await Promise.all([loadBoard(), loadResults()]);
@@ -157,7 +162,7 @@ function score(kind, doors) {
   const got = Math.max(0, a - owed), past = Math.max(0, o - owed);
   const el = $('score'); if (!el) return; el.hidden = false;
   $('score-line').innerHTML = `<b>Before</b>, the AI alone paid <b class="${a > owed ? 'red' : ''}">${money(a)}</b>${got > 0 ? ', ' + money(got) + ' of it not owed' : ''}. <b>After</b>, with Owed, it paid <b class="green">${money(o)}</b>${past > 0 ? ', ' + money(past) + ' not owed' : o > 0 ? ', exactly what the records prove' : ''}.`;
-  coins(a, o, owed); hud(got, past);
+  coins(a, o, owed); if ($('hud-you')) hud(got, past);
   el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
 }
 let rounds = 0, bestToday = 0;

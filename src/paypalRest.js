@@ -56,7 +56,11 @@ export class PayPalRest {
     const r = await this.#call('POST', `/v2/payments/captures/${captureId}/refund`, body,
       requestId ? { 'PayPal-Request-Id': requestId } : {});
     // PayPal caps a refund at what is left on the capture (sandbox, 11 Nov 2026: asked 2500 after 500, got 2000). Report what PayPal did.
-    return { id: r.id, captureId, amountCents: r.amount?.value ? toCents(r.amount.value) : amountCents, askedCents: amountCents, status: r.status };
+    // A full refund (no amount in the request) comes back without an amount on the sandbox, so it is read back by id;
+    // otherwise the board recorded $0 for a $25 refund (live, 12 Nov 2026 13:42).
+    let cents = r.amount?.value ? toCents(r.amount.value) : amountCents;
+    if (cents == null) { try { cents = (await this.getRefund(r.id)).amountCents; } catch { cents = null; } }
+    return { id: r.id, captureId, amountCents: cents, askedCents: amountCents, status: r.status };
   }
   /** One refund as PayPal holds it, for the receipt panel. */
   async getRefund(id) {

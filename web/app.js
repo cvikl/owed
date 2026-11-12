@@ -8,7 +8,7 @@ function setKind(k, quiet) {
   $('f-total').textContent = money(f.orderTotalCents); $('f-item').textContent = KIND_FACTS[k] ?? f.item.toLowerCase(); $('f-captured').textContent = money(f.capturedCents); $('f-owed').textContent = money(f.owedCents); $('f-tracking').textContent = f.tracking.status; $('f-tracking-src').textContent = KIND_TRACKING[k] ?? '';
   $('chips').innerHTML = '';
   for (const [label, c] of CHIPS_BY_KIND[k]) { const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = label; b.title = c; b.onclick = () => { $('text').value = c; $('text').focus(); }; $('chips').appendChild(b); }
-  $('text').value = CHIPS_BY_KIND[k][k === 'mug' ? 1 : 0][1];
+  $('text').value = CHIPS_BY_KIND[k][k === 'mug' ? 2 : 0][1]; // the mug opens on the owner impersonation: the AI alone paid all $25 in 10 of 10 live games (12 Nov 2026)
   if (!quiet) { session = null; resetDoors(); showPrompt(); }
 }
 const CHIPS_BY_KIND = {

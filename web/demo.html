@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Owed</title>
-<meta name="description" content="Owed lets a shop's AI support agent issue PayPal refunds and pays only what PayPal's records prove, never a cent more. Built on the PayPal sandbox.">
+<meta name="description" content="Owed lets a shop's AI support agent issue PayPal refunds and pays only what PayPal's records prove, never a cent more. Built on the PayPal sandbox for the PayPal AI Hackathon 2026.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="owed_favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -211,6 +211,7 @@ body{background:var(--wash)}
 .case.refuse .case-head{background:var(--amber-soft)}
 .case.pay .case-head{background:var(--green-soft)}
 .case-head h2{margin:0 0 6px;font:800 18px/1.2 var(--display);letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.case-head .thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
 .case-head .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/22px var(--sans);text-align:center;flex:none}
 .facts{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--ink-2)}
 .facts b{color:var(--ink);font-weight:600}.facts .owed{color:var(--green)}.facts small{font-size:11px;color:var(--mute)}
@@ -253,7 +254,7 @@ footer{margin:36px auto 28px}
 <div class="topbar">
   <a class="mark" href="index.html"><img src="owed_mark.svg" alt="">Owed</a>
   <nav class="topnav" aria-label="Sections"><a href="index.html">Overview</a><a href="#arena" class="active">Try it</a><a href="#audit">Audit</a><a href="#board">Board</a></nav>
-  <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
+  <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
 </div>
 <div class="try" id="top">
   <h1>Try Owed on two real PayPal orders</h1>
@@ -269,7 +270,7 @@ footer{margin:36px auto 28px}
   <div class="cases">
   <div class="case refuse" id="case-mug">
     <div class="case-head">
-      <h2><span class="n">2</span> Overcharged mug: owed $5, the customer asks for $25</h2>
+      <h2><img src="img/mug-thumb.jpg" alt="" class="thumb"><span class="n">2</span> Overcharged mug: owed $5, the customer asks for $25</h2>
       <div class="facts"><span>Order <b id="mug-f-total">$0.00</b> <span id="mug-f-item"></span></span><span><img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured <b id="mug-f-captured">$0.00</b></span><span>Owed <b class="owed" id="mug-f-owed">$0.00</b></span><span>Tracking <b id="mug-f-tracking"></b> <small id="mug-f-tracking-src"></small></span></div>
     </div>
     <div class="strip">
@@ -307,7 +308,7 @@ footer{margin:36px auto 28px}
   </div>
   <div class="case pay" id="case-seafood">
     <div class="case-head">
-      <h2><span class="n">2</span> Chilled seafood, courier cancelled: owed all $60</h2>
+      <h2><img src="img/seafood-thumb.jpg" alt="" class="thumb"><span class="n">2</span> Chilled seafood, courier cancelled: owed all $60</h2>
       <div class="facts"><span>Order <b id="seafood-f-total">$0.00</b> <span id="seafood-f-item"></span></span><span><img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured <b id="seafood-f-captured">$0.00</b></span><span>Owed <b class="owed" id="seafood-f-owed">$0.00</b></span><span>Tracking <b id="seafood-f-tracking"></b> <small id="seafood-f-tracking-src"></small></span></div>
     </div>
     <div class="strip">
@@ -383,7 +384,7 @@ footer{margin:36px auto 28px}
   <div id="detail" class="detail" hidden></div>
 </section>
 
-<footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span></footer>
+<footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span><span>Photographs from Pexels.</span></footer>
 </div>
 <script src="app.js"></script>
 </body>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Owed</title>
-<meta name="description" content="Owed lets a shop's AI support agent issue PayPal refunds and pays only what PayPal's records prove, never a cent more. Built on the PayPal sandbox.">
+<meta name="description" content="Owed lets a shop's AI support agent issue PayPal refunds and pays only what PayPal's records prove, never a cent more. Built on the PayPal sandbox for the PayPal AI Hackathon 2026.">
 <meta name="theme-color" content="#0b3d2e">
 <link rel="icon" href="owed_favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,6 +71,11 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 .card.bad .big{color:var(--red)}.card.good .big{color:var(--green)}
 .card .l{font-size:16px;color:var(--ink-2);margin-top:10px;line-height:1.4}
 .card .s{font:12px/1.5 var(--mono);color:var(--mute);margin-top:10px}
+.story-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center;margin-top:24px}
+@media (max-width:760px){.story-row{grid-template-columns:1fr}}
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photos img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:12px;display:block}
+.story-row .story{margin-top:0}
 .story{margin-top:24px;padding:20px 24px;border-left:3px solid var(--green);background:var(--wash);border-radius:0 10px 10px 0;max-width:62ch;font-size:16px;line-height:1.5;color:var(--ink-2)}
 .story b{color:var(--ink)}
 .diagram{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:16px 20px;overflow-x:auto;margin-top:20px}
@@ -109,7 +114,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 
 <section class="slide dark" id="s1">
   <div class="in">
-    <p class="status" id="mode"><span class="dot"></span><span id="mode-text">on the PayPal sandbox</span></p>
+    <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
     <h1>No PayPal refund without proof. Not a cent more.</h1>
     <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> The AI still talks to the customer and asks for the refund. Code decides the amount from PayPal's records and the shop's, pays through PayPal, and sends the rest to a person.</p>
     <a class="cta" href="demo.html">Try it live on the sandbox</a><a class="cta ghost" href="#s2">The two-minute version</a>
@@ -127,7 +132,10 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
       <div class="fig"><div class="big num">15 million</div><div class="l">UK adults had a problem with their latest parcel; nearly half then struggled to get it put right.</div><span class="src"><a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/parcel-problems-reach-record-as-15-million-people-are-let-down-on-the/" rel="noopener">Citizens Advice, Nov 2025</a></span></div>
       <div class="fig"><div class="big num">14 days</div><div class="l">for PayPal to decide a claim, some 30 days or longer, when the record already says what happened.</div><span class="src"><a href="https://www.paypal.com/us/cshelp/article/how-long-does-it-take-to-resolve-a-dispute-or-claim-help253" rel="noopener">PayPal help centre</a></span></div>
     </div>
-    <div class="story"><b>This happened to one of us last week.</b> A chilled seafood box, due Saturday. The courier pushed it to Wednesday, then cancelled: chilled food does not keep. Days of messages for money that was plainly owed, while the delivery record said "cancelled" the whole time.</div>
+    <div class="story-row">
+      <div class="photos"><img src="img/parcel-porch.jpg" alt="A damaged parcel left on a porch" loading="lazy"><img src="img/seafood-box.jpg" alt="Fish fillets on ice in a chilled box" loading="lazy"></div>
+      <div class="story"><b>This happened to one of us last week.</b> A chilled seafood box, due Saturday. The courier pushed it to Wednesday, then cancelled: chilled food does not keep. Days of messages for money that was plainly owed, while the delivery record said "cancelled" the whole time.</div>
+    </div>
   </div>
 </section>
 
@@ -253,13 +261,13 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
     <h2>A gate, not a support agent. Built in three days on the sandbox.</h2>
     <p class="limits"><b>What this is not:</b> a real deployment needs the shop's order records, a way to tie a conversation to a customer and an order, the shop's own limits, a durable ledger and a queue for the cases that go to staff. The demo is one process with the ledger in memory. The benchmark is our own test suite on a PayPal stand-in; the arena and the race are the live sandbox evidence. <b>Next:</b> a shop pilot with its real order records, and the delivery rule on PayPal's own tracker once the sandbox lets a tracker be marked cancelled.</p>
     <a class="cta" href="demo.html">Try it live</a><a class="cta ghost" href="https://github.com/cvikl/owed" rel="noopener">Source on GitHub</a>
-    <div class="team"><span>Timotej Cvikl, University of Ljubljana</span><span>Bernard Liu, University of Cambridge</span><span>Sandbox money only.</span><span id="model-line"></span></div>
+    <div class="team"><span>Timotej Cvikl, University of Ljubljana</span><span>Bernard Liu, University of Cambridge</span><span>Sandbox money only.</span><span id="model-line"></span><span>Photographs from Pexels.</span></div>
   </div>
 </section>
 <script>
 const $ = (id) => document.getElementById(id);
 const money = (c) => '$' + (c / 100).toFixed(2);
-fetch('/api/config').then((r) => r.json()).then((c) => { const live = c.mode === 'live'; $('mode-text').textContent = live ? 'live on the PayPal sandbox' : 'PayPal stand-in, simulated'; $('mode').classList.toggle('sim', !live); $('model-line').textContent = 'Model at both doors: ' + c.model.split('/').pop() + '.'; }).catch(() => {});
+fetch('/api/config').then((r) => r.json()).then((c) => { const live = c.mode === 'live'; $('mode-text').textContent = live ? 'PayPal AI Hackathon 2026 · live on the PayPal sandbox' : 'PayPal AI Hackathon 2026 · PayPal stand-in, simulated'; $('mode').classList.toggle('sim', !live); $('model-line').textContent = 'Model at both doors: ' + c.model.split('/').pop() + '.'; }).catch(() => {});
 fetch('/api/board').then((r) => r.json()).then((b) => { const t = b.totals; $('l-games').textContent = t.sessions; $('l-alone').textContent = t.door1.sessionsOverpaid; $('l-owed').textContent = t.door2.sessionsOverpaid; if (t.door2.medianRefundMs) $('l-seconds').textContent = (t.door2.medianRefundMs / 1000).toFixed(1) + ' s'; }).catch(() => {});
 const slides = [...document.querySelectorAll('.slide')]; const dots = [...document.querySelectorAll('.dots a')];
 new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe && slides.forEach((s) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe(s));

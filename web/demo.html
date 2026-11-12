@@ -263,7 +263,8 @@ section>p.lead{font-size:14px;margin-bottom:12px}
 footer{margin:36px auto 28px}
 .hud{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
 .hud[hidden]{display:none}
-.arena-top,.cases-seg,.live-btn,.rec-note,details.more-all,.custom-row,.topnav,.toplinks .status,.toplinks a,#score,footer{display:none !important}
+body:not(.live) .arena-top,body:not(.live) .cases-seg,body:not(.live) .live-btn,body:not(.live) .rec-note,body:not(.live) details.more-all,body:not(.live) .custom-row,.topnav,.toplinks .status,.toplinks a,#score,footer{display:none !important}
+body.live .arena-top{display:grid !important}body.live .live-btn{display:inline-flex !important}body.live .rec-note,body.live .custom-row,body.live details.more-all{display:block !important}body.live .cases-seg{display:inline-flex !important}
 .toplinks{margin-left:auto}
 .btn.attack{font:800 20px var(--display);padding:0 32px;min-height:60px;border-radius:12px}
 .arena-ctl textarea{min-height:64px;height:64px;font-size:16px;border:0;background:var(--wash)}

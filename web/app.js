@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+if (location.search.includes('live=1')) document.body.classList.add('live'); // demo.html?live=1 shows the live arena, the audit and the board for judges who want a fresh run
 const K = (kind, id) => document.getElementById(`${kind}-${id}`);
 const money = (c) => '$' + (c / 100).toFixed(2);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

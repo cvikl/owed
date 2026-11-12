@@ -59,7 +59,7 @@ textarea::placeholder{color:var(--mute)}
 .timer{font:500 14px var(--mono);color:var(--mute);min-width:4ch}
 .err{color:var(--red);font-size:14px;margin-top:8px;min-height:1.2em}
 .doors{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:14px;border-top:1px solid var(--line)}
-@media (max-width:640px){.doors{grid-template-columns:1fr}}
+@media (max-width:640px){.doors{grid-template-columns:1fr}.seg{display:grid;grid-template-columns:1fr 1fr}.seg button{text-align:left}}
 .door{padding:14px 14px 14px 0}
 .door+.door{border-left:1px solid var(--line);padding-left:16px;padding-right:0}
 @media (max-width:640px){.door+.door{border-left:0;padding-left:0;border-top:1px solid var(--line)}}
@@ -163,7 +163,7 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
 .proof>div:nth-child(-n+2) .l{color:var(--ink-2)}
 .proof .v{font:800 40px/1 var(--display);letter-spacing:-.03em}
 @media (max-width:980px){.bento{grid-template-columns:1fr}.bento .panel{grid-row:auto}.proof{grid-template-columns:1fr 1fr}}
-@media (max-width:640px){.proof{grid-template-columns:1fr}.statement{padding-bottom:120px}}
+@media (max-width:640px){.proof{grid-template-columns:1fr}.statement{padding-bottom:120px}.statement .status{display:block}.statement .status .dot{display:inline-block;vertical-align:middle;margin-right:8px}}
 </style>
 </head>
 <body>
@@ -177,7 +177,7 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
   <div class="statement" id="top">
     <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
     <h1>Not a cent more than PayPal's records prove.</h1>
-    <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> The AI still talks to the customer and asks for the refund; code decides the amount from PayPal's capture and the shop's order, and sends the rest to a person.</p>
+    <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> Today the AI pays what it is asked. Behind Owed, code decides the amount from PayPal's capture and the shop's order, and sends the rest to a person.</p>
     <div class="cta-row"><a class="primary" href="#arena">Run it on the sandbox</a><a class="secondary" href="https://github.com/cvikl/owed" rel="noopener">Read the source</a></div>
   </div>
 </div>

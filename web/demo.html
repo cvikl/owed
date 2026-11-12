@@ -269,8 +269,11 @@ footer{margin:36px auto 28px}
 .arena-ctl textarea{min-height:64px;height:64px;font-size:16px;border:0;background:var(--wash)}
 .caption{padding:12px 18px 4px;font-size:17px;line-height:1.45;color:var(--ink);min-height:3.2em;text-wrap:pretty}
 .caption b{font-weight:700}
-.arena-ctl{grid-template-columns:1fr auto}
-.arena-ctl textarea{background:var(--wash);color:var(--ink-2)}
+.arena-ctl{grid-template-columns:auto 1fr;order:-2;border-top:0;border-bottom:1px solid var(--line);padding:12px 14px}
+.arena-ctl textarea{background:var(--wash);color:var(--ink-2);order:2}
+.arena-ctl .btn.attack{order:1}
+.caption{order:-1}
+.flow.two{order:0}
 @media (min-width:901px){.arena-box{height:calc(100vh - 60px);min-height:0;overflow:hidden}.arena-box .flow{min-height:0}.pane{min-height:0}.pane svg{height:100%;max-height:100%}.try{margin:0}}
 @media (max-width:760px){.hud{grid-template-columns:1fr}}
 .hud-cell{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:14px 18px;box-shadow:0 1px 2px rgba(16,22,20,.06);position:relative;overflow:hidden}

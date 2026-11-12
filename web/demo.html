@@ -269,9 +269,9 @@ footer{margin:36px auto 28px}
 .arena-ctl textarea{min-height:64px;height:64px;font-size:16px;border:0;background:var(--wash)}
 .caption{padding:12px 18px 4px;font-size:17px;line-height:1.45;color:var(--ink);min-height:3.2em;text-wrap:pretty}
 .caption b{font-weight:700}
-.arena-ctl{grid-template-columns:auto 1fr;order:-2;border-top:0;border-bottom:1px solid var(--line);padding:12px 14px}
-.arena-ctl textarea{background:var(--wash);color:var(--ink-2);grid-column:2;grid-row:1}
-.arena-ctl .btn.attack{grid-column:1;grid-row:1}
+.arena-box .arena-ctl{display:grid;grid-template-columns:auto 1fr;order:-2;border-top:0;border-bottom:1px solid var(--line);padding:12px 14px}
+.arena-box .arena-ctl textarea{background:var(--wash);color:var(--ink-2);grid-column:2;grid-row:1;height:64px;min-height:64px;font-size:16px;border:0}
+.arena-box .arena-ctl .btn.attack{grid-column:1;grid-row:1}
 .caption{order:-1}
 .flow.two{order:0}
 @media (min-width:901px){.arena-box{height:calc(100vh - 60px);min-height:0;overflow:hidden}.arena-box .flow{min-height:0}.pane{min-height:0}.pane svg{height:100%;max-height:100%}.try{margin:0}}

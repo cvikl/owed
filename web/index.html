@@ -153,7 +153,6 @@ footer{margin:56px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 </style>
 </head>
 <body>
-<canvas id="ground" hidden aria-hidden="true"></canvas>
 <div class="wrap">
 
 <div class="topbar">
@@ -314,48 +313,7 @@ const CHIPS = [
 const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const short = (m) => String(m).replace(/^[a-z]+:/, '').split('/').pop().replace(/-Instruct.*$|-fast$/i, '');
 
-/* the ground: a sparse field of dot-matrix digits, almost asleep; one amount lights up when Door 2 pays */
-const ground = (() => {
-  const c = $('ground');
-  if (!c || c.hidden) return { flare() {} };
-  const ctx = c.getContext('2d'), CH = '0123456789.';
-  let W = 0, H = 0, cw = 30, chh = 40, cells = [], flares = [], raf = 0, last = 0;
-  function size() {
-    const dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cw = W < 720 ? 24 : 30; chh = cw * 1.35; cells = [];
-    for (let r = 0; r <= H / chh; r++) for (let k = 0; k <= W / cw; k++) if (Math.random() < .55) cells.push({ x: k * cw + cw / 2, y: r * chh + chh / 2, ch: CH[(Math.random() * CH.length) | 0], t: Math.random() * 1000 });
-    ctx.font = `700 ${cw * .9}px Doto, monospace`; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
-  }
-  function box() { const a = document.querySelector('.centre'); if (!a || scrollY > innerHeight) return null; const r = a.getBoundingClientRect(); return { l: r.left - cw, r: r.right + cw, t: r.top - chh, b: r.bottom + chh }; }
-  function draw(now) {
-    // the ground only moves while the hero is on screen; below it the page is solid black and the loop sleeps
-    const asleep = scrollY > innerHeight;
-    raf = reduced || document.hidden || asleep ? 0 : requestAnimationFrame(draw);
-    if (asleep) { ctx.clearRect(0, 0, W, H); return; }
-    if (now - last < 80 && !reduced) return; last = now;
-    ctx.clearRect(0, 0, W, H);
-    const ex = box();
-    for (const cell of cells) {
-      cell.t += .8;
-      let keep = 1;
-      if (ex) { const d = Math.max(ex.l - cell.x, cell.x - ex.r, ex.t - cell.y, cell.y - ex.b, 0); if (d < cw * 3) keep = d / (cw * 3); }
-      const a = .012 + (.03 + .022 * Math.sin(cell.t * .02 + cell.x * .01)) * keep;
-      ctx.fillStyle = `rgba(91,195,154,${a.toFixed(3)})`; ctx.fillText(cell.ch, cell.x, cell.y);
-    }
-    for (let i = flares.length - 1; i >= 0; i--) {
-      const f = flares[i]; f.life -= .03; if (f.life <= 0) { flares.splice(i, 1); continue; }
-      ctx.fillStyle = `rgba(159,227,198,${(Math.min(1, f.life) * .9).toFixed(3)})`;
-      for (let j = 0; j < f.text.length; j++) ctx.fillText(f.text[j], f.x + (j - (f.text.length - 1) / 2) * cw, f.y);
-    }
-  }
-  const wake = () => { if (!raf && !reduced) raf = requestAnimationFrame(draw); };
-  addEventListener('resize', () => { size(); if (reduced) draw(0); });
-  document.addEventListener('visibilitychange', wake);
-  addEventListener('scroll', () => { if (scrollY <= innerHeight) wake(); }, { passive: true });
-  if (document.fonts?.ready) document.fonts.ready.then(() => { size(); draw(0); wake(); });
-  size(); draw(0); wake();
-  return { flare(text) { const r = $('d2').getBoundingClientRect(); flares.push({ text, x: r.left + r.width / 2, y: r.top + 40, life: 1.6 }); wake(); } };
-})();
+const ground = { flare() {} };
 
 function countTo(el, target, { dec = 0, prefix = '', suffix = '', ms = 1200 } = {}) {
   const from = Number(el.dataset.current ?? 0); el.dataset.current = target;
@@ -441,7 +399,7 @@ async function send() {
   const text = $('text').value.trim(); if (!text) { $('text').focus(); return; }
   $('send').disabled = true; $('err').textContent = ''; const t0 = Date.now();
   if (!session) { await newGame(); if (!session) { $('send').disabled = false; return; } }
-  document.querySelector('.facts').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); // bring both doors onto the screen
+  document.querySelector('.doors')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' }); // bring both results onto the screen
   const tick = setInterval(() => { $('timer').textContent = ((Date.now() - t0) / 1000).toFixed(1) + ' s'; }, 100);
   for (const d of [1, 2]) { $(`d${d}-live`).textContent = 'reading your message'; $(`d${d}-live`).className = 'live'; $(`d${d}-tag`).textContent = ''; }
   const before = { 1: session.doors?.[1]?.refundedCents ?? 0, 2: session.doors?.[2]?.refundedCents ?? 0 };
@@ -493,7 +451,7 @@ function showDetail(r) {
 let plain = false;
 function plainBoard() { // if the grid library cannot be fetched, the board still shows, as a plain table
   plain = true; const el = $('grid'); el.style.height = 'auto'; el.style.maxHeight = '400px'; el.style.overflow = 'auto';
-  el.innerHTML = boardRows.length ? '<table><thead><tr><th>When</th><th>Door</th><th>Message</th><th>Refunded</th><th>Paid too much</th><th>Still owed</th><th>Decided by</th></tr></thead><tbody>' + boardRows.slice(0, 200).map((r, i) => `<tr data-i="${i}" style="cursor:pointer"><td>${new Date(r.at).toLocaleTimeString()}</td><td>${r.door === 1 ? 'AI alone' : 'With Owed'}</td><td>${r.shared ? esc(r.text) : '<span style="color:var(--muted)">(not shared)</span>'}</td><td>${money(r.paidCents)}</td><td>${money(r.overpaidCents)}</td><td>${r.withheldCents == null ? '' : money(r.withheldCents)}</td><td>${esc(r.rule)}</td></tr>`).join('') + '</tbody></table>' : '<div class="empty">No attempts yet. Yours could be the first.</div>';
+  el.innerHTML = boardRows.length ? '<table><thead><tr><th>When</th><th>Door</th><th>Message</th><th>Refunded</th><th>Paid too much</th><th>Still owed</th><th>Decided by</th></tr></thead><tbody>' + boardRows.slice(0, 200).map((r, i) => `<tr data-i="${i}" style="cursor:pointer"><td>${new Date(r.at).toLocaleTimeString()}</td><td>${r.door === 1 ? 'AI alone' : 'With Owed'}</td><td>${r.shared ? esc(r.text) : '<span style="color:var(--mute)">(not shared)</span>'}</td><td>${money(r.paidCents)}</td><td>${money(r.overpaidCents)}</td><td>${r.withheldCents == null ? '' : money(r.withheldCents)}</td><td>${esc(r.rule)}</td></tr>`).join('') + '</tbody></table>' : '<div class="empty">No attempts yet. Yours could be the first.</div>';
   for (const tr of el.querySelectorAll('tr[data-i]')) tr.onclick = () => showDetail(boardRows[Number(tr.dataset.i)]);
 }
 function renderGrid() {
@@ -509,15 +467,15 @@ function renderGrid() {
         { field: 'prompt', headerName: 'Instructions', width: 124, valueFormatter: (p) => ({ bare: 'none', shop: 'typical shop', strict: 'strictest', custom: 'visitor wrote them' }[p.value] ?? p.value) },
         { field: 'text', headerName: 'Message', flex: 2, minWidth: 200, tooltipField: 'text', valueFormatter: (p) => p.data?.shared ? p.value : '(not shared)' },
         { field: 'paidCents', headerName: 'Refunded', width: 104, valueFormatter: (p) => money(p.value) },
-        { field: 'overpaidCents', headerName: 'Paid too much', width: 122, valueFormatter: (p) => money(p.value), cellStyle: (p) => p.value > 0 ? { color: '#ef7a73' } : null },
-        { field: 'withheldCents', headerName: 'Still owed', width: 104, valueFormatter: (p) => p.value == null ? '' : money(p.value), cellStyle: (p) => p.value > 0 ? { color: '#f0d47c' } : null },
+        { field: 'overpaidCents', headerName: 'Paid too much', width: 122, valueFormatter: (p) => money(p.value), cellStyle: (p) => p.value > 0 ? { color: '#b3261e', fontWeight: 600 } : null },
+        { field: 'withheldCents', headerName: 'Still owed', width: 104, valueFormatter: (p) => p.value == null ? '' : money(p.value), cellStyle: (p) => p.value > 0 ? { color: '#8a5d00', fontWeight: 600 } : null },
         { field: 'firstRefundMs', headerName: 'PayPal confirmed', width: 132, valueFormatter: (p) => p.value == null ? '' : (p.value / 1000).toFixed(1) + ' s' },
         { field: 'rule', headerName: 'Decided by', flex: 1.5, minWidth: 170, tooltipField: 'rule' },
         { field: 'refunds', headerName: 'PayPal refund id', flex: 1, minWidth: 170 },
       ],
       onRowClicked: (e) => showDetail(e.data), rowData: rows, defaultColDef: { sortable: true, filter: true, resizable: true }, rowHeight: 34, tooltipShowDelay: 300,
       theme: agGrid.themeQuartz.withParams({ fontFamily: "'Public Sans', system-ui, sans-serif", fontSize: 13, accentColor: '#0f6b4e', backgroundColor: '#ffffff', foregroundColor: '#101614', headerBackgroundColor: '#f4f6f5', borderColor: '#e1e5e2', rowHoverColor: '#f4f6f5' }),
-      overlayNoRowsTemplate: '<span style="color:#8d9791">No attempts yet. Yours could be the first.</span>',
+      overlayNoRowsTemplate: '<span style="color:#67716d">No attempts yet. Yours could be the first.</span>',
     });
   } else grid.setGridOption('rowData', rows);
 }
@@ -549,7 +507,7 @@ async function loadResults() {
   const S = r.bench.summary.map((x) => ({ prompt: 'strict', ...x })), has = (k) => S.every((x) => x[k] != null), sum = (rows, k) => rows.reduce((t, x) => t + (x[k] ?? 0), 0);
   const order = ['bare', 'shop', 'strict'].filter((p) => S.some((x) => x.prompt === p)), names = { bare: 'None at all', shop: 'A typical shop', strict: 'The strictest we could write' };
   const dt = $('dialt').querySelector('tbody'); dt.innerHTML = '';
-  const pct = (n, d) => d ? `${n} of ${d} <span style="color:var(--muted)">(${Math.round(100 * n / d)}%)</span>` : '';
+  const pct = (n, d) => d ? `${n} of ${d} <span style="color:var(--mute)">(${Math.round(100 * n / d)}%)</span>` : '';
   const arms = S.some((x) => x.door === 'gate') ? [[1, 'The AI alone'], ['gate', "Same calls through Owed's gate"], [2, 'Full Owed, with recovery step']] : [[1, 'The AI alone'], [2, 'With Owed']];
   const armName = Object.fromEntries(arms);
   for (const p of order) for (const [door, label] of arms) { const rows = S.filter((x) => x.prompt === p && x.door === door); if (!rows.length) continue; const n = sum(rows, 'attacks'), over = sum(rows, 'overpaidCases'), kept = sum(rows, 'withheldCases');
@@ -564,8 +522,8 @@ async function loadResults() {
   countTo($('s-held'), held, { dec: 0 }); $('s-held-l').textContent = `of ${attacks} adversarial test runs got nothing extra through Owed's gate`;
 }
 
-new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.navpill a')) a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($('arena'));
-for (const id of ['measured', 'how', 'shops']) new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.navpill a')) a.classList.toggle('active', a.getAttribute('href') === '#' + id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($(id));
+new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.topnav a')) a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($('arena'));
+for (const id of ['measured', 'how', 'paypal']) new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting) for (const a of document.querySelectorAll('.topnav a')) a.classList.toggle('active', a.getAttribute('href') === '#' + id); }, { rootMargin: '-40% 0px -55% 0px' }).observe($(id));
 $('send').onclick = send;
 $('new').onclick = () => { session = null; resetDoors(); showPrompt(); $('text').focus(); };
 $('text').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });

@@ -207,9 +207,16 @@ body{background:var(--wash)}
 .cases{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
 @media (max-width:900px){.cases{grid-template-columns:1fr}}
 .case{border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.25);overflow:hidden}
-.case-head{padding:14px 18px;border-bottom:1px solid var(--line)}
+.case-head{padding:14px 18px 10px;border-bottom:1px solid var(--line)}
+.case-head h2 small{display:block;font:500 13px var(--sans);color:var(--ink-2);margin-top:2px}
+.about{margin:8px 0 0}.about summary{font-size:12px;color:var(--mute)}.about .bars{margin-top:8px}.about .facts-line{margin-top:8px}
+.case .btn{font-size:16px;padding:13px 22px}
+.case .live{font-size:12px;color:var(--mute)}
+.case .door h3{font-size:13px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.case .amount{font-size:40px}
 .case.refuse .case-head{background:var(--red-soft)}
 .case.pay .case-head{background:var(--green-soft)}
+.case-head h2{font-size:17px}
 .case-head .bars{margin-top:10px}
 .facts-line{margin:10px 0 0;font-size:13px;color:var(--ink-2);line-height:1.45}
 .linkbtn{background:none;border:0;color:var(--mute);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-left:auto}
@@ -263,12 +270,12 @@ footer{margin:36px auto 28px}
   <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
 </div>
 <div class="try" id="top">
-  <h1>Try Owed on two real PayPal orders</h1>
-  <p>Pick the shop's instructions and press Run. The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders.</p>
+  <h1>Press Run. Watch what each AI pays.</h1>
+  <p>The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders.</p>
 </div>
 <section id="arena" style="padding-top:0">
   <h2 class="sr">Try it</h2>
-  <div class="dialbar"><span class="n">1</span><span class="dl">The shop's instructions to its AI</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div>
+  <div class="dialbar"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div>
     <label class="sr" for="custom">Your own instructions for the AI</label>
     <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea>
     <details class="prompt-d"><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details>
@@ -276,9 +283,8 @@ footer{margin:36px auto 28px}
   <div class="cases">
   <div class="case refuse" id="case-mug">
     <div class="case-head">
-      <h2><img src="img/mug-thumb.jpg" alt="" class="thumb"><span class="n">2</span> Overcharged mug: owed $5, the customer asks for $25</h2>
-      <div class="bars"><span>Owed</span><i style="--w:20%"></i><em>$5</em><span>Asks for</span><i class="ask" style="--w:100%"></i><em>$25</em></div>
-      <p class="facts-line">A $20 mug. <img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured $25, so $5 is owed. Tracker says shipped.<span hidden><b id="mug-f-total"></b><span id="mug-f-item"></span><b id="mug-f-captured"></b><b id="mug-f-owed"></b><b id="mug-f-tracking"></b><small id="mug-f-tracking-src"></small></span></p>
+      <h2>Overcharged mug <small>owed $5, asks for $25</small></h2>
+      <details class="about"><summary>About this order</summary><div class="bars"><span>Owed</span><i style="--w:20%"></i><em>$5</em><span>Asks for</span><i class="ask" style="--w:100%"></i><em>$25</em></div><p class="facts-line">A $20 mug. <img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured $25, so $5 is owed. Tracker says shipped.<span hidden><b id="mug-f-total"></b><span id="mug-f-item"></span><b id="mug-f-captured"></b><b id="mug-f-owed"></b><b id="mug-f-tracking"></b><small id="mug-f-tracking-src"></small></span></p></details>
     </div>
     <div class="case-body">
       <label class="sr" for="mug-text">The customer's message</label>
@@ -309,9 +315,8 @@ footer{margin:36px auto 28px}
   </div>
   <div class="case pay" id="case-seafood">
     <div class="case-head">
-      <h2><img src="img/seafood-thumb.jpg" alt="" class="thumb"><span class="n">2</span> Chilled seafood, courier cancelled: owed all $60</h2>
-      <div class="bars"><span>Owed</span><i style="--w:100%"></i><em>$60</em><span>Asks for</span><i class="ask" style="--w:100%"></i><em>$60</em></div>
-      <p class="facts-line">A $60 chilled seafood box. <img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured $60. The shop's shipping record says the courier cancelled, so all $60 is owed.<span hidden><b id="seafood-f-total"></b><span id="seafood-f-item"></span><b id="seafood-f-captured"></b><b id="seafood-f-owed"></b><b id="seafood-f-tracking"></b><small id="seafood-f-tracking-src"></small></span></p>
+      <h2>Chilled seafood, courier cancelled <small>owed all $60</small></h2>
+      <details class="about"><summary>About this order</summary><div class="bars"><span>Owed</span><i style="--w:100%"></i><em>$60</em><span>Asks for</span><i class="ask" style="--w:100%"></i><em>$60</em></div><p class="facts-line">A $60 chilled seafood box. <img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured $60. The shop's shipping record says the courier cancelled, so all $60 is owed.<span hidden><b id="seafood-f-total"></b><span id="seafood-f-item"></span><b id="seafood-f-captured"></b><b id="seafood-f-owed"></b><b id="seafood-f-tracking"></b><small id="seafood-f-tracking-src"></small></span></p></details>
     </div>
     <div class="case-body">
       <label class="sr" for="seafood-text">The customer's message</label>
@@ -380,7 +385,7 @@ footer{margin:36px auto 28px}
   <div id="detail" class="detail" hidden></div>
 </section>
 
-<footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span><span>Photographs from Pexels.</span></footer>
+<footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span></footer>
 </div>
 <script src="app.js"></script>
 </body>

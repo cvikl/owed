@@ -22,7 +22,10 @@ a{color:inherit}
 .slide{scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:72px 24px 64px;position:relative}
 .slide#s1{min-height:100vh;padding-top:96px}
 .slide>.in{width:100%;max-width:1100px;margin:0 auto}
-.slide.dark{background:var(--block);color:var(--block-ink)}
+.slide.dark{background:var(--block);color:var(--block-ink);position:relative;isolation:isolate}
+.slide.dark::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/bg-green.jpg) center/cover no-repeat;opacity:.55;mix-blend-mode:luminosity}
+.slide.dark::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,61,46,.55),rgba(11,61,46,.85))}
+.slide:not(.dark){background:var(--ground) url(img/bg-light.jpg) center/cover no-repeat;background-blend-mode:soft-light}
 .slide.dark h1,.slide.dark h2,.slide.dark .big{color:#fff}
 .slide.dark .k{color:var(--green-bright)}
 .k{font:600 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin:0 0 12px}
@@ -39,15 +42,17 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 .status .dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright)}
 .status.sim .dot{background:#f1c66b}
 /* top bar */
-.bar{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;gap:18px;padding:0 24px;z-index:5;background:transparent;color:#fff;mix-blend-mode:difference}
+.bar{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;gap:18px;padding:0 24px;z-index:5;color:#fff;transition:color .2s,background .2s}
+.bar.onlight{color:var(--ink);background:rgba(255,255,255,.82);backdrop-filter:blur(8px)}
 .bar .mark{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font:700 18px var(--sans)}
 .bar .links{margin-left:auto;display:flex;gap:4px}
 .bar .links a{text-decoration:none;font-size:14px;font-weight:500;padding:8px 12px;border-radius:6px}
 .bar .links a.primary{font-weight:600;border:1px solid currentColor}
 @media (max-width:640px){.bar .links a:not(.primary){display:none}}
 /* dots */
-.dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:grid;gap:10px;z-index:5;mix-blend-mode:difference}
-.dots a{width:8px;height:8px;border-radius:50%;background:#fff;opacity:.35;display:block}
+.dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:grid;gap:10px;z-index:5}
+.dots a{width:8px;height:8px;border-radius:50%;background:#fff;opacity:.35;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.dots.onlight a{background:var(--ink)}
 .dots a.active{opacity:1;transform:scale(1.4)}
 @media (max-width:640px){.dots{display:none}}
 /* figures */
@@ -94,7 +99,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 .limits b{color:#fff;font-weight:600}
 .hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-size:12px;color:var(--mute);letter-spacing:.06em}
 .slide.dark .hint{color:var(--block-mute)}
-.pp-pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px 6px 8px;border-radius:999px;background:#fff;color:#003087;mix-blend-mode:normal}
+.pp-pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px 6px 8px;border-radius:999px;background:#fff;color:#003087;border:1px solid rgba(0,48,135,.12)}
 .pp-pill img{width:18px;height:18px}
 .pp-hero{display:inline-flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:8px 14px;margin:0 0 22px;color:#003087;font-weight:600;font-size:14px}
 .pp-hero .pp-word{height:26px;width:auto}
@@ -132,10 +137,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
       <div class="fig"><div class="big num">15 million</div><div class="l">UK adults had a problem with their latest parcel; nearly half then struggled to get it put right.</div><span class="src"><a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/parcel-problems-reach-record-as-15-million-people-are-let-down-on-the/" rel="noopener">Citizens Advice, Nov 2025</a></span></div>
       <div class="fig"><div class="big num">14 days</div><div class="l">for PayPal to decide a claim, some 30 days or longer, when the record already says what happened.</div><span class="src"><a href="https://www.paypal.com/us/cshelp/article/how-long-does-it-take-to-resolve-a-dispute-or-claim-help253" rel="noopener">PayPal help centre</a></span></div>
     </div>
-    <div class="story-row">
-      <div class="photos"><img src="img/parcel-porch.jpg" alt="A damaged parcel left on a porch" loading="lazy"><img src="img/seafood-box.jpg" alt="Fish fillets on ice in a chilled box" loading="lazy"></div>
-      <div class="story"><b>This happened to one of us last week.</b> A chilled seafood box, due Saturday. The courier pushed it to Wednesday, then cancelled: chilled food does not keep. Days of messages for money that was plainly owed, while the delivery record said "cancelled" the whole time.</div>
-    </div>
+    <div class="story"><b>This happened to one of us last week.</b> A chilled seafood box, due Saturday. The courier pushed it to Wednesday, then cancelled: chilled food does not keep. Days of messages for money that was plainly owed, while the delivery record said "cancelled" the whole time.</div>
   </div>
 </section>
 
@@ -261,7 +263,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
     <h2>A gate, not a support agent. Built in three days on the sandbox.</h2>
     <p class="limits"><b>What this is not:</b> a real deployment needs the shop's order records, a way to tie a conversation to a customer and an order, the shop's own limits, a durable ledger and a queue for the cases that go to staff. The demo is one process with the ledger in memory. The benchmark is our own test suite on a PayPal stand-in; the arena and the race are the live sandbox evidence. <b>Next:</b> a shop pilot with its real order records, and the delivery rule on PayPal's own tracker once the sandbox lets a tracker be marked cancelled.</p>
     <a class="cta" href="demo.html">Try it live</a><a class="cta ghost" href="https://github.com/cvikl/owed" rel="noopener">Source on GitHub</a>
-    <div class="team"><span>Timotej Cvikl, University of Ljubljana</span><span>Bernard Liu, University of Cambridge</span><span>Sandbox money only.</span><span id="model-line"></span><span>Photographs from Pexels.</span></div>
+    <div class="team"><span>Timotej Cvikl, University of Ljubljana</span><span>Bernard Liu, University of Cambridge</span><span>Sandbox money only.</span><span id="model-line"></span><span>Background image from Pexels.</span></div>
   </div>
 </section>
 <script>
@@ -270,6 +272,7 @@ const money = (c) => '$' + (c / 100).toFixed(2);
 fetch('/api/config').then((r) => r.json()).then((c) => { const live = c.mode === 'live'; $('mode-text').textContent = live ? 'PayPal AI Hackathon 2026 · live on the PayPal sandbox' : 'PayPal AI Hackathon 2026 · PayPal stand-in, simulated'; $('mode').classList.toggle('sim', !live); $('model-line').textContent = 'Model at both doors: ' + c.model.split('/').pop() + '.'; }).catch(() => {});
 fetch('/api/board').then((r) => r.json()).then((b) => { const t = b.totals; $('l-games').textContent = t.sessions; $('l-alone').textContent = t.door1.sessionsOverpaid; $('l-owed').textContent = t.door2.sessionsOverpaid; if (t.door2.medianRefundMs) $('l-seconds').textContent = (t.door2.medianRefundMs / 1000).toFixed(1) + ' s'; }).catch(() => {});
 const slides = [...document.querySelectorAll('.slide')]; const dots = [...document.querySelectorAll('.dots a')];
+const tone = () => { const y = scrollY + 30; const cur = slides.filter((s) => s.offsetTop <= y).at(-1) || slides[0]; const light = !cur.classList.contains('dark'); document.querySelector('.bar').classList.toggle('onlight', light); document.querySelector('.dots').classList.toggle('onlight', light); }; addEventListener('scroll', tone, { passive: true }); tone();
 new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe && slides.forEach((s) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const i = slides.indexOf(e.target); dots.forEach((d, j) => d.classList.toggle('active', j === i)); } }, { threshold: 0.5 }).observe(s));
 addEventListener('keydown', (e) => { if (['ArrowDown', 'PageDown', ' ', 'ArrowRight'].includes(e.key) || ['ArrowUp', 'PageUp', 'ArrowLeft'].includes(e.key)) { if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; e.preventDefault(); const y = scrollY + 10; let i = slides.findIndex((s) => s.offsetTop > y); if (['ArrowUp', 'PageUp', 'ArrowLeft'].includes(e.key)) { i = slides.findIndex((s) => s.offsetTop >= y - 20) - 1; if (i < 0) i = 0; } if (i < 0 || i >= slides.length) i = slides.length - 1; slides[i].scrollIntoView({ behavior: 'smooth' }); } });
 </script>

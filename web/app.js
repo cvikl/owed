@@ -91,7 +91,7 @@ async function newGame(kind) {
 }
 /** Before a game, each column shows the latest game of its kind from the public board, so a judge sees both outcomes without clicking. */
 function resetDoors(kind, fresh) {
-  for (const d of [1, 2]) { const a = K(kind, `d${d}-amt`); a.textContent = '$0.00'; a.className = 'amount zero num'; delete a.dataset.current; K(kind, `d${d}-tag`).textContent = fresh ? 'fresh sandbox order' : 'no refund yet'; K(kind, `d${d}-tag`).className = 'tag'; K(kind, `d${d}-reply`).textContent = ''; K(kind, `d${d}-ids`).innerHTML = ''; K(kind, `d${d}-steps`).textContent = ''; K(kind, `d${d}-live`).textContent = ''; K(kind, `d${d}-live`).className = 'live'; }
+  for (const d of [1, 2]) { const a = K(kind, `d${d}-amt`); a.textContent = '$0.00'; a.className = 'amount zero num'; delete a.dataset.current; K(kind, `d${d}-tag`).textContent = fresh ? 'fresh sandbox order' : 'no refund yet'; K(kind, `d${d}-tag`).className = 'tag'; K(kind, `d${d}-reply`).textContent = ''; K(kind, `d${d}-ids`).innerHTML = ''; K(kind, `d${d}-steps`).textContent = ''; K(kind, `d${d}-live`).textContent = ''; K(kind, `d${d}-live`).className = 'live'; K(kind, `d${d}-steps`).closest('details').hidden = true; }
   K(kind, 'timer').textContent = ''; K(kind, 'sum').hidden = true;
   if (!fresh) paintFromBoard(kind);
 }
@@ -107,7 +107,7 @@ function paintFromBoard(kind) {
     const tag = K(kind, `d${d}-tag`);
     tag.textContent = total > owed ? 'paid ' + money(total - owed) + ' more than was owed' : total === 0 ? 'paid nothing, ' + money(owed) + ' is owed' : 'exactly what was owed';
     tag.className = 'tag ' + (total > owed ? 'over' : total === 0 ? 'review' : 'ok');
-    K(kind, `d${d}-live`).textContent = 'latest game on the public board, ' + new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    K(kind, `d${d}-live`).textContent = 'last game, ' + new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const ids = String(r.refunds || '').split(' ').filter(Boolean);
     K(kind, `d${d}-ids`).innerHTML = ids.map((id) => `PayPal refund <a href="#receipt-section" data-id="${esc(id)}">${esc(id)}</a>`).join('<br>');
     for (const el of K(kind, `d${d}-ids`).querySelectorAll('a')) el.onclick = (ev) => { ev.preventDefault(); receipt(el.dataset.id); };
@@ -132,6 +132,7 @@ function paint(kind, d, a, doorState) {
   const ids = K(kind, `d${d}-ids`);
   ids.innerHTML = a.refunds?.length ? a.refunds.map((r) => `PayPal refund <a href="#receipt-section" data-id="${r.id}">${r.id}</a> ${money(r.amountCents)} ${esc(r.status)}`).join('<br>') : '';
   for (const el of ids.querySelectorAll('a')) el.onclick = (ev) => { ev.preventDefault(); receipt(el.dataset.id); };
+  K(kind, `d${d}-steps`).closest('details').hidden = false;
   K(kind, `d${d}-steps`).textContent = (d === 2 && a.claims ? 'Claims from the record: ' + a.claims.map((c) => `${c.type} ${money(c.amountCents)}`).join(', ') + '\nRules: ' + (a.rule || '') + '\n\n' : '') + (a.steps || []).map((s) => `${s.name}(${JSON.stringify(s.input)}) -> ${JSON.stringify(s.result)}`).join('\n');
 }
 function summarise(kind, doors) {

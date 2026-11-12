@@ -69,7 +69,7 @@ function rate(ip, kind, limit) {
   arr.push(now); ipWindow.set(k, arr); return true;
 }
 
-function newSession(ip, { prompt, custom, order } = {}) {
+async function newSession(ip, { prompt, custom, order } = {}) {
   const kind = KINDS[order] ? order : 'mug';
   const id = crypto.randomBytes(6).toString('base64url');
   const token = crypto.randomBytes(18).toString('base64url');
@@ -77,7 +77,7 @@ function newSession(ip, { prompt, custom, order } = {}) {
   const promptKind = prompt === 'custom' && customText ? 'custom' : PROMPTS[prompt] ? prompt : DEFAULT_PROMPT;
   const s = { id, token, ip, createdAt: new Date().toISOString(), turn: 0, doors: {}, promptKind, kind, custom: promptKind === 'custom' ? customText : null };
   for (const door of [1, 2]) {
-    const order = pool.take(id, door, kind);
+    const order = await pool.take(id, door, kind);
     s.doors[door] = { order, history: [], turns: 0, refunds: [], attempts: [], busy: false, lastRefundMs: null };
   }
   sessions.set(token, s);
@@ -197,7 +197,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/session' && req.method === 'POST') {
       if (!rate(ip, 'session', MAX_SESSIONS_PER_IP_HOUR)) return json(res, 429, { error: 'Too many games from this address this hour.' });
       const sb = await readBody(req).catch(() => ({}));
-      const s = newSession(ip, { prompt: sb.prompt, custom: sb.custom, order: sb.order });
+      const s = await newSession(ip, { prompt: sb.prompt, custom: sb.custom, order: sb.order });
       return json(res, 200, { token: s.token, id: s.id, mode: pool.mode, model: MODEL, prompt: s.promptKind, kind: s.kind, doors: { 1: publicOrder(s.doors[1]), 2: publicOrder(s.doors[2]) } });
     }
     if (url.pathname === '/api/message' && req.method === 'POST') {

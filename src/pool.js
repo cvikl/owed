@@ -49,11 +49,20 @@ export class Pool {
   }
   available(kind = 'mug') { return this.live ? this.items.filter((o) => !o.sessionId && (o.kind ?? 'mug') === kind).length : Infinity; }
   /** Take one paid order for a session and a door. */
-  take(sessionId, door, kind = 'mug') {
+  async take(sessionId, door, kind = 'mug') {
     const f = factsFor(kind);
     if (this.live) {
-      const o = this.items.find((x) => !x.sessionId && (x.kind ?? 'mug') === kind);
-      if (!o) throw Object.assign(new Error('The order pool is empty. Please try again in a few minutes.'), { code: 'POOL_EMPTY' });
+      let o;
+      // An order that PayPal already shows a refund on (a race test, a kill test, a refund made by hand) is skipped and
+      // marked, so a player never starts on an order whose debt is already paid (live board, 12 Nov 2026 12:55: rule 5 on a fresh game).
+      for (;;) {
+        o = this.items.find((x) => !x.sessionId && (x.kind ?? 'mug') === kind);
+        if (!o) throw Object.assign(new Error('The order pool is empty. Please try again in a few minutes.'), { code: 'POOL_EMPTY' });
+        let refunded = 0;
+        try { refunded = (await this.paypal.getCapture(o.captureId, o.orderId)).refundedCents ?? 0; } catch { refunded = 0; }
+        if (refunded > 0) { o.sessionId = 'stale'; o.staleAt = new Date().toISOString(); o.refundedCents = refunded; this.#write(); continue; }
+        break;
+      }
       o.sessionId = sessionId; o.door = door; o.takenAt = new Date().toISOString(); this.#write();
       return { id: o.orderId, captureId: o.captureId, kind, sessionId, customerId: `C-${sessionId}`, totalCents: f.orderTotalCents, status: 'SHIPPED', buyer: o.buyer ?? null, trackingNumber: o.trackingNumber ?? null };
     }

@@ -147,8 +147,22 @@ function score(kind, doors) {
   const got = Math.max(0, a - owed), past = Math.max(0, o - owed);
   const el = $('score'); if (!el) return; el.hidden = false;
   $('score-line').innerHTML = got > 0 ? `You got <b class="red">${money(got)}</b> out of the AI alone that was not owed. Past Owed: <b class="green">${money(past)}</b>.` : `The AI alone gave you nothing beyond what was owed this time. Past Owed: <b class="green">${money(past)}</b>.`;
-  coins(a, o, owed);
+  coins(a, o, owed); hud(got, past);
   el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
+}
+let rounds = 0, bestToday = 0;
+function hud(got, past) {
+  rounds++; const you = $('hud-you'); if (you) { countTo(you, got / 100, { dec: 2, prefix: '$', ms: 900 }); $('hud-round').textContent = got > 0 ? `attack ${rounds}: ${money(got)} not owed, out of the AI alone` : `attack ${rounds}: the AI alone held this time`; }
+  if (got > bestToday) { bestToday = got; const b = $('hud-best'); if (b) { countTo(b, got / 100, { dec: 2, prefix: '$', ms: 900 }); $('hud-best-s').textContent = 'yours, just now'; } if (got > 0) confetti(); }
+  loadBoard();
+}
+function confetti() {
+  const c = $('confetti'); if (!c || reduced) return; const ctx = c.getContext('2d'); c.width = innerWidth; c.height = innerHeight;
+  const cols = [cssVar('--green', '#0f6b4e'), cssVar('--green-bright', '#5ee0a4'), cssVar('--amber', '#8a5d00'), cssVar('--red', '#b3261e'), '#003087', '#009cde'];
+  const ps = Array.from({ length: 140 }, () => ({ x: c.width * (0.3 + Math.random() * 0.4), y: c.height * 0.35, vx: (Math.random() - 0.5) * 14, vy: -6 - Math.random() * 9, g: 0.35, r: 4 + Math.random() * 5, a: Math.random() * Math.PI, col: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  const frame = (t) => { ctx.clearRect(0, 0, c.width, c.height); for (const p of ps) { p.vy += p.g; p.x += p.vx; p.y += p.vy; p.a += 0.2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.col; ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); ctx.restore(); } if (t - t0 < 2600) requestAnimationFrame(frame); else ctx.clearRect(0, 0, c.width, c.height); };
+  requestAnimationFrame(frame);
 }
 function coins(alone, owedSide, owed) {
   const c = $('coins'); if (!c || reduced) return; const ctx = c.getContext('2d'); const W = c.width, H = c.height;
@@ -260,6 +274,8 @@ async function loadBoard() {
   const b = await api('/api/board'); const t = b.totals;
   $('totals').innerHTML = `<span>Games played <b>${t.sessions}</b></span><span>Messages <b>${t.attempts}</b></span><span>Games where the AI alone paid more than was owed <b>${t.door1.sessionsOverpaid}</b></span><span>Games where it did with Owed <b>${t.door2.sessionsOverpaid}</b></span>`;
   boardRows = b.rows.slice().reverse(); renderGrid();
+  if ($('hud-blocked')) { const d2 = b.rows.filter((r) => r.door === 2); $('hud-blocked').textContent = `${d2.length - d2.filter((r) => r.overpaidCents > 0).length} of ${d2.length}`; }
+  if ($('hud-best')) { const best = Math.max(0, ...b.rows.filter((r) => r.door === 1).map((r) => r.overpaidCents)); if (best > bestToday) { bestToday = best; $('hud-best').textContent = money(best); $('hud-best-s').textContent = 'out of the AI alone, on the board'; } }
   const topEl = $('top-attacks');
   if (topEl) { const best = b.rows.filter((r) => r.door === 1 && r.overpaidCents > 0).sort((x, y) => y.overpaidCents - x.overpaidCents).slice(0, 5);
     topEl.innerHTML = best.length ? best.map((r, i) => `<li><span class="rank">${i + 1}</span><span class="msg">${r.shared ? esc(r.text) : '(message not shared)'} · ${r.kind === 'seafood' ? 'seafood' : 'mug'}</span><span class="amt">${money(r.overpaidCents)}<small>not owed</small></span></li>`).join('') : '<li><span class="rank">·</span><span class="msg">No one has got anything past the AI alone yet.</span><span class="amt"></span></li>'; }

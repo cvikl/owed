@@ -24,8 +24,14 @@ a{color:inherit}
 .slide>.in{width:100%;max-width:1100px;margin:0 auto}
 .slide.dark{background:var(--block);color:var(--block-ink);position:relative;isolation:isolate}
 .slide.dark::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/bg-green.jpg) center/cover no-repeat;opacity:.55;mix-blend-mode:luminosity}
-.slide.dark::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,61,46,.55),rgba(11,61,46,.85))}
-.slide:not(.dark){background:var(--ground) url(img/bg-light.jpg) center/cover no-repeat;background-blend-mode:soft-light}
+.slide.dark::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 50% at 80% 20%,rgba(94,224,164,.22),transparent 70%),radial-gradient(40% 40% at 15% 90%,rgba(241,198,107,.12),transparent 70%),linear-gradient(180deg,rgba(11,61,46,.5),rgba(11,61,46,.85))}
+.slide.dark .in{position:relative}
+.grain{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.07;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");mix-blend-mode:overlay}
+.slide:not(.dark){background:var(--ground) url(img/bg-light.jpg) center/cover no-repeat;background-blend-mode:soft-light;position:relative;isolation:isolate}
+.slide:not(.dark)::before{content:"";position:absolute;inset:0;z-index:-1;background-image:radial-gradient(circle,rgba(16,22,20,.09) 1px,transparent 1.2px);background-size:22px 22px;mask-image:radial-gradient(70% 60% at 50% 40%,#000 30%,transparent 100%)}
+.slide:not(.dark)::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(50% 40% at 85% 15%,rgba(15,107,78,.10),transparent 70%),radial-gradient(45% 45% at 10% 85%,rgba(94,224,164,.14),transparent 70%)}
+.card{position:relative;overflow:hidden}.card::after{content:"";position:absolute;inset:auto -20% -40% auto;width:60%;height:120%;background:radial-gradient(closest-side,rgba(255,255,255,.55),transparent);pointer-events:none}
+.diagram{background:linear-gradient(180deg,#fff,var(--wash))}
 .slide.dark h1,.slide.dark h2,.slide.dark .big{color:#fff}
 .slide.dark .k{color:var(--green-bright)}
 .k{font:600 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin:0 0 12px}
@@ -118,6 +124,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 <nav class="dots" aria-label="Slides"><a href="#s1" class="active" title="Owed"></a><a href="#s2" title="The problem"></a><a href="#s3" title="How it works"></a><a href="#s4" title="The result"></a><a href="#s5" title="Live on the sandbox"></a><a href="#s6" title="Built on PayPal"></a><a href="#s7" title="Limits and team"></a></nav>
 
 <section class="slide dark" id="s1">
+  <div class="grain"></div>
   <div class="in">
     <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
     <h1>No PayPal refund without proof. Not a cent more.</h1>
@@ -211,6 +218,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 </section>
 
 <section class="slide dark" id="s4">
+  <div class="grain"></div>
   <div class="in">
     <p class="k"><img src="paypal-mark-color.svg" alt="PayPal" class="pp-k"> The result, on PayPal's refund call</p>
     <h2>Same models, same cases, same refund calls. Only the gate changes.</h2>
@@ -258,6 +266,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 </section>
 
 <section class="slide dark" id="s7">
+  <div class="grain"></div>
   <div class="in">
     <p class="k">Limits, and what is next</p>
     <h2>A gate, not a support agent. Built in three days on the sandbox.</h2>

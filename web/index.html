@@ -54,7 +54,7 @@ h1{font:800 clamp(38px,4.6vw,64px)/1.04 var(--display);letter-spacing:-.035em;ma
 .hero .lead{font-size:18px;line-height:1.5;color:#5e5f6e;margin:0 auto;max-width:56ch;text-wrap:pretty}
 .lead{color:#5e5f6e;text-wrap:pretty}
 .judge{max-width:1100px;margin:56px auto 14px;display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:10px 24px;align-items:baseline;font-size:14px;color:var(--ink-2)}
-.judge .jl{margin:0;font:600 13px var(--sans);color:var(--mute);white-space:nowrap}
+.judge .jl{margin:0;font:600 13px var(--sans);color:var(--mute);white-space:nowrap;letter-spacing:0}
 .judge ol{display:contents;margin:0;padding:0;list-style:none}
 .judge li{margin:0}
 .judge li::before{content:counter(j);counter-increment:j;display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/20px var(--sans);text-align:center;margin-right:8px}
@@ -129,7 +129,7 @@ section>p.lead{margin-bottom:18px;font-size:16px;max-width:70ch}
 .grid{height:400px;width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
 .grid .empty{height:100%;display:grid;place-items:center;color:var(--mute);font-size:14px}
 .detail{margin-top:12px;border:1px solid var(--line-strong);border-radius:8px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
-.detail h4{margin:0 0 8px;font-size:14px;color:var(--ink);font-weight:600}.detail p{margin:6px 0;white-space:pre-wrap}
+.detail h3{margin:0 0 8px;font-size:14px;color:var(--ink);font-weight:600}.detail p{margin:6px 0;white-space:pre-wrap}
 .detail ol{margin:8px 0 0;padding-left:20px}.detail li{margin:3px 0}.detail .PASS{color:var(--green)}.detail .REVIEW,.detail .BLOCK{color:var(--amber)}
 .detail a{color:var(--green)}
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -178,7 +178,7 @@ footer{max-width:1100px;margin:72px auto 48px;padding-top:18px;border-top:1px so
     <div class="cta-row"><a class="primary" href="#arena">Run it on the sandbox</a><a class="secondary" href="https://github.com/cvikl/owed" rel="noopener">Read the source</a></div>
   </div>
   <div class="judge">
-    <div class="jl" role="heading" aria-level="2">For the judge, two minutes</div>
+    <h2 class="jl">For the judge, two minutes</h2>
     <ol>
       <li><b>Press Run it.</b> One message, the AI alone and the AI behind Owed, each on its own real sandbox order.</li>
       <li><b>Click a refund id.</b> PayPal's own record of that refund opens, fetched live.</li>
@@ -451,7 +451,7 @@ function showDetail(r) {
   if (!r) return; const el = $('detail'); el.hidden = false;
   const names = { bare: 'none at all', shop: 'a typical shop', strict: 'the strictest we could write', custom: 'written by the visitor' };
   const ids = (r.refunds || '').split(' ').filter(Boolean);
-  el.innerHTML = `<h4>${r.door === 1 ? 'Door 1, the AI alone' : 'Door 2, the AI behind Owed'} · instructions ${names[r.prompt] ?? esc(r.prompt)} · refunded ${money(r.paidCents)}</h4>
+  el.innerHTML = `<h3>${r.door === 1 ? 'Door 1, the AI alone' : 'Door 2, the AI behind Owed'} · instructions ${names[r.prompt] ?? esc(r.prompt)} · refunded ${money(r.paidCents)}</h3>
     ${r.shared ? `<p><b>Customer</b>  ${esc(r.text)}</p><p><b>Reply</b>  ${esc(r.reply || '')}</p>` : '<p>The visitor did not share the words of this message.</p>'}<p><b>Decided by</b>  ${esc(r.rule || '')}</p>`
     + (Array.isArray(r.trace) && r.trace.length ? '<ol>' + r.trace.map((t) => `<li>Rule ${esc(t.rule)} <span class="${esc(t.result)}">${esc(t.result)}</span>${t.reason ? ' · ' + esc(t.reason) : ''}</li>`).join('') + '</ol>' : (r.door === 1 ? '<p>No rules ran. The AI decided alone.</p>' : ''))
     + (ids.length ? '<p>PayPal refund ' + ids.map((id) => `<a href="#receipt-section" data-id="${esc(id)}">${esc(id)}</a>`).join(', ') + '</p>' : '');

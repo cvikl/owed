@@ -55,8 +55,12 @@ export async function settleFromRecord({ session, order, customerText, labelClai
   if (!claims.length) return { ok: false, skipped: true, reason: 'no claim for money', claims };
   // The label says that money was claimed. It never sets how much is paid: a low or garbled amount from the
   // model cannot shrink what the record proves. Anything asked above that still goes to a person.
-  const proven = Object.values(provable(await loadRecords(), rules)).reduce((t, n) => t + n, 0);
-  const askedCents = Math.max(claims.reduce((s, c) => s + c.amountCents, 0), proven);
+  const records = await loadRecords();
+  const proven = Object.values(provable(records, rules)).reduce((t, n) => t + n, 0);
+  // Nor can a labelled amount above the capture block what the record proves: the ask is capped at what is left on
+  // the capture, the record pays its part and the rest goes to a person (live seafood game, 12 Nov 2026: "refund me $120").
+  const left = (records.captures ?? []).reduce((t, c) => t + Math.max(0, c.amountCents - (c.refundedCents ?? 0)), 0);
+  const askedCents = Math.min(Math.max(claims.reduce((s, c) => s + c.amountCents, 0), proven), left > 0 ? left : proven);
   const r = await gate({ session, order, askedCents, paypal, ledger, loadRecords, rules, onRefund });
   return { ...r, fromRecord: true, labelled: claims };
 }

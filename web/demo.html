@@ -191,16 +191,44 @@ h1{font:800 clamp(44px,7vw,96px)/0.98 var(--display);letter-spacing:-.04em;margi
 @media (max-width:640px){.proof{grid-template-columns:1fr}.statement{padding-bottom:120px}.statement .status{display:block}.statement .status .dot{display:inline-block;vertical-align:middle;margin-right:8px}}
 
 body{background:var(--wash)}
-.wrap{max-width:1100px}
+.wrap{max-width:1180px}
 .topbar{height:60px}
-.steps3{margin:28px 0 14px;font-size:15px;color:var(--ink-2);counter-reset:j}
-.steps3 h1{font:800 26px/1.2 var(--display);letter-spacing:-.02em;margin:0 0 10px;color:var(--ink)}
-.steps3 ol{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 24px;margin:0;padding:0;list-style:none}
-@media (max-width:760px){.steps3 ol{grid-template-columns:1fr}}
-.steps3 li{counter-increment:j;line-height:1.45}
-.steps3 li::before{content:counter(j);display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/20px var(--sans);text-align:center;margin-right:8px}
-.steps3 b{color:var(--ink);font-weight:600}
-.panel{box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.25)}
+.pp-pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px 6px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);color:#003087}
+.pp-pill img{width:18px;height:18px}
+.pp-in{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+.try{margin:26px 0 16px}
+.try h1{font:800 28px/1.15 var(--display);letter-spacing:-.02em;margin:0 0 6px;color:var(--ink);font-variation-settings:normal}
+.try p{margin:0;font-size:15px;color:var(--ink-2)}
+.dialbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(16,22,20,.06)}
+.dialbar .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/22px var(--sans);text-align:center}
+.dialbar .dl{font-size:14px;font-weight:600;color:var(--ink)}
+.dialbar #custom{flex-basis:100%;margin:0}
+.dialbar details{flex-basis:100%;margin:0}
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:900px){.cases{grid-template-columns:1fr}}
+.case{border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.25);overflow:hidden}
+.case-head{padding:14px 18px;border-bottom:1px solid var(--line)}
+.case.refuse .case-head{background:var(--amber-soft)}
+.case.pay .case-head{background:var(--green-soft)}
+.case-head h2{margin:0 0 6px;font:800 18px/1.2 var(--display);letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.case-head .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/22px var(--sans);text-align:center;flex:none}
+.facts{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--ink-2)}
+.facts b{color:var(--ink);font-weight:600}.facts .owed{color:var(--green)}.facts small{font-size:11px;color:var(--mute)}
+.case-body{padding:14px 18px 16px}
+.case textarea{min-height:64px}
+.case .row{align-items:center}
+.case .share{margin:0 0 0 auto}
+.case .doors{margin-top:12px;border-top:0;gap:10px;grid-template-columns:1fr 1fr}
+@media (max-width:640px){.case .doors{grid-template-columns:1fr}}
+.case .door{padding:12px 14px;border-radius:10px;border:1px solid var(--line)}
+.case .door+.door{border-left:1px solid var(--line);padding-left:14px}
+.case .door.alone{background:#fff}
+.case .door.owed{background:var(--green-soft);border-color:#cfe6da}
+.case .door h3{font-size:14px;margin:0 0 8px}
+.case .door h3 small{display:block;font-size:12px;font-weight:400;color:var(--mute);margin-top:2px}
+.case .amount{font:800 36px/1 var(--display)}
+.case .amount.zero{font-size:24px;line-height:36px}
+.case .reply{font-size:13px;max-height:120px;overflow:auto}
 section{padding-top:40px}
 section>h2{font-size:20px}
 section>p.lead{font-size:14px;margin-bottom:12px}
@@ -214,66 +242,93 @@ footer{margin:36px auto 28px}
 <div class="topbar">
   <a class="mark" href="index.html"><img src="owed_mark.svg" alt="">Owed</a>
   <nav class="topnav" aria-label="Sections"><a href="index.html">Overview</a><a href="#arena" class="active">Try it</a><a href="#audit">Audit</a><a href="#board">Board</a></nav>
-  <div class="toplinks"><span class="status" id="mode"><span class="dot"></span><span id="mode-text">on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
+  <div class="toplinks"><span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span><span class="status" id="mode"><span class="dot"></span><span id="mode-text">on the PayPal sandbox</span></span><a href="https://github.com/cvikl/owed" rel="noopener">Source</a></div>
 </div>
-<div class="steps3" id="top">
-  <h1>Try Owed</h1>
-  <ol>
-    <li><b>Pick an order</b> and the shop's instructions.</li>
-    <li><b>Run both.</b> The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders.</li>
-    <li><b>Click a refund id.</b> PayPal's own record opens.</li>
-  </ol>
+<div class="try" id="top">
+  <h1>Try Owed on two real PayPal orders</h1>
+  <p>Pick the shop's instructions, press Run on either order, then click a refund id to open PayPal's record. The same message goes to the AI alone and to the AI behind Owed.</p>
 </div>
-<section id="arena" class="panel" style="padding-top:0">
+<section id="arena" style="padding-top:0">
   <h2 class="sr">Try it</h2>
-  <div class="kinds" id="kinds" role="group" aria-label="The order"></div>
-  <div class="panel-head"><span>Your order <b id="f-total">$20.00</b> <span id="f-item">mug, free shipping</span></span><span>PayPal captured <b id="f-captured">$25.00</b></span><span>You are owed <b class="owed" id="f-owed">$5.00</b></span><span>Tracking <b id="f-tracking">SHIPPED</b> <small id="f-tracking-src">PayPal tracker</small></span><span hidden id="f-order">$20.00</span></div>
-  <div class="panel-body">
-    <div class="controls">
-      <div class="dial"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div></div>
-      <label class="sr" for="custom">Your own instructions for the AI</label>
-      <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both sides get exactly these words."></textarea>
-      <label class="sr" for="text">Your message to the support agent</label>
-      <textarea id="text" maxlength="1500" placeholder="Your message to the shop">My mug never arrived. Refund the full $25.</textarea>
-      <div class="chips" id="chips"></div>
-      <label class="share"><input type="checkbox" id="share"> Show my message on the public board</label>
-      <div class="row">
-        <button class="btn" id="send">Run both</button>
-        <button class="btn secondary" id="new">New orders</button>
-        <span class="timer num" id="timer"></span>
-      </div>
-      <div class="err" id="err" role="status" aria-live="polite"></div>
-    </div>
-    <div class="doors">
-      <div class="door" id="d1">
-        <h3>AI alone</h3>
-        <div class="sub">Refund call goes straight to PayPal.</div>
-        <div class="amount zero num" id="d1-amt">$0.00</div>
-        <span class="tag" id="d1-tag">not run yet</span>
-        <div class="live" id="d1-live"></div>
-        <div class="reply" id="d1-reply"></div>
-        <div class="ids" id="d1-ids"></div>
-        <details><summary>Trace</summary><pre id="d1-steps"></pre></details>
-      </div>
-      <div class="door d2" id="d2">
-        <h3>AI behind Owed</h3>
-        <div class="sub">Same call. Code checks the records, then pays through PayPal.</div>
-        <div class="amount zero num" id="d2-amt">$0.00</div>
-        <span class="tag" id="d2-tag">not run yet</span>
-        <div class="live" id="d2-live"></div>
-        <div class="reply" id="d2-reply"></div>
-        <div class="ids" id="d2-ids"></div>
-        <details><summary>Trace</summary><pre id="d2-steps"></pre></details>
-      </div>
-    </div>
+  <div class="dialbar"><span class="n">1</span><span class="dl">The shop's instructions to its AI</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div>
+    <label class="sr" for="custom">Your own instructions for the AI</label>
+    <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea>
     <details class="prompt-d"><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details>
+  </div>
+  <div class="cases">
+  <div class="case refuse" id="case-mug">
+    <div class="case-head">
+      <h2><span class="n">2</span> Overcharged mug: owed $5, the customer asks for $25</h2>
+      <div class="facts"><span>Order <b id="mug-f-total">$0.00</b> <span id="mug-f-item"></span></span><span><img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured <b id="mug-f-captured">$0.00</b></span><span>Owed <b class="owed" id="mug-f-owed">$0.00</b></span><span>Tracking <b id="mug-f-tracking"></b> <small id="mug-f-tracking-src"></small></span></div>
+    </div>
+    <div class="case-body">
+      <label class="sr" for="mug-text">The customer's message</label>
+      <textarea id="mug-text" maxlength="1500" placeholder="The customer's message"></textarea>
+      <div class="chips" id="mug-chips"></div>
+      <div class="row"><button class="btn" id="mug-send">Run both doors</button><button class="btn secondary" id="mug-new">New orders</button><span class="timer num" id="mug-timer"></span><label class="share"><input type="checkbox" id="mug-share"> Show my message on the board</label></div>
+      <div class="err" id="mug-err" role="status" aria-live="polite"></div>
+      <div class="doors">
+        <div class="door alone" id="mug-d1">
+          <h3>AI alone <small>refund call straight to <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <div class="amount zero num" id="mug-d1-amt">$0.00</div>
+          <span class="tag" id="mug-d1-tag">no refund yet</span>
+          <div class="live" id="mug-d1-live"></div>
+          <div class="reply" id="mug-d1-reply"></div>
+          <div class="ids" id="mug-d1-ids"></div>
+          <details><summary>Trace</summary><pre id="mug-d1-steps"></pre></details>
+        </div>
+        <div class="door owed" id="mug-d2">
+          <h3>AI behind Owed <small>code checks the records, then pays through <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <div class="amount zero num" id="mug-d2-amt">$0.00</div>
+          <span class="tag" id="mug-d2-tag">no refund yet</span>
+          <div class="live" id="mug-d2-live"></div>
+          <div class="reply" id="mug-d2-reply"></div>
+          <div class="ids" id="mug-d2-ids"></div>
+          <details><summary>Trace</summary><pre id="mug-d2-steps"></pre></details>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="case pay" id="case-seafood">
+    <div class="case-head">
+      <h2><span class="n">2</span> Chilled seafood, courier cancelled: owed all $60</h2>
+      <div class="facts"><span>Order <b id="seafood-f-total">$0.00</b> <span id="seafood-f-item"></span></span><span><img src="paypal-mark-color.svg" alt="PayPal" class="pp-in">PayPal captured <b id="seafood-f-captured">$0.00</b></span><span>Owed <b class="owed" id="seafood-f-owed">$0.00</b></span><span>Tracking <b id="seafood-f-tracking"></b> <small id="seafood-f-tracking-src"></small></span></div>
+    </div>
+    <div class="case-body">
+      <label class="sr" for="seafood-text">The customer's message</label>
+      <textarea id="seafood-text" maxlength="1500" placeholder="The customer's message"></textarea>
+      <div class="chips" id="seafood-chips"></div>
+      <div class="row"><button class="btn" id="seafood-send">Run both doors</button><button class="btn secondary" id="seafood-new">New orders</button><span class="timer num" id="seafood-timer"></span><label class="share"><input type="checkbox" id="seafood-share"> Show my message on the board</label></div>
+      <div class="err" id="seafood-err" role="status" aria-live="polite"></div>
+      <div class="doors">
+        <div class="door alone" id="seafood-d1">
+          <h3>AI alone <small>refund call straight to <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <div class="amount zero num" id="seafood-d1-amt">$0.00</div>
+          <span class="tag" id="seafood-d1-tag">no refund yet</span>
+          <div class="live" id="seafood-d1-live"></div>
+          <div class="reply" id="seafood-d1-reply"></div>
+          <div class="ids" id="seafood-d1-ids"></div>
+          <details><summary>Trace</summary><pre id="seafood-d1-steps"></pre></details>
+        </div>
+        <div class="door owed" id="seafood-d2">
+          <h3>AI behind Owed <small>code checks the records, then pays through <img src="paypal-mark-color.svg" alt="" class="pp-in">PayPal</small></h3>
+          <div class="amount zero num" id="seafood-d2-amt">$0.00</div>
+          <span class="tag" id="seafood-d2-tag">no refund yet</span>
+          <div class="live" id="seafood-d2-live"></div>
+          <div class="reply" id="seafood-d2-reply"></div>
+          <div class="ids" id="seafood-d2-ids"></div>
+          <details><summary>Trace</summary><pre id="seafood-d2-steps"></pre></details>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 </section>
 <div hidden aria-hidden="true">
   <span id="f-order"></span>
   <span id="s-refunds"></span><span id="s-refunds-l"></span><span id="s-seconds"></span><span id="s-seconds-l"></span><span id="s-over"></span><span id="s-held"></span><span id="s-held-l"></span><span id="why-seconds"></span>
   <span id="card"></span><span id="race"></span><table id="dialt"><tbody></tbody></table><table id="results"><tbody></tbody></table><table id="pairt"><tbody></tbody></table><span id="results-note"></span>
-  <span id="dispute-line"></span><span id="toolkit-line"></span><span id="measured"></span><span id="how"></span><span id="paypal"></span>
+  <span id="dispute-line"></span><span id="toolkit-line"></span>
 </div>
 
 

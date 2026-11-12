@@ -89,12 +89,20 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 .limits b{color:#fff;font-weight:600}
 .hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-size:12px;color:var(--mute);letter-spacing:.06em}
 .slide.dark .hint{color:var(--block-mute)}
+.pp-pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px 6px 8px;border-radius:999px;background:#fff;color:#003087;mix-blend-mode:normal}
+.pp-pill img{width:18px;height:18px}
+.pp-hero{display:inline-flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:8px 14px;margin:0 0 22px;color:#003087;font-weight:600;font-size:14px}
+.pp-hero .pp-word{height:26px;width:auto}
+.pp-h2{height:.9em;width:auto;vertical-align:-.08em;margin-right:.1em}
+.pp-k{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
+.apis div b img{width:14px;height:14px;vertical-align:-2px;margin-right:6px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <div class="bar">
   <a class="mark" href="#s1">Owed</a>
+  <span class="pp-pill"><img src="paypal-mark-color.svg" alt="PayPal">Built on PayPal</span>
   <nav class="links" aria-label="Pages"><a href="#s2">Problem</a><a href="#s3">How</a><a href="#s4">Result</a><a href="#s5">Live</a><a href="#s6">PayPal</a><a class="primary" href="demo.html">Try it live</a></nav>
 </div>
 <nav class="dots" aria-label="Slides"><a href="#s1" class="active" title="Owed"></a><a href="#s2" title="The problem"></a><a href="#s3" title="How it works"></a><a href="#s4" title="The result"></a><a href="#s5" title="Live on the sandbox"></a><a href="#s6" title="Built on PayPal"></a><a href="#s7" title="Limits and team"></a></nav>
@@ -102,6 +110,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 <section class="slide dark" id="s1">
   <div class="in">
     <p class="status" id="mode"><span class="dot"></span><span id="mode-text">PayPal AI Hackathon 2026 · on the PayPal sandbox</span></p>
+    <div class="pp-hero"><img src="paypal-wordmark-color.svg" alt="PayPal" class="pp-word"><span>AI Hackathon 2026</span></div>
     <h1>No PayPal refund without proof. Not a cent more.</h1>
     <p class="lead"><b>Owed is a refund gate for a shop's AI support agent on PayPal.</b> The AI still talks to the customer and asks for the refund. Code decides the amount from PayPal's records and the shop's, pays through PayPal, and sends the rest to a person.</p>
     <a class="cta" href="demo.html">Try it live on the sandbox</a><a class="cta ghost" href="#s2">The two-minute version</a>
@@ -146,7 +155,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
         <text x="600" y="92" fill="var(--red)" font-size="11" font-weight="700" letter-spacing=".06em">AI ALONE</text>
         <text x="600" y="108" fill="var(--mute)" font-size="11" font-family="var(--mono)">create_refund goes straight to PayPal</text>
         <rect x="760" y="30" width="240" height="60" rx="8" fill="var(--red-soft)" stroke="var(--red)"/>
-        <text x="775" y="54" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="62" text-anchor="end" font-size="24" font-weight="800" fill="var(--red)">$25</text>
+        <image href="paypal-mark-color.svg" x="775" y="40" width="16" height="16"/><text x="796" y="54" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="62" text-anchor="end" font-size="24" font-weight="800" fill="var(--red)">$25</text>
         <text x="775" y="74" fill="var(--ink-2)" font-size="11">Whatever the AI asked for. $20 not owed.</text>
         <path d="M392 170C440 170 450 230 500 230H548" stroke="var(--green)" stroke-width="1.5" marker-end="url(#ar)" fill="none"/>
         <text x="538" y="256" text-anchor="end" fill="var(--green)" font-size="11" font-weight="700" letter-spacing=".06em">BEHIND OWED</text>
@@ -157,7 +166,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
         <text x="640" y="258" text-anchor="middle" fill="#cfe9dd" font-size="11">The AI never sets the amount.</text>
         <path d="M732 220C745 220 745 160 758 160" stroke="var(--green)" stroke-width="1.5" marker-end="url(#ar)" fill="none"/>
         <rect x="760" y="130" width="240" height="60" rx="8" fill="var(--green-soft)" stroke="var(--green)"/>
-        <text x="775" y="154" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="162" text-anchor="end" font-size="24" font-weight="800" fill="var(--green)">$5</text>
+        <image href="paypal-mark-color.svg" x="775" y="140" width="16" height="16"/><text x="796" y="154" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="162" text-anchor="end" font-size="24" font-weight="800" fill="var(--green)">$5</text>
         <text x="775" y="174" fill="var(--ink-2)" font-size="11">Only what the records prove</text>
         <path d="M732 250C745 250 745 300 758 300" stroke="var(--amber)" stroke-width="1.5" marker-end="url(#ar)" fill="none"/>
         <rect x="760" y="270" width="240" height="60" rx="8" fill="var(--amber-soft)" stroke="var(--amber)"/>
@@ -185,7 +194,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
         <text x="595" y="530" text-anchor="middle" fill="#cfe9dd" font-size="11">Delivery record says cancelled</text>
         <path d="M712 515H758" stroke="var(--green)" stroke-width="1.5" marker-end="url(#ar)" fill="none"/>
         <rect x="760" y="480" width="240" height="70" rx="8" fill="var(--green-soft)" stroke="var(--green)"/>
-        <text x="775" y="506" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="516" text-anchor="end" font-size="24" font-weight="800" fill="var(--green)">$60</text>
+        <image href="paypal-mark-color.svg" x="775" y="492" width="16" height="16"/><text x="796" y="506" font-weight="600" fill="var(--ink)">PayPal refund</text><text x="985" y="516" text-anchor="end" font-size="24" font-weight="800" fill="var(--green)">$60</text>
         <text x="775" y="532" fill="var(--ink-2)" font-size="11">In full, in seconds, no chasing</text>
       </g>
     </svg></div>
@@ -194,7 +203,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 
 <section class="slide dark" id="s4">
   <div class="in">
-    <p class="k">The result</p>
+    <p class="k"><img src="paypal-mark-color.svg" alt="PayPal" class="pp-k"> The result, on PayPal's refund call</p>
     <h2>Same models, same cases, same refund calls. Only the gate changes.</h2>
     <div class="two">
       <div class="card bad"><div class="big num" id="r-alone">49</div><div class="l">of 162 adversarial cases where the AI alone paid more than was owed with a typical shop's instructions, $920 in total. Qwen3 235B 12, gpt-oss-120b 33, Kimi K3 4 of 54 each.</div><div class="s">3 of 162 with the strictest instructions we could write</div></div>
@@ -210,7 +219,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 
 <section class="slide" id="s5">
   <div class="in">
-    <p class="k">Live on the PayPal sandbox</p>
+    <p class="k"><img src="paypal-mark-color.svg" alt="PayPal" class="pp-k"> Live on the PayPal sandbox</p>
     <h2>Every refund on the demo is a real sandbox refund with PayPal's id.</h2>
     <p class="lead">Two real orders per game, one per door. Press Run, then click any refund id and PayPal's own record opens. Change the shop's instructions and audit all 54 attacks against them.</p>
     <div class="live">
@@ -227,7 +236,7 @@ h2{font:800 clamp(28px,3.6vw,46px)/1.04 var(--display);letter-spacing:-.03em;mar
 <section class="slide" id="s6">
   <div class="in">
     <p class="k">Built on PayPal</p>
-    <h2>Six PayPal surfaces, one sandbox, nothing simulated on the demo.</h2>
+    <h2><img src="paypal-wordmark-color.svg" alt="PayPal" class="pp-h2"> Six PayPal surfaces, one sandbox, nothing simulated on the demo.</h2>
     <div class="apis">
       <div><b>Orders v2, card payment source</b>Real paid $25 and $60 orders, no buyer click. <code>scripts/seed.js</code></div>
       <div><b>Refunds on captures</b>Every refund on both doors, idempotent per PayPal-Request-Id, Owed's reason in note_to_payer. <code>src/paypalRest.js</code></div>

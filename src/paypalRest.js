@@ -1,7 +1,6 @@
 // A small PayPal REST client for the sandbox, with the same shape as fakePaypal.js.
-// NOT YET RUN against PayPal. Written from the public API reference. Kill tests 2 to 4
-// are where this gets confirmed or corrected. Prefer the Agent Toolkit's create_refund
-// where it works, and keep this as the fallback the concept note describes.
+// Run against the PayPal sandbox on 11 Nov 2026 (npm run seed -- --test, npm run race).
+// What PayPal actually does, where it differed from the reference, is noted beside each call.
 const BASE = process.env.PAYPAL_BASE ?? 'https://api-m.sandbox.paypal.com';
 // Sandbox only. Live PayPal moves real money and is never allowed from this code.
 if (!/^https:\/\/api(-m)?\.sandbox\.paypal\.com$/.test(BASE)) throw new Error(`Refusing non-sandbox PayPal base URL: ${BASE}`);
@@ -86,6 +85,17 @@ export class PayPalRest {
     const cap = order.purchase_units?.[0]?.payments?.captures?.[0];
     if (!cap) throw Object.assign(new Error(`Order ${order.id} not captured: ${order.status}`), { code: 'NOT_CAPTURED', order });
     return { orderId: order.id, captureId: cap.id, status: cap.status, amountCents: toCents(cap.amount.value) };
+  }
+  /**
+   * An open PayPal dispute on a capture, or null. Same call the Agent Toolkit's list_disputes makes.
+   * NOT YET RUN on the sandbox: the app needs the disputes permission. Check once with
+   *   node -e "import('./src/paypalRest.js').then(async m=>console.log(await new m.PayPalRest().getOpenDispute('<capture id>')))"
+   */
+  async getOpenDispute(captureId) {
+    const j = await this.#call('GET', `/v1/customer/disputes?disputed_transaction_id=${encodeURIComponent(captureId)}`);
+    if (!Array.isArray(j?.items)) throw new Error('unexpected disputes response'); // unknown is never treated as "no dispute"
+    const d = j.items.find((x) => x.status && x.status !== 'RESOLVED');
+    return d ? { id: d.dispute_id, status: d.status === 'RESOLVED' ? 'RESOLVED' : 'OPEN', raw: d.status } : null;
   }
   /** Generic calls for diagnostics and scripts. */
   async get(path) { return this.#call('GET', path); }

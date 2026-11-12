@@ -1,13 +1,13 @@
 // Owed, the gateway at Door 2. The agent's create_refund call (PayPal's toolkit shape: capture, optional
 // amount, currency) arrives here as a proposal. Code turns the asked amount into claims by what the records
 // prove, the engine decides in integer cents, the ledger reserves, and only then does code call PayPal.
-import { claimsFromAmount, VERDICT, DEFAULT_RULES } from './engine.js';
+import { claimsFromAmount, provable, VERDICT, DEFAULT_RULES } from './engine.js';
 
 /**
  * The whole Door 2 path for one proposal. Returns what the agent is told, plus the full trace for the board.
  * paypal: { getCapture, refund }. loadRecords() -> records. ledger: Ledger.
  */
-export async function gate({ session, order, askedCents, paypal, ledger, loadRecords, rules = DEFAULT_RULES }) {
+export async function gate({ session, order, askedCents, paypal, ledger, loadRecords, rules = DEFAULT_RULES, onRefund }) {
   const t0 = Date.now();
   const records = await loadRecords();
   const claims = claimsFromAmount(askedCents, records, rules);
@@ -22,6 +22,7 @@ export async function gate({ session, order, askedCents, paypal, ledger, loadRec
       const capture = c.type === 'DUPLICATE_CHARGE' ? records.captures[1] : records.captures[0];
       const r = await paypal.refund(capture.id, c.payCents, `${requestId}:${i}`);
       refunds.push({ ...r, type: c.type });
+      onRefund?.({ ...r, type: c.type }, Date.now() - t0); // the page shows the money the moment PayPal confirms it
     }
   } catch (e) {
     ledger.release(proposal, decision, records);
@@ -35,6 +36,7 @@ export async function gate({ session, order, askedCents, paypal, ledger, loadRec
     status: decision.aggregate,
     refunded: paid / 100,
     refund_ids: refunds.map((r) => r.id),
+    already_refunded_on_this_order: Math.max(0, records.captures.reduce((s, c) => s + (c.refundedCents ?? 0), 0)) / 100,
     sent_to_a_person: review.reduce((s, c) => s + c.amountCents, 0) / 100,
     reasons: decision.claims.map((c) => `${c.type}: ${c.verdict}. ${c.reason}`),
     note: 'Owed decided this from PayPal\'s records and the shop\'s order record. Tell the customer exactly what was refunded and what a person will review.',
@@ -48,10 +50,10 @@ export async function gate({ session, order, askedCents, paypal, ledger, loadRec
  * proves. The promise is what you are owed, not what the agent could be talked into or out of.
  * labelClaims(customerText) -> validated claims (see claims.js); the caller supplies the model call.
  */
-export async function settleFromRecord({ session, order, customerText, labelClaims, paypal, ledger, loadRecords, rules = DEFAULT_RULES }) {
+export async function settleFromRecord({ session, order, customerText, labelClaims, paypal, ledger, loadRecords, rules = DEFAULT_RULES, onRefund }) {
   const claims = await labelClaims(customerText);
   if (!claims.length) return { ok: false, skipped: true, reason: 'no claim for money', claims };
   const askedCents = claims.reduce((s, c) => s + c.amountCents, 0);
-  const r = await gate({ session, order, askedCents, paypal, ledger, loadRecords, rules });
+  const r = await gate({ session, order, askedCents, paypal, ledger, loadRecords, rules, onRefund });
   return { ...r, fromRecord: true, labelled: claims };
 }

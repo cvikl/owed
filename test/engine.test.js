@@ -56,7 +56,8 @@ test('not received is paid when PayPal tracking says lost or overdue, reviewed w
   const moving = mug({ tracking: { status: 'IN_TRANSIT', daysSinceShipped: 2 } });
   const c = [{ type: CLAIM.NOT_RECEIVED, amountCents: 2000 }];
   assert.equal(decide(ask(c), lost).payCents, 2000);
-  assert.equal(decide(ask(c), overdue).payCents, 2000);
+  assert.equal(decide(ask(c), overdue).claims[0].verdict, 'REVIEW');   // late is not lost, by default
+  assert.equal(decide(ask(c), overdue, { ...DEFAULT_RULES, payOverdueShipments: true }).payCents, 2000);
   assert.equal(decide(ask(c), moving).claims[0].verdict, 'REVIEW');
 });
 
@@ -99,10 +100,11 @@ test('never pays more than the records show, whatever is asked', () => {
   }
 });
 
-test('PayPal tracking statuses: a cancelled shipment or one overdue past the limit is paid', () => {
+test('PayPal tracking statuses: a cancelled shipment is paid, and age alone is not proof unless the shop switches that on', () => {
   const c = [{ type: CLAIM.NOT_RECEIVED, amountCents: 2000 }];
   assert.equal(decide(ask(c), mug({ tracking: { status: 'CANCELLED', daysSinceShipped: 5 } })).payCents, 2000);
-  assert.equal(decide(ask(c), mug({ tracking: { status: 'SHIPPED', daysSinceShipped: 30 } })).payCents, 2000);
+  assert.equal(decide(ask(c), mug({ tracking: { status: 'SHIPPED', daysSinceShipped: 30 } })).payCents, 0);
+  assert.equal(decide(ask(c), mug({ tracking: { status: 'SHIPPED', daysSinceShipped: 30 } }), { ...DEFAULT_RULES, payOverdueShipments: true }).payCents, 2000);
   assert.equal(decide(ask(c), mug({ tracking: { status: 'SHIPPED', daysSinceShipped: 3 } })).payCents, 0);
 });
 
@@ -121,4 +123,39 @@ test('the toolkit call has only an amount: the record decides what is paid', () 
   assert.equal(pay(0), 0); assert.equal(pay(-5), 0); assert.equal(pay(12.5), 0);
   const nothingOwed = mug({ captures: [{ id: 'CAP1', amountCents: 2000, refundedCents: 0 }] });
   assert.equal(pay(2000, nothingOwed), 0);
+});
+
+test('an old order in the pool cannot turn "refund everything" into $25', () => {
+  const stale = mug({ tracking: { status: 'SHIPPED', daysSinceShipped: 40 } });
+  assert.equal(decide(ask(claimsFromAmount(2500, stale)), stale).payCents, 500);
+});
+
+test('after a lost ledger, a refund already visible in PayPal is not paid again', () => {
+  const after = mug({ captures: [{ id: 'CAP1', amountCents: 2500, refundedCents: 500 }] });
+  const d = new Ledger().decideAndReserve(ask(claimsFromAmount(500, after), { requestId: 'after-restart' }), after, DEFAULT_RULES, '2026-11-12');
+  assert.equal(d.payCents, 0); assert.equal(d.claims[0].rule, 5);
+  const partly = mug({ captures: [{ id: 'CAP1', amountCents: 2500, refundedCents: 200 }] });
+  assert.equal(decide(ask(claimsFromAmount(500, partly)), partly).payCents, 300);
+});
+
+test('a dispute check that failed sends everything to a person', () => {
+  const records = { order: { id: 'O1', sessionId: 'S', customerId: 'C', totalCents: 2000, status: 'SHIPPED' }, captures: [{ id: 'CAP1', amountCents: 2500, refundedCents: 0 }], tracking: { status: 'SHIPPED', daysSinceShipped: 2 }, dispute: { status: 'UNAVAILABLE' } };
+  const d = decide({ requestId: 'r1', sessionId: 'S', orderId: 'O1', claims: [{ type: 'OVERCHARGE', amountCents: 500 }] }, records, { paidByReason: {}, paidTodayCents: 0, refundsLastHour: 0 }, DEFAULT_RULES);
+  assert.equal(d.payCents, 0); assert.equal(d.aggregate, 'REVIEW'); assert.match(d.trace.at(-1).reason, /could not be checked/);
+});
+
+test('an old order still gets a proven overcharge back; age alone only stops a "not received" claim', () => {
+  const records = { order: { id: 'O1', sessionId: 'S', customerId: 'C', totalCents: 2000, status: 'SHIPPED' }, captures: [{ id: 'CAP1', amountCents: 2500, refundedCents: 0 }], tracking: { status: 'SHIPPED', daysSinceShipped: 90 }, dispute: null };
+  const st = { paidByReason: {}, paidTodayCents: 0, refundsLastHour: 0 };
+  const over = decide({ requestId: 'r1', sessionId: 'S', orderId: 'O1', claims: [{ type: 'OVERCHARGE', amountCents: 500 }] }, records, st, DEFAULT_RULES);
+  assert.equal(over.payCents, 500);
+  const lost = decide({ requestId: 'r2', sessionId: 'S', orderId: 'O1', claims: [{ type: 'NOT_RECEIVED', amountCents: 2000 }] }, records, st, DEFAULT_RULES);
+  assert.equal(lost.payCents, 0); assert.equal(lost.aggregate, 'REVIEW');
+});
+test('dispute lookup: open goes to a person, confirmed none continues, unknown goes to a person', () => {
+  const base = { order: { id: 'O1', sessionId: 'S', customerId: 'C', totalCents: 2000, status: 'SHIPPED' }, captures: [{ id: 'CAP1', amountCents: 2500, refundedCents: 0 }], tracking: { status: 'SHIPPED', daysSinceShipped: 2 } };
+  const ask = { requestId: 'r1', sessionId: 'S', orderId: 'O1', claims: [{ type: 'OVERCHARGE', amountCents: 500 }] }; const st = () => ({ paidByReason: {}, paidTodayCents: 0, refundsLastHour: 0 });
+  assert.equal(decide(ask, { ...base, dispute: { status: 'OPEN' } }, st(), DEFAULT_RULES).aggregate, 'REVIEW');
+  assert.equal(decide(ask, { ...base, dispute: null }, st(), DEFAULT_RULES).payCents, 500);
+  assert.equal(decide(ask, { ...base, dispute: { status: 'UNAVAILABLE' } }, st(), DEFAULT_RULES).payCents, 0);
 });

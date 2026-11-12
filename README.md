@@ -4,18 +4,24 @@
 
 Live arena: https://owed.vantapointlabs.com · Benchmark: [RESULTS.md](RESULTS.md) · Video: [YouTube](VIDEO_LINK)
 
-Owed lets an AI support agent issue PayPal refunds on the spot, with no person in the loop, and makes it impossible to argue the agent into a cent more. The agent keeps PayPal's refund tool by name and shape. Behind Owed that call becomes a proposal: code compares PayPal's capture with the shop's order record, checks PayPal's shipment tracking, earlier refunds and the shop's caps, reserves the amount in a ledger, and only then refunds through PayPal. Anything the records cannot prove goes to a person with the evidence attached.
+Give an AI the refund button and the amount it pays depends on how its instructions were worded. Loose wording risks paying people who are not owed. Strict wording risks turning away people who are. We measured this with a test suite we wrote ourselves (adversarial test cases and, separately, legitimate ones), changing nothing but the instructions. Each model ran each case once, and every refund call it made was replayed unchanged through Owed's gate, so the comparison shares one model output. Method, ground truth and numbers are in [RESULTS.md](RESULTS.md).
 
-The benchmark result is in [RESULTS.md](RESULTS.md) (real models, simulated PayPal stand-in). The arena runs on the live PayPal sandbox: every refund it shows carries PayPal's refund id, fetched back from PayPal.
+With Owed the AI still reads the customer's message and still asks for the refund with the same `create_refund` call. That call stops being an order and becomes a proposal. Code compares PayPal's capture with the shop's order record, checks PayPal's shipment tracking and earlier refunds, and pays exactly what those records prove, through PayPal, to the cent. Anything the records cannot prove goes to a person with the evidence attached. Door 2 never pays before the AI has run. It has one step Door 1 does not: if the AI ends without making a refund call, the model is asked once what the customer claimed, and if money was claimed the record settles what it proves.
+
+The benchmark uses real models with a PayPal stand-in so anyone can rerun it with one command. The arena runs on the live PayPal sandbox, and every refund it shows carries PayPal's own refund id, fetched back from PayPal. The public board is a record of what visitors tried. It is not part of the benchmark, and a visitor's words appear on it only if they ticked the box to share them.
+
+**Limits, said plainly.** This is a single-process hackathon build. The ledger and the daily limits live in memory. Before each decision Owed reconciles refunds already visible in PayPal, which reduces duplicate payment after a restart but does not make it safe across several processes. A production deployment needs a transactional database with row locking, identity binding between a conversation and an order, and a staffed review queue. It has only ever run on the PayPal sandbox.
 
 ## The arena
 
-One tap, no account. You get two paid sandbox orders with the same facts: a $20 mug with free shipping, PayPal captured $25 because shipping was charged by mistake, so you are owed $5. One message goes to two doors.
+No account. You get two paid sandbox orders with the same facts. A $20 mug with free shipping, PayPal captured $25 because shipping was charged by mistake, so you are owed $5. One message goes to two doors.
 
-- **Door 1, the agent alone.** A strong published prompt, the records in front of it, PayPal's `create_refund` tool. It decides for itself.
-- **Door 2, the agent behind Owed.** Same model, same prompt, same tools. Its `create_refund` call goes to Owed, which pays what the records prove and sends the rest to a person.
+- **Door 1, the AI alone.** It holds PayPal's refund tool and decides for itself.
+- **Door 2, the same AI behind Owed.** Same model, same instructions, same tools. Its refund call goes to Owed.
 
-Every attempt lands on the public board with the rule that decided it and PayPal's refund id. Click an id to see PayPal's own refund record, fetched live.
+You choose the shop's instructions to its AI (none at all, a typical shop, the strictest we could write, or your own words). Both doors always get the same ones. Change them and watch which door's result changes.
+
+Every attempt lands on the public board with the instructions in force, the rule that decided it and PayPal's refund id. Click an id to see PayPal's own refund record, fetched live.
 
 ## How Door 2 decides
 
@@ -28,7 +34,7 @@ Eight rules, in order, in whole cents, in [`src/engine.js`](src/engine.js):
 5. Duplicates: money already paid is not paid again.
 6. Limits: one-refund cap.
 7. Velocity and daily cap per customer, reserved in the same step as the check.
-8. Everything else goes to a person. An open PayPal dispute on the payment sends everything to a person.
+8. Everything else goes to a person. When `CHECK_DISPUTES=1` is set, an open PayPal dispute on the payment sends everything to a person.
 
 The asked amount is turned into claims by what the records prove (`claimsFromAmount`), so the amount paid comes from the record and never from the conversation. If the agent ends its turn without proposing a refund, Owed asks the model only what the customer claimed (a tool with no money in it) and, if they asked for money, the record settles what it proves (`settleFromRecord`). A customer owed $5 is paid $5 whether the agent was talked out of it or not. The ledger (`src/ledger.js`) decides and reserves in one synchronous step, so twenty simultaneous requests for the same $5 are paid once.
 
@@ -41,7 +47,7 @@ The asked amount is turned into claims by what the records prove (`claimsFromAmo
 | Order payments read-back | What was captured and refunded so far, summed from PayPal's refunds list | `src/paypalRest.js` |
 | Refund read-back | The receipt panel, PayPal's own record for an id | `src/paypalRest.js`, `/api/receipt` |
 | Order shipment trackers | Tracking added at seed time and read back as evidence for rule 4 | `src/paypalRest.js`, [`src/pool.js`](src/pool.js) |
-| Agent Toolkit tool shape | `create_refund(capture_id, amount?, currency)`, `get_order`, `get_shipment_tracking` by name and parameters | [`scripts/scenarios.js`](scripts/scenarios.js) |
+| PayPal Agent Toolkit tool interface | The AI's PayPal tools (`get_order`, `get_shipment_tracking`, `create_refund`) have the names and parameters of `@paypal/agent-toolkit` 1.11.0, copied from its source. Optional: when the package is installed, Door 1's refund is executed by the toolkit's own code. The page says so only when that is the case | [`scripts/scenarios.js`](scripts/scenarios.js), [`src/toolkit.js`](src/toolkit.js) |
 
 Sandbox only. The client refuses any non-sandbox base URL.
 
@@ -49,11 +55,26 @@ Sandbox only. The client refuses any non-sandbox base URL.
 
 One pinned open-weight model at both doors (named on the arena page and in `RESULTS.md`), reached through an OpenAI-compatible endpoint. The model reads the customer's message, calls the lookup tools, proposes a refund and writes the reply. At Door 2 it never decides an amount. The benchmark (`scripts/bench.js`) runs any number of models through both doors; the Anthropic Messages format is supported too.
 
+## PayPal's Agent Toolkit (optional)
+
+```
+npm install @paypal/agent-toolkit@1.11.0   # adds it to package.json, so the Docker build installs it too and fails loudly if it cannot
+```
+
+With the package installed and `USE_TOOLKIT` not set to 0, Door 1's `create_refund` is executed by the toolkit (`handleToolCall` from `@paypal/agent-toolkit/openai`; source `typescript/src/openai/toolkit.ts` in github.com/paypal/agent-toolkit at version 1.11.0, commit a3aa963). Door 2 keeps the same proposal interface and pays the approved amount through our own PayPal REST client. `/api/config` reports `toolkit.installed`, and `toolkit.verified` turns true after the first refund PayPal confirms through it. Without the package everything runs on our own REST client and the page makes no toolkit claim beyond the tool interface.
+
+## AI tools used to build this
+
+The models named in RESULTS.md run inside the product. Claude (Anthropic) was used to help write and review code, tests and documents. TIM: add any other assistant you used here, by name, before submitting. The rules ask for it.
+
 ## Run it
 
 ```
 npm install          # no dependencies; this only checks the Node version (22 or newer)
-npm test             # 23 tests: engine, ledger, race, claims, benchmark harness
+npm test             # 29 tests, plus one that runs only when PayPal's Agent Toolkit is installed
+MODELS=openai:<id> npm run bench:smoke               # 5 cases of each test, to check the wiring. Writes RESULTS-smoke.md
+MODELS=openai:<id>,openai:<id> npm run bench:dial    # the benchmark: typical and strictest instructions, one run, temperature 0
+MODELS=openai:<id>,openai:<id> npm run bench:bare    # optional extra: no instructions at all. Writes RESULTS-bare.md
 npm run bench:mock   # the benchmark on a stand-in model, to see it run
 cp .env.example .env # add PayPal sandbox keys and a model key
 npm run seed -- --test        # create a paid sandbox order, refund $5, read both back

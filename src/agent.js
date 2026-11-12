@@ -4,6 +4,8 @@
 //   openai:<model id>      needs OPENAI_API_KEY, and OPENAI_BASE_URL for any compatible provider
 //   mock:gullible          no key, a stand-in that is easily fooled, for checking the harness
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 0 repeats the same answer every time. Set TEMPERATURE=0.7 when you repeat cases with RUNS, so the runs are independent.
+const TEMPERATURE = Number(process.env.TEMPERATURE ?? 0);
 
 async function post(url, headers, body, fetchFn) {
   for (let attempt = 0; ; attempt++) {
@@ -15,13 +17,13 @@ async function post(url, headers, body, fetchFn) {
 }
 
 async function anthropicLoop({ model, system, tools, turns, exec, fetchFn, env, maxSteps }) {
-  const messages = []; const usage = { in: 0, out: 0 }; let finalText = '';
+  const messages = []; const usage = { in: 0, out: 0, requests: 0 }; let finalText = '';
   for (const turn of turns) {
     messages.push({ role: 'user', content: turn });
     for (let step = 0; step < maxSteps; step++) {
       const out = await post('https://api.anthropic.com/v1/messages', { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-        { model, max_tokens: 1024, system, tools, messages }, fetchFn);
-      usage.in += out.usage?.input_tokens ?? 0; usage.out += out.usage?.output_tokens ?? 0;
+        { model, max_tokens: 1024, temperature: TEMPERATURE, system, tools, messages }, fetchFn);
+      usage.requests++; usage.in += out.usage?.input_tokens ?? 0; usage.out += out.usage?.output_tokens ?? 0;
       messages.push({ role: 'assistant', content: out.content });
       finalText = out.content.filter((b) => b.type === 'text').map((b) => b.text).join(' ') || finalText;
       const uses = out.content.filter((b) => b.type === 'tool_use');
@@ -37,12 +39,12 @@ async function anthropicLoop({ model, system, tools, turns, exec, fetchFn, env, 
 async function openaiLoop({ model, system, tools, turns, exec, fetchFn, env, maxSteps }) {
   const base = (env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1').replace(/\/$/, '');
   const fns = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.input_schema } }));
-  const messages = [{ role: 'system', content: system }]; const usage = { in: 0, out: 0 }; let finalText = '';
+  const messages = [{ role: 'system', content: system }]; const usage = { in: 0, out: 0, requests: 0 }; let finalText = '';
   for (const turn of turns) {
     messages.push({ role: 'user', content: turn });
     for (let step = 0; step < maxSteps; step++) {
-      const out = await post(`${base}/chat/completions`, { authorization: `Bearer ${env.OPENAI_API_KEY}` }, { model, messages, tools: fns, temperature: 0 }, fetchFn);
-      usage.in += out.usage?.prompt_tokens ?? 0; usage.out += out.usage?.completion_tokens ?? 0;
+      const out = await post(`${base}/chat/completions`, { authorization: `Bearer ${env.OPENAI_API_KEY}` }, { model, messages, tools: fns, temperature: TEMPERATURE }, fetchFn);
+      usage.requests++; usage.in += out.usage?.prompt_tokens ?? 0; usage.out += out.usage?.completion_tokens ?? 0;
       const msg = out.choices[0].message; messages.push(msg);
       if (msg.content) finalText = msg.content;
       if (!msg.tool_calls?.length) break;
@@ -59,9 +61,9 @@ async function openaiLoop({ model, system, tools, turns, exec, fetchFn, env, max
 async function mockLoop({ turns, exec }) {
   for (const turn of turns) {
     const nums = [...String(turn).matchAll(/\$\s?(\d+(?:\.\d+)?)/g)].map((m) => Number(m[1]));
-    await exec('create_refund', nums.length ? { capture_id: 'CAP1', amount: Math.max(...nums), currency: 'USD' } : { capture_id: 'CAP1' });
+    await exec('create_refund', nums.length ? { capture_id: 'CAP1', amount: { currency_code: 'USD', value: Math.max(...nums).toFixed(2) } } : { capture_id: 'CAP1' });
   }
-  return { usage: { in: 0, out: 0 }, finalText: 'Done.' };
+  return { usage: { in: 0, out: 0, requests: 0 }, finalText: 'Done.' };
 }
 
 export function parseModel(spec) {

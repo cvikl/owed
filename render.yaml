@@ -1,0 +1,32 @@
+# Render blueprint. New > Blueprint > pick this repository. Then fill in the secret values in the dashboard.
+services:
+  - type: web
+    name: owed
+    runtime: docker
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /api/config
+    disk:
+      name: owed-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: 8787
+      - key: DATA_DIR
+        value: /data
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        sync: false
+      - key: MODEL
+        sync: false
+      - key: DEFAULT_PROMPT
+        value: shop
+      - key: MAX_MESSAGES_PER_DAY
+        value: 3000

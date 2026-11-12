@@ -58,6 +58,9 @@ export class Pool {
     if (this.live && order.trackingNumber) {
       try { const t = await this.paypal.getTracking(order.id); if (t) tracking = { ...t, source: 'paypal' }; } catch { /* keep the shop record */ }
     }
-    return { order: { id: order.id, sessionId: order.sessionId, customerId: order.customerId, totalCents: order.totalCents, status: order.status }, captures: [capture], tracking };
+    // An open PayPal dispute sends everything to a person. Only checked when CHECK_DISPUTES=1, once the call is confirmed on your sandbox app.
+    let dispute = null;
+    if (this.live && process.env.CHECK_DISPUTES === '1') { try { dispute = await this.paypal.getOpenDispute(order.captureId); } catch { dispute = { status: 'UNAVAILABLE' }; } } // a failed check never counts as "no dispute"
+    return { order: { id: order.id, sessionId: order.sessionId, customerId: order.customerId, totalCents: order.totalCents, status: order.status }, captures: [capture], tracking, dispute };
   }
 }

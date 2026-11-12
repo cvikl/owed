@@ -17,6 +17,9 @@ export const DEFAULT_RULES = {
   maxPerCustomerDayCents: 5000,
   maxRefundsPerCustomerDay: 3,
   notDeliveredAfterDays: 14,
+  // A shipment that is only late is not proof it never arrived. Off by default, so an old order
+  // cannot turn "it never came" into an automatic refund. A shop may switch it on.
+  payOverdueShipments: false,
 };
 
 const isCents = (n) => Number.isInteger(n) && n > 0;
@@ -63,7 +66,7 @@ export function provable(records, rules = DEFAULT_RULES) {
   if (order.status === 'CANCELLED_BEFORE_SHIP' && !tracking?.status) out.CANCELLED = goods;
   // A cancelled shipment never arrived. A shipment still on its way past the shop's limit is treated the same.
   const lost = ['CANCELLED', 'LOST', 'RETURNED_TO_SENDER'].includes(tracking?.status);
-  const overdue = ['SHIPPED', 'ON_HOLD', 'IN_TRANSIT'].includes(tracking?.status) && (tracking.daysSinceShipped ?? 0) > rules.notDeliveredAfterDays;
+  const overdue = rules.payOverdueShipments === true && ['SHIPPED', 'ON_HOLD', 'IN_TRANSIT'].includes(tracking?.status) && (tracking.daysSinceShipped ?? 0) > rules.notDeliveredAfterDays;
   if (order.status !== 'CANCELLED_BEFORE_SHIP' && (lost || overdue)) out.NOT_RECEIVED = goods;
   return out;
 }
@@ -89,8 +92,8 @@ export function decide(proposal, records, rules = DEFAULT_RULES, paid = {}) {
   trace.push({ rule: 1, result: 'PASS' });
 
   // An open PayPal dispute on the same payment. Refunding now could pay the customer twice.
-  if (OPEN_DISPUTE.includes(records.dispute?.status)) {
-    const reason = 'A PayPal dispute is open on this payment. A person decides';
+  if (OPEN_DISPUTE.includes(records.dispute?.status) || records.dispute?.status === 'UNAVAILABLE') {
+    const reason = records.dispute.status === 'UNAVAILABLE' ? 'PayPal dispute status could not be checked. A person decides' : 'A PayPal dispute is open on this payment. A person decides';
     return {
       rulesVersion: rules.version, requestId: proposal.requestId, trace: [...trace, { rule: 5, result: 'REVIEW', reason }],
       claims: (proposal.claims ?? []).map((c) => ({ ...c, verdict: VERDICT.REVIEW, payCents: 0, rule: 5, reason })),
@@ -112,6 +115,13 @@ export function decide(proposal, records, rules = DEFAULT_RULES, paid = {}) {
 
   const owed = provable(records, rules);
   const paidByReason = { ...(paid.byReason ?? {}) }; // running total, so two claims of one kind in one message cannot both be paid
+  // PayPal may show refunds this ledger does not know about: a restart, another instance, a refund made by hand.
+  // Count that money against what the records prove, so a lost ledger can never pay the same debt twice.
+  let unexplained = Math.max(0, refundedAtPayPal - Object.values(paidByReason).reduce((s, n) => s + n, 0));
+  for (const type of Object.keys(owed)) {
+    const take = Math.min(Math.max(0, owed[type] - (paidByReason[type] ?? 0)), unexplained);
+    if (take > 0) { paidByReason[type] = (paidByReason[type] ?? 0) + take; unexplained -= take; }
+  }
   let pay = 0;
   let dayCents = paid.customerDayCents ?? 0;
   let dayCount = paid.customerDayCount ?? 0;

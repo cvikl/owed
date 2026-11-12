@@ -18,12 +18,12 @@ export async function labelClaims(customerText, { model, tag = '' } = {}) {
  * Run one customer turn. `tools` is { name: async (input) => result }.
  * Returns { reply, steps: [{ name, input, result, ms }], messages } where messages is the history to keep.
  */
-export async function runTurn({ history, userText, tools, system = SYSTEM, model, tag = '', maxSteps = 8 }) {
+export async function runTurn({ history, userText, tools, toolDefs = TOOLS, system = SYSTEM, model, tag = '', maxSteps = 8 }) {
   const messages = [...history, { role: 'user', text: userText }];
   const steps = [];
   let reply = '';
   for (let step = 0; step < maxSteps; step++) {
-    const out = await chat({ system, messages, tools: TOOLS, model, tag });
+    const out = await chat({ system, messages, tools: toolDefs, model, tag });
     messages.push({ role: 'assistant', text: out.text, toolCalls: out.toolCalls });
     if (!out.toolCalls.length) { reply = out.text; break; }
     if (out.text) reply = out.text;

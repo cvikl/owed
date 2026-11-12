@@ -271,6 +271,9 @@ footer{margin:36px auto 28px}
 .hud-v.red{color:var(--red)}.hud-v.green{color:var(--green)}
 .hud-s{display:block;font-size:12px;color:var(--mute);margin-top:2px}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+.more-all{margin-top:18px}.more-all>summary{font-size:14px;color:var(--ink-2);font-weight:600;padding:10px 0}
+.more-all.second{margin-top:8px}
+.dialbar.under{margin-top:12px}
 .arena-box{margin:14px 0 0;border:1px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden;box-shadow:0 1px 2px rgba(16,22,20,.06),0 24px 60px -30px rgba(16,22,20,.3)}
 .arena-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--wash)}
 .levels button{font-weight:600}
@@ -320,8 +323,8 @@ footer{margin:36px auto 28px}
 </div>
 <div class="try" id="top">
   <h1>Can you get money past Owed?</h1>
-  <p>Write to the shop's AI. The same message goes to the AI alone and to the AI behind Owed, on two real sandbox orders. Every dollar the AI alone pays beyond what is owed is your score. Past Owed, nobody has scored yet.</p>
-  <div class="hud">
+  <p>One message goes to the AI alone and to the AI behind Owed, on two real PayPal sandbox orders. Watch where the money goes.</p>
+  <div class="hud" hidden>
     <div class="hud-cell"><span class="hud-l">Your score</span><b class="hud-v num" id="hud-you">$0.00</b><span class="hud-s" id="hud-round">no attack sent yet</span></div>
     <div class="hud-cell"><span class="hud-l">Best score today</span><b class="hud-v num red" id="hud-best">$0.00</b><span class="hud-s" id="hud-best-s">out of the AI alone</span></div>
     <div class="hud-cell shield"><span class="hud-l">Owed has blocked</span><b class="hud-v num green" id="hud-blocked">0 of 0</b><span class="hud-s">attacks, nothing got past</span></div>
@@ -364,14 +367,17 @@ footer{margin:36px auto 28px}
     <div class="score" id="score" hidden><canvas id="coins" width="1100" height="1" aria-hidden="true" hidden></canvas><div class="score-line" id="score-line"></div></div>
   </div>
   <canvas id="confetti" aria-hidden="true"></canvas>
-</div>
-<section id="arena" style="padding-top:0">
-  <h2 class="sr">Try it</h2>
-  <div class="dialbar"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div>
+  <div class="dialbar under"><span class="dl">Shop's instructions</span><div class="seg" id="seg" role="group" aria-label="The shop's instructions"></div>
     <label class="sr" for="custom">Your own instructions for the AI</label>
     <textarea id="custom" hidden maxlength="2000" placeholder="Your instructions. Both doors get exactly these words."></textarea>
     <details class="prompt-d"><summary>The instructions in use</summary><div class="prompt" id="prompt"></div></details>
   </div>
+
+</div>
+<section id="arena" style="padding-top:0">
+  <h2 class="sr">Try it</h2>
+  <details class="more-all"><summary>More: the two orders in detail, your score, the audit and the public board</summary>
+  <div class="hud-slot"></div>
   <div class="cases">
   <div class="case refuse" id="case-mug">
     <div class="case-head">
@@ -438,6 +444,8 @@ footer{margin:36px auto 28px}
     </div>
   </div>
   </div>
+  <div class="more-rest"></div>
+  </details>
 </section>
 <div hidden aria-hidden="true">
   <span id="f-order"></span>
@@ -453,6 +461,7 @@ footer{margin:36px auto 28px}
   <details><summary>Full response</summary><pre id="receipt"></pre></details>
 </section>
 
+<details class="more-all second"><summary>The audit and the public board</summary>
 <section id="audit">
   <h2>Audit the instructions you picked</h2>
   <p class="lead">All 54 adversarial cases, AI alone against Owed.</p>
@@ -479,6 +488,7 @@ footer{margin:36px auto 28px}
   <div id="detail" class="detail" hidden></div>
 </section>
 
+</details>
 <footer><span>Sandbox money only.</span><span id="model-line"></span><span><a href="index.html">How it works, the benchmark and the PayPal surfaces</a></span></footer>
 </div>
 <script src="flow.js"></script>

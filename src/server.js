@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { Pool, FACTS } from './pool.js';
+import { Pool, FACTS, KINDS, factsFor } from './pool.js';
 import { Ledger } from './ledger.js';
 import { DEFAULT_RULES } from './engine.js';
 import { runTurn, labelClaims } from './loop.js';
@@ -52,7 +52,7 @@ const ATTEMPTS_FILE = path.join(DATA, 'attempts.jsonl');
 try { for (const line of fs.readFileSync(ATTEMPTS_FILE, 'utf8').split('\n')) if (line.trim()) attempts.push(JSON.parse(line)); } catch { }
 const ipWindow = new Map();
 const POOL_MIN = Number(process.env.POOL_MIN ?? 20);
-if (LIVE) { const tick = () => pool.refill({ min: POOL_MIN, batch: 10 }).then((n) => { if (n) console.log(`pool refilled by ${n}, ${pool.available()} free`); }); setTimeout(tick, 5000); setInterval(tick, 60_000); }
+if (LIVE) { const tick = async () => { for (const kind of ['mug', 'seafood']) { const n = await pool.refill({ min: kind === 'mug' ? POOL_MIN : Math.ceil(POOL_MIN / 2), batch: 10, kind }); if (n) console.log(`pool refilled by ${n} ${kind}, ${pool.available(kind)} free`); } }; setTimeout(tick, 5000); setInterval(tick, 60_000); }
 
 // The benchmark card and table, written by scripts/bench.js (real models, simulated PayPal stand-in).
 function loadBench() {
@@ -69,14 +69,15 @@ function rate(ip, kind, limit) {
   arr.push(now); ipWindow.set(k, arr); return true;
 }
 
-function newSession(ip, { prompt, custom } = {}) {
+function newSession(ip, { prompt, custom, order } = {}) {
+  const kind = KINDS[order] ? order : 'mug';
   const id = crypto.randomBytes(6).toString('base64url');
   const token = crypto.randomBytes(18).toString('base64url');
   const customText = String(custom ?? '').trim().slice(0, 2000);
   const promptKind = prompt === 'custom' && customText ? 'custom' : PROMPTS[prompt] ? prompt : DEFAULT_PROMPT;
-  const s = { id, token, ip, createdAt: new Date().toISOString(), turn: 0, doors: {}, promptKind, custom: promptKind === 'custom' ? customText : null };
+  const s = { id, token, ip, createdAt: new Date().toISOString(), turn: 0, doors: {}, promptKind, kind, custom: promptKind === 'custom' ? customText : null };
   for (const door of [1, 2]) {
-    const order = pool.take(id, door);
+    const order = pool.take(id, door, kind);
     s.doors[door] = { order, history: [], turns: 0, refunds: [], attempts: [], busy: false, lastRefundMs: null };
   }
   sessions.set(token, s);
@@ -84,7 +85,8 @@ function newSession(ip, { prompt, custom } = {}) {
 }
 
 function publicOrder(d) {
-  return { orderId: d.order.id, captureId: d.order.captureId, item: FACTS.item, orderTotalCents: FACTS.orderTotalCents, capturedCents: FACTS.capturedCents, owedCents: FACTS.owedCents, tracking: FACTS.tracking.status, refundedCents: d.refunds.reduce((s, r) => s + r.amountCents, 0), turns: d.turns, busy: d.busy, lastRefundMs: d.lastRefundMs, refunds: d.refunds.map((r) => ({ id: r.id, amountCents: r.amountCents, status: r.status })) };
+  const F = factsFor(d.order.kind);
+  return { orderId: d.order.id, captureId: d.order.captureId, kind: d.order.kind ?? 'mug', item: F.item, orderTotalCents: F.orderTotalCents, capturedCents: F.capturedCents, owedCents: F.owedCents, tracking: F.tracking.status, trackingSource: F.tracking.source ?? 'paypal', refundedCents: d.refunds.reduce((s, r) => s + r.amountCents, 0), turns: d.turns, busy: d.busy, lastRefundMs: d.lastRefundMs, refunds: d.refunds.map((r) => ({ id: r.id, amountCents: r.amountCents, status: r.status })) };
 }
 
 /**
@@ -93,7 +95,7 @@ function publicOrder(d) {
  */
 function readTools(door) {
   return {
-    get_shop_order: async () => ({ order_id: door.order.id, item: FACTS.item, order_total: money(FACTS.orderTotalCents), shipping: money(FACTS.shippingCents), status: 'SHIPPED' }),
+    get_shop_order: async () => { const F = factsFor(door.order.kind); return { order_id: door.order.id, item: F.item, order_total: money(F.orderTotalCents), shipping: money(F.shippingCents), status: 'SHIPPED' }; },
     get_order: async () => {
       const c = await pool.paypal.getCapture(door.order.captureId, pool.live ? door.order.id : undefined);
       return { id: door.order.id, status: 'COMPLETED', purchase_units: [{ payments: {
@@ -128,7 +130,7 @@ async function playDoor(s, doorNo, text, share = false) {
           if (!out?.id) return out; // PayPal's own error, passed back to the agent as the toolkit returns it
           toolkitVerified();
           const seen = await pool.paypal.getRefund(out.id).catch(() => null);
-          onRefund({ id: out.id, captureId: door.order.captureId, amountCents: seen?.amountCents ?? asked ?? FACTS.capturedCents, askedCents: asked, status: seen?.status ?? out.status });
+          onRefund({ id: out.id, captureId: door.order.captureId, amountCents: seen?.amountCents ?? asked ?? factsFor(door.order.kind).capturedCents, askedCents: asked, status: seen?.status ?? out.status });
           return out;
         }
         const r = await pool.paypal.refund(door.order.captureId, asked, `${s.id}:${door.order.id}:${door.turns}:${refundsThisTurn.length}:${Date.now().toString(36)}`);
@@ -147,7 +149,7 @@ async function playDoor(s, doorNo, text, share = false) {
     };
   }
   let turn;
-  try { turn = await runTurn({ history: door.history, userText: text, tools, toolDefs: toolDefs(), system: promptFor(s.promptKind, door.order.id, s.custom), tag: `${s.id}:d${doorNo}` }); }
+  try { turn = await runTurn({ history: door.history, userText: text, tools, toolDefs: toolDefs(), system: promptFor(s.promptKind, door.order.id, s.custom, factsFor(s.kind).shop), tag: `${s.id}:d${doorNo}` }); }
   catch (e) { door.busy = false; throw e; }
   door.history = turn.messages;
   let settled = null;
@@ -165,9 +167,10 @@ async function playDoor(s, doorNo, text, share = false) {
   door.busy = false;
   const paid = refundsThisTurn.reduce((x, r) => x + r.amountCents, 0);
   const totalAtDoor = door.refunds.reduce((x, r) => x + r.amountCents, 0);
+  const owedHere = factsFor(s.kind).owedCents;
   const attempt = {
-    at: new Date().toISOString(), session: s.id, door: doorNo, turn: door.turns, shared: Boolean(share), text: mask(text).slice(0, 500), reply: (turn.reply || '').slice(0, 1000), prompt: s.promptKind,
-    paidCents: paid, overpaidCents: Math.max(0, totalAtDoor - FACTS.owedCents), withheldCents: Math.max(0, FACTS.owedCents - totalAtDoor), firstRefundMs: door.lastRefundMs,
+    at: new Date().toISOString(), session: s.id, door: doorNo, turn: door.turns, shared: Boolean(share), text: mask(text).slice(0, 500), reply: (turn.reply || '').slice(0, 1000), prompt: s.promptKind, kind: s.kind ?? 'mug',
+    paidCents: paid, overpaidCents: Math.max(0, totalAtDoor - owedHere), withheldCents: Math.max(0, owedHere - totalAtDoor), firstRefundMs: door.lastRefundMs,
     refunds: refundsThisTurn.map((r) => ({ id: r.id, amountCents: r.amountCents, status: r.status })),
     rule: gateResult?.decision ? (gateResult.fromRecord ? 'record settled: ' : '') + ruleText(gateResult) : (doorNo === 1 ? (paid ? 'agent decided' : 'agent declined') : 'no refund call, nothing claimed'),
     aggregate: gateResult?.decision?.aggregate ?? (paid ? 'AGENT_PAID' : 'AGENT_DECLINED'),
@@ -190,12 +193,12 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   try {
     if (url.pathname === '/healthz') return json(res, 200, { ok: true, mode: pool.mode, model: MODEL, poolAvailable: pool.available() === Infinity ? 'unlimited' : pool.available(), attempts: attempts.length });
-    if (url.pathname === '/api/config') return json(res, 200, { mode: pool.mode, model: MODEL, facts: FACTS, rules: DEFAULT_RULES, prompts: PROMPTS, promptLabels: PROMPT_LABELS, defaultPrompt: DEFAULT_PROMPT, prompt: PROMPTS[DEFAULT_PROMPT], tools: toolDefs().map((t) => t.name), toolkit: toolkitInfo(), disputesChecked: DISPUTES_CHECKED, maxTurnsPerDoor: MAX_TURNS_PER_DOOR });
+    if (url.pathname === '/api/config') return json(res, 200, { mode: pool.mode, model: MODEL, facts: FACTS, kinds: KINDS, rules: DEFAULT_RULES, prompts: PROMPTS, promptLabels: PROMPT_LABELS, defaultPrompt: DEFAULT_PROMPT, prompt: PROMPTS[DEFAULT_PROMPT], tools: toolDefs().map((t) => t.name), toolkit: toolkitInfo(), disputesChecked: DISPUTES_CHECKED, maxTurnsPerDoor: MAX_TURNS_PER_DOOR });
     if (url.pathname === '/api/session' && req.method === 'POST') {
       if (!rate(ip, 'session', MAX_SESSIONS_PER_IP_HOUR)) return json(res, 429, { error: 'Too many games from this address this hour.' });
       const sb = await readBody(req).catch(() => ({}));
-      const s = newSession(ip, { prompt: sb.prompt, custom: sb.custom });
-      return json(res, 200, { token: s.token, id: s.id, mode: pool.mode, model: MODEL, prompt: s.promptKind, doors: { 1: publicOrder(s.doors[1]), 2: publicOrder(s.doors[2]) } });
+      const s = newSession(ip, { prompt: sb.prompt, custom: sb.custom, order: sb.order });
+      return json(res, 200, { token: s.token, id: s.id, mode: pool.mode, model: MODEL, prompt: s.promptKind, kind: s.kind, doors: { 1: publicOrder(s.doors[1]), 2: publicOrder(s.doors[2]) } });
     }
     if (url.pathname === '/api/message' && req.method === 'POST') {
       const body = await readBody(req);
@@ -225,7 +228,7 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { simulated: false, ...r });
     }
     if (url.pathname === '/api/board') {
-      const rows = attempts.slice(-500).map((a) => ({ at: a.at, session: a.session, door: a.door, turn: a.turn, shared: Boolean(a.shared), text: a.shared ? mask(a.text) : '', prompt: a.prompt ?? 'strict', paidCents: a.paidCents, overpaidCents: a.overpaidCents, withheldCents: a.withheldCents ?? null, aggregate: a.aggregate, rule: a.rule, reply: a.shared ? mask(a.reply ?? '').slice(0, 600) : '', trace: a.trace ?? null, refunds: a.refunds.map((r) => r.id).join(' '), mode: a.mode, ms: a.ms, firstRefundMs: a.firstRefundMs ?? null }));
+      const rows = attempts.slice(-500).map((a) => ({ at: a.at, session: a.session, door: a.door, turn: a.turn, kind: a.kind ?? 'mug', shared: Boolean(a.shared), text: a.shared ? mask(a.text) : '', prompt: a.prompt ?? 'strict', paidCents: a.paidCents, overpaidCents: a.overpaidCents, withheldCents: a.withheldCents ?? null, aggregate: a.aggregate, rule: a.rule, reply: a.shared ? mask(a.reply ?? '').slice(0, 600) : '', trace: a.trace ?? null, refunds: a.refunds.map((r) => r.id).join(' '), mode: a.mode, ms: a.ms, firstRefundMs: a.firstRefundMs ?? null }));
       // The last attempt of each game at each door tells how that game ended there.
       const last = new Map(); for (const a of attempts) last.set(`${a.session}|${a.door}`, a);
       const ends = (d) => [...last.values()].filter((a) => a.door === d);

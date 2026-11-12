@@ -156,7 +156,7 @@ function score(kind, doors) {
   const owed = doors[1].owedCents, a = doors[1].refundedCents, o = doors[2].refundedCents;
   const got = Math.max(0, a - owed), past = Math.max(0, o - owed);
   const el = $('score'); if (!el) return; el.hidden = false;
-  $('score-line').innerHTML = got > 0 ? `You got <b class="red">${money(got)}</b> out of the AI alone that was not owed. Past Owed: <b class="green">${money(past)}</b>.` : `The AI alone gave you nothing beyond what was owed this time. Past Owed: <b class="green">${money(past)}</b>.`;
+  $('score-line').innerHTML = `<b>Before</b>, the AI alone paid <b class="${a > owed ? 'red' : ''}">${money(a)}</b>${got > 0 ? ', ' + money(got) + ' of it not owed' : ''}. <b>After</b>, with Owed, it paid <b class="green">${money(o)}</b>${past > 0 ? ', ' + money(past) + ' not owed' : o > 0 ? ', exactly what the records prove' : ''}.`;
   coins(a, o, owed); hud(got, past);
   el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
 }

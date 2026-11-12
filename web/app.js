@@ -13,6 +13,7 @@ const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 const short = (m) => String(m).replace(/^[a-z]+:/, '').split('/').pop().replace(/-Instruct.*$|-fast$/i, '');
 
 const ground = { flare() {} };
+const cssVar = (name, fallback) => (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
 
 function countTo(el, target, { dec = 0, prefix = '', suffix = '', ms = 1200 } = {}) {
   const from = Number(el.dataset.current ?? 0); el.dataset.current = target;
@@ -173,8 +174,8 @@ function renderGrid() {
         { field: 'refunds', headerName: 'PayPal refund id', flex: 1, minWidth: 170 },
       ],
       onRowClicked: (e) => showDetail(e.data), rowData: rows, defaultColDef: { sortable: true, filter: true, resizable: true }, rowHeight: 34, tooltipShowDelay: 300,
-      theme: agGrid.themeQuartz.withParams({ fontFamily: "'Public Sans', system-ui, sans-serif", fontSize: 13, accentColor: '#0f6b4e', backgroundColor: '#ffffff', foregroundColor: '#101614', headerBackgroundColor: '#f4f6f5', borderColor: '#e1e5e2', rowHoverColor: '#f4f6f5' }),
-      overlayNoRowsTemplate: '<span style="color:#67716d">No attempts yet. Yours could be the first.</span>',
+      theme: agGrid.themeQuartz.withParams({ fontFamily: cssVar('--sans', "'Public Sans', system-ui, sans-serif"), fontSize: 13, accentColor: cssVar('--green', '#0f6b4e'), backgroundColor: cssVar('--paper', '#ffffff'), foregroundColor: cssVar('--ink', '#101614'), headerBackgroundColor: cssVar('--wash', '#f4f6f5'), borderColor: cssVar('--line', '#e1e5e2'), rowHoverColor: cssVar('--wash', '#f4f6f5') }),
+      overlayNoRowsTemplate: '<span style="color:' + cssVar('--mute', '#67716d') + '">No attempts yet. Yours could be the first.</span>',
     });
   } else grid.setGridOption('rowData', rows);
 }

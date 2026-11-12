@@ -290,9 +290,9 @@ footer{margin:36px auto 28px}
 .arena-hint{font-size:12px;color:var(--mute)}
 .flow{padding:6px 10px 0;background:linear-gradient(180deg,#fff,var(--wash))}
 .flow svg{display:block;width:100%;height:auto}
-.ribbons path{opacity:.9;transition:stroke-width .7s cubic-bezier(.2,.8,.2,1),stroke .3s;stroke-linecap:round}
-.ribbons path.draw{animation:drawin .9s cubic-bezier(.2,.8,.2,1) both}
-@keyframes drawin{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+.ribbons path{opacity:.9;transition:stroke-width .45s cubic-bezier(.2,.8,.2,1),stroke .25s;stroke-linecap:round;will-change:stroke-dashoffset}
+.ribbons path.draw{stroke-dasharray:1;animation:drawin .7s cubic-bezier(.16,1,.3,1) both}
+@keyframes drawin{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 .labels text{opacity:0;transition:opacity .4s}.labels text.show{opacity:1}
 .lanes .lp{fill:var(--wash);stroke:var(--line)}.lanes text{fill:var(--mute)}
 .ic{fill:none;stroke:var(--ink-2);stroke-width:1.6}.icf{fill:var(--ink-2)}
@@ -357,13 +357,13 @@ footer{margin:36px auto 28px}
         <title id="flow-t">What happens to one message: the AI alone pays PayPal straight away; behind Owed, code checks the records, PayPal pays what they prove and the rest goes to a person</title>
         <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
         <g class="ribbons" fill="none" stroke-linecap="round">
-          <path id="r-msg1" d="M170 210C240 210 240 110 300 110" stroke-width="0"/>
-          <path id="r-msg2" d="M170 210C240 210 240 310 300 310" stroke-width="0"/>
-          <path id="r-ask1" d="M480 110H872" stroke-width="0"/>
-          <path id="r-ask2" d="M480 310H620" stroke-width="0"/>
-          <path id="r-pay2" d="M780 300C830 300 830 260 880 260" stroke-width="0"/>
-          <path id="r-person" d="M780 320C830 320 830 370 880 370" stroke-width="0"/>
-          <path id="r-pay1" d="M870 110H878" stroke-width="0"/>
+          <path id="r-msg1" d="M170 210C240 210 240 110 300 110" pathLength="1" stroke-width="0"/>
+          <path id="r-msg2" d="M170 210C240 210 240 310 300 310" pathLength="1" stroke-width="0"/>
+          <path id="r-ask1" d="M480 110H872" pathLength="1" stroke-width="0"/>
+          <path id="r-ask2" d="M480 310H620" pathLength="1" stroke-width="0"/>
+          <path id="r-pay2" d="M780 300C830 300 830 260 880 260" pathLength="1" stroke-width="0"/>
+          <path id="r-person" d="M780 320C830 320 830 370 880 370" pathLength="1" stroke-width="0"/>
+          <path id="r-pay1" d="M870 110H878" pathLength="1" stroke-width="0"/>
         </g>
         <g class="labels" font-family="var(--mono)" font-size="12" text-anchor="middle">
           <text id="r-msg1-l" x="250" y="150"></text><text id="r-msg2-l" x="250" y="280"></text>

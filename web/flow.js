@@ -16,8 +16,8 @@
     const el = $(id); if (!el) return; const w = cents > 0 ? Math.max(3, (cents / max) * MAXW) : 0;
     const was = Number(el.style.strokeWidth) || 0;
     el.style.strokeWidth = w; el.style.stroke = col; el.classList.toggle('on', cents > 0);
-    if (cents > 0 && was === 0 && !reduced) { const len = el.getTotalLength(); el.style.setProperty('--len', len); el.style.strokeDasharray = len; el.style.strokeDashoffset = len; el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); }
-    if (cents === 0) { el.classList.remove('draw'); el.style.strokeDasharray = ''; }
+    if (cents > 0 && was === 0 && !reduced) { el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); }
+    if (cents === 0) el.classList.remove('draw');
     const lab = $(id + '-l'); if (lab) { lab.textContent = cents > 0 ? money(cents) : ''; lab.setAttribute('fill', col); lab.classList.toggle('show', cents > 0); }
   }
   function label(id, text) { const lab = $(id); if (!lab) return; lab.textContent = text; lab.classList.toggle('show', Boolean(text)); }
@@ -43,7 +43,7 @@
     reset(facts); note('f-msg', text.length > 60 ? text.slice(0, 58) + '…' : text);
     node('f-customer', 'active');
     const col = getComputedStyle(document.documentElement).getPropertyValue('--line-strong').trim() || '#b8c0bb';
-    later(60, () => { for (const id of ['r-msg1', 'r-msg2']) { const el = $(id); el.style.strokeWidth = 3; el.style.stroke = col; if (!reduced) { const len = el.getTotalLength(); el.style.setProperty('--len', len); el.style.strokeDasharray = len; el.style.strokeDashoffset = len; el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); } } label('r-msg1-l', ''); label('r-msg2-l', ''); node('f-ai1', 'active'); node('f-ai2', 'active'); note('f-ai1-n', 'reading the records, talking to PayPal…'); note('f-ai2-n', 'reading the records, talking to PayPal…'); });
+    later(60, () => { for (const id of ['r-msg1', 'r-msg2']) { const el = $(id); el.style.strokeWidth = 3; el.style.stroke = col; if (!reduced) { el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); } } label('r-msg1-l', ''); label('r-msg2-l', ''); node('f-ai1', 'active'); node('f-ai2', 'active'); note('f-ai1-n', 'reading the records, talking to PayPal…'); note('f-ai2-n', 'reading the records, talking to PayPal…'); });
   }
   /* r: { owed, captured, alone: cents paid by the AI alone, owedSide: cents paid behind Owed, asked1, asked2, steps1, steps2, ids1, ids2, person } */
   function finish(r) {

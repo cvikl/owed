@@ -92,7 +92,7 @@ async function newGame(kind) {
 /** Before a game, each column shows the latest game of its kind from the public board, so a judge sees both outcomes without clicking. */
 function resetDoors(kind, fresh) {
   for (const d of [1, 2]) { const a = K(kind, `d${d}-amt`); a.textContent = '$0.00'; a.className = 'amount zero num'; delete a.dataset.current; K(kind, `d${d}-tag`).textContent = fresh ? 'fresh sandbox order' : 'no refund yet'; K(kind, `d${d}-tag`).className = 'tag'; K(kind, `d${d}-reply`).textContent = ''; K(kind, `d${d}-ids`).innerHTML = ''; K(kind, `d${d}-steps`).textContent = ''; K(kind, `d${d}-live`).textContent = ''; K(kind, `d${d}-live`).className = 'live'; }
-  K(kind, 'timer').textContent = '';
+  K(kind, 'timer').textContent = ''; K(kind, 'sum').hidden = true;
   if (!fresh) paintFromBoard(kind);
 }
 function paintFromBoard(kind) {
@@ -134,6 +134,12 @@ function paint(kind, d, a, doorState) {
   for (const el of ids.querySelectorAll('a')) el.onclick = (ev) => { ev.preventDefault(); receipt(el.dataset.id); };
   K(kind, `d${d}-steps`).textContent = (d === 2 && a.claims ? 'Claims from the record: ' + a.claims.map((c) => `${c.type} ${money(c.amountCents)}`).join(', ') + '\nRules: ' + (a.rule || '') + '\n\n' : '') + (a.steps || []).map((s) => `${s.name}(${JSON.stringify(s.input)}) -> ${JSON.stringify(s.result)}`).join('\n');
 }
+function summarise(kind, doors) {
+  const owed = doors[1].owedCents, a = doors[1].refundedCents, o = doors[2].refundedCents;
+  const alone = a === 0 ? '<b>nothing</b> of the ' + money(owed) + ' owed' : a > owed ? '<b>' + money(a) + '</b>, which is <b>' + money(a - owed) + ' more than was owed</b>' : '<b>exactly the ' + money(a) + ' owed</b>';
+  const behind = o === 0 ? '<b>nothing</b> so far; the case went to a person' : o > owed ? '<b>' + money(o) + '</b>' : '<b>exactly the ' + money(o) + ' owed</b>';
+  const el = K(kind, 'sum'); el.innerHTML = `The AI alone paid ${alone}. Behind Owed, the same AI paid ${behind}.`; el.hidden = false;
+}
 function liveLine(kind, d, ms, over) { const el = K(kind, `d${d}-live`); el.className = 'live' + (over ? ' over' : ''); el.innerHTML = `PayPal confirmed the refund <b>${(ms / 1000).toFixed(1)} s</b> after the message`; }
 
 async function send(kind) {
@@ -157,6 +163,7 @@ async function send(kind) {
     const r = await api('/api/message', { method: 'POST', body: JSON.stringify({ token: session.token, text, share: K(kind, 'share').checked }) });
     polling = false; session.doors = r.doors;
     for (const d of [1, 2]) { if (!(r.attempts[d].paidCents > 0)) K(kind, `d${d}-live`).textContent = ''; paint(kind, d, r.attempts[d], r.doors[d]); }
+    summarise(kind, r.doors);
     const first = r.attempts[2]?.refunds?.[0] || r.attempts[1]?.refunds?.[0]; if (first) receipt(first.id, true);
     loadBoard();
   } catch (e) { K(kind, 'err').textContent = e.message; for (const d of [1, 2]) K(kind, `d${d}-live`).textContent = ''; }

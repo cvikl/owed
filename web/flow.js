@@ -7,7 +7,7 @@
   const $ = (id) => document.getElementById(id);
   const money = (c) => '$' + (c / 100).toFixed(2);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MAXW = 46; // ribbon width for the largest amount on the stage
+  const MAXW = 30; // ribbon width for the largest amount on the stage
   let timers = [];
   const clear = () => { for (const t of timers) clearTimeout(t); timers = []; };
   const later = (ms, fn) => timers.push(setTimeout(fn, reduced ? 0 : ms));
@@ -18,7 +18,7 @@
     el.style.strokeWidth = w; el.style.stroke = col; el.classList.toggle('on', cents > 0);
     if (cents > 0 && was === 0 && !reduced) { el.classList.remove('draw'); void el.getBoundingClientRect(); el.classList.add('draw'); }
     if (cents === 0) el.classList.remove('draw');
-    const lab = $(id + '-l'); if (lab) { lab.textContent = cents > 0 ? money(cents) : ''; lab.setAttribute('fill', col); lab.classList.toggle('show', cents > 0); }
+    const lab = $(id + '-l'); if (lab && !['r-pay1-l', 'r-msg1-l', 'r-msg2-l'].includes(id + '-l')) { lab.textContent = cents > 0 ? money(cents) : ''; lab.setAttribute('fill', col); lab.classList.toggle('show', cents > 0); }
   }
   function label(id, text) { const lab = $(id); if (!lab) return; lab.textContent = text; lab.classList.toggle('show', Boolean(text)); }
   /* a refund PayPal has just confirmed, before the AI has finished writing: the lane's ribbon grows the moment it happens */
